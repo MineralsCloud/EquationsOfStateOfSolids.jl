@@ -43,6 +43,14 @@ function (eos::EnergyEOSS{<:BirchMurnaghan3rd})(v)
     y = x^2 - 1
     return 9 / 16 * b0 * v0 * y^2 * (6 - 4 * x^2 + b′0 * y)
 end
+# function energyeq(p)
+#     v0, b0, b′0 = p.x0
+#     function (v)
+#         x = cbrt(v0 / v)
+#         y = x^2 - 1
+#         return 9 / 16 * b0 * v0 * y^2 * (6 - 4 * x^2 + b′0 * y)
+#     end
+# end
 
 # function (eos::PressureEOSS{<:BirchMurnaghan3rd})(v)
 #     v0, b0, b′0 = eos.params.x0
