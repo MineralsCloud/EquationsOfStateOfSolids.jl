@@ -40,26 +40,21 @@ end
 
 nextorder(::Type{BirchMurnaghan{N}}) where {N} = BirchMurnaghan{N + 1}
 
-abstract type FiniteStrain end
+abstract type FiniteStrain end  # Trait
 struct Eulerian <: FiniteStrain end
 struct Lagrangian <: FiniteStrain end
 struct Natural <: FiniteStrain end
 struct Infinitesimal <: FiniteStrain end
 
-struct StrainFromVolume{T<:FiniteStrain}
-    v0::Any
-end
-(x::StrainFromVolume{Eulerian})(v) = (cbrt(x.v0 / v)^2 - 1) / 2
-(x::StrainFromVolume{Lagrangian})(v) = (cbrt(v / x.v0)^2 - 1) / 2
-(x::StrainFromVolume{Natural})(v) = log(v / x.v0) / 3
-(x::StrainFromVolume{Infinitesimal})(v) = 1 - cbrt(x.v0 / v)
+strain_from_volume(::Eulerian) = (v0, v) -> (cbrt(v0 / v)^2 - 1) / 2
+strain_from_volume(::Lagrangian) = (v0, v) -> (cbrt(v / v0)^2 - 1) / 2
+strain_from_volume(::Natural) = (v0, v) -> log(v / v0) / 3
+strain_from_volume(::Infinitesimal) = (v0, v) -> 1 - cbrt(v0 / v)
+strain_from_volume(::BirchMurnaghan) = strain_from_volume(Eulerian())
 
-struct VolumeFromStrain{T<:FiniteStrain}
-    v0::Any
-end
-(x::VolumeFromStrain{Eulerian})(f) = x.v0 / (2f + 1)^(3 / 2)
-(x::VolumeFromStrain{Lagrangian})(f) = x.v0 * (2f + 1)^(3 / 2)
-(x::VolumeFromStrain{Natural})(f) = x.v0 * exp(3f)
-(x::VolumeFromStrain{Infinitesimal})(f) = x.v0 / (1 - f)^3
+volume_from_strain(::Eulerian) = (v0, f) -> v0 / (2f + 1)^(3 / 2)
+volume_from_strain(::Lagrangian) = (v0, f) -> v0 * (2f + 1)^(3 / 2)
+volume_from_strain(::Natural) = (v0, f) -> v0 * exp(3f)
+volume_from_strain(::Infinitesimal) = (v0, f) -> v0 / (1 - f)^3
 
 end
