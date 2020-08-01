@@ -11,9 +11,6 @@ using ..Collections
 export linfit, nonlinfit
 
 function nonlinfit(eos, xs, ys; kwargs...)
-    params = [eos.v0, eos.b0, eos.b′0, 0]
-    f = costfunction(xs, ys)
-    return optimize(f, params, LevenbergMarquardt())
 end # function nonlinfit
 
 end
