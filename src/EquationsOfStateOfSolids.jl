@@ -1,5 +1,5 @@
 module EquationsOfStateOfSolids
 
-# Write your package code here.
+include("Collections.jl")
 
 end
