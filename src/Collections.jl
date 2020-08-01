@@ -25,17 +25,16 @@ const BirchMurnaghan3rd = BirchMurnaghan{3}
 function energyeq(p::BirchMurnaghan{3})
     v0, b0, b′0 = p.x0
     function (v)
-        x = cbrt(v0 / v)
-        y = x^2 - 1
-        return 9 / 16 * b0 * v0 * y^2 * (6 - 4 * x^2 + b′0 * y)
+        f = cbrt(v0 / v)^2 - 1
+        return 9f^2 / 2 * v0 * b0 * (1 + (b′0 - 4) * f)
     end
 end
 
 function pressureeq(p::BirchMurnaghan{3})
     v0, b0, b′0 = p.x0
     function (v)
-        x = cbrt(v0 / v)
-        return 3 / 2 * b0 * (x^7 - x^5) * (1 + 3 / 4 * (b′0 - 4) * (x^2 - 1))
+        f = cbrt(v0 / v)^2 - 1
+        return 3f / 2 * b0 * sqrt(2f + 1)^5 * (2 + 3f * (b′0 - 4))
     end
 end
 
