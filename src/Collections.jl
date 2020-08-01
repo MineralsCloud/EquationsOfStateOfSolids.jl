@@ -22,16 +22,6 @@ end
 
 const BirchMurnaghan3rd = BirchMurnaghan{3}
 
-# function energyeq(p::BirchMurnaghan{3})
-#     v0, b0, b′0 = p.x0
-#     func = strain_from_volume(p)
-#     function (v)
-#         # f = cbrt(v0 / v)^2 - 1
-#         f = func(v0, v)
-#         return 9f^2 / 2 * v0 * b0 * (1 + (b′0 - 4) * f)
-#     end
-# end
-
 function energyeq(p)
     v0, b0, b′0 = p.x0
     function (v)
@@ -40,22 +30,8 @@ function energyeq(p)
         return 9 / 16 * b0 * v0 * y^2 * (6 - 4 * x^2 + b′0 * y)
     end
 end
-function energyeq2(p)
-    v0, b0, b′0 = p.x0
-    function (v)
-        f = (cbrt(v0 / v)^2 - 1) / 2
-        return 9f^2 / 2 * v0 * b0 * (1 + (b′0 - 4) * f)
-    end
-end
 
 function pressureeq(p::BirchMurnaghan{3})
-    v0, b0, b′0 = p.x0
-    function (v)
-        x = cbrt(v0 / v)
-        return 3 / 2 * b0 * (x^7 - x^5) * (1 + 3 / 4 * (b′0 - 4) * (x^2 - 1))
-    end
-end
-function pressureeq2(p::BirchMurnaghan{3})
     v0, b0, b′0 = p.x0
     function (v)
         f = (cbrt(v0 / v)^2 - 1) / 2
