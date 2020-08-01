@@ -3,7 +3,7 @@ module Collections
 using AutoHashEquals: @auto_hash_equals
 using Unitful: AbstractQuantity, @u_str
 
-export BirchMurnaghan, BirchMurnaghan3rd, energyeq, pressureeq, bulkmoduluseq, nextorder
+export BirchMurnaghan, BirchMurnaghan3rd, energyeos, pressureeos, bulkmoduluseos, nextorder
 
 abstract type Parameters{T} end
 
@@ -22,7 +22,7 @@ end
 
 const BirchMurnaghan3rd = BirchMurnaghan{3}
 
-function energyeq(p)
+function energyeos(p::BirchMurnaghan{3})
     v0, b0, b′0 = p.x0
     function (v)
         x = cbrt(v0 / v)
@@ -31,7 +31,7 @@ function energyeq(p)
     end
 end
 
-function pressureeq(p::BirchMurnaghan{3})
+function pressureeos(p::BirchMurnaghan{3})
     v0, b0, b′0 = p.x0
     function (v)
         f = (cbrt(v0 / v)^2 - 1) / 2
