@@ -40,5 +40,26 @@ end
 
 nextorder(::Type{BirchMurnaghan{N}}) where {N} = BirchMurnaghan{N + 1}
 
+abstract type FiniteStrain end
+struct Eulerian <: FiniteStrain end
+struct Lagrangian <: FiniteStrain end
+struct Natural <: FiniteStrain end
+struct Infinitesimal <: FiniteStrain end
+
+struct StrainFromVolume{T<:FiniteStrain}
+    v0::Any
+end
+(x::StrainFromVolume{Eulerian})(v) = (cbrt(x.v0 / v)^2 - 1) / 2
+(x::StrainFromVolume{Lagrangian})(v) = (cbrt(v / x.v0)^2 - 1) / 2
+(x::StrainFromVolume{Natural})(v) = log(v / x.v0) / 3
+(x::StrainFromVolume{Infinitesimal})(v) = 1 - cbrt(x.v0 / v)
+
+struct VolumeFromStrain{T<:FiniteStrain}
+    v0::Any
+end
+(x::VolumeFromStrain{Eulerian})(f) = x.v0 / (2f + 1)^(3 / 2)
+(x::VolumeFromStrain{Lagrangian})(f) = x.v0 * (2f + 1)^(3 / 2)
+(x::VolumeFromStrain{Natural})(f) = x.v0 * exp(3f)
+(x::VolumeFromStrain{Infinitesimal})(f) = x.v0 / (1 - f)^3
 
 end
