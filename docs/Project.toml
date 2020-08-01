@@ -1,0 +1,3 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+EquationsOfStateOfSolids = "1eaa2786-f833-4167-8397-974edad0881e"
