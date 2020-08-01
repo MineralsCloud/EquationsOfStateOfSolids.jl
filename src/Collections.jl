@@ -31,6 +31,12 @@ function energyeos(p::BirchMurnaghan{3})
     end
 end
 
+function costfunction(volumes, energies)
+    function (p)
+        map(energyeos(BirchMurnaghan{3}(p)), volumes) .- energies
+    end
+end
+
 function pressureeos(p::BirchMurnaghan{3})
     v0, b0, b′0 = p.x0
     fn = strain_from_volume(Eulerian(), v0)
