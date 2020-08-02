@@ -2,7 +2,6 @@ module Fitting
 
 using ConstructionBase: constructorof
 using LsqFit: curve_fit
-using LeastSquaresOptim
 using Unitful: AbstractQuantity, NoDims, upreferred, ustrip, unit, dimension, @u_str
 
 using ..Collections
