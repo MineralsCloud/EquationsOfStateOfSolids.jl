@@ -25,8 +25,6 @@ end
 BirchMurnaghan(arr::AbstractArray{T}) where {T} = BirchMurnaghan{length(arr),T}(Tuple(arr))
 BirchMurnaghan(args...) = BirchMurnaghan([args...])
 
-const BirchMurnaghan3rd = BirchMurnaghan{3}
-
 function energyeos(p::BirchMurnaghan{3})
     v0, b0, b′0 = p.x0
     function (v)
