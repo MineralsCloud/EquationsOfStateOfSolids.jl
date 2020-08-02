@@ -12,12 +12,12 @@ Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
-Setfield = "0.7"
 AutoHashEquals = "0.2"
-LeastSquaresOptim = "0.7"
 ConstructionBase = "1.0"
+LeastSquaresOptim = "0.7"
+LsqFit = "0.8, 0.9, 0.10, 0.11"
+Setfield = "0.7"
 Unitful = "0.18, 1.0"
-LsqFit = "0.11"
 julia = "1"
 
 [extras]
