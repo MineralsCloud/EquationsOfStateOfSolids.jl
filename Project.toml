@@ -12,6 +12,7 @@ Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
+Unitful = "0.18, 1.0"
 LsqFit = "0.11"
 julia = "1"
 
