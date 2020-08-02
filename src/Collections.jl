@@ -15,11 +15,11 @@ export BirchMurnaghan,
     strain_from_volume,
     volume_from_strain
 
-abstract type Parameters{T} end
+abstract type EossParameters{T} end
 
-abstract type ParametersFiniteStrain{N,T} <: Parameters{T} end
+abstract type FiniteStrainEossParameters{N,T} <: EossParameters{T} end
 
-struct BirchMurnaghan{N,T} <: ParametersFiniteStrain{N,T}
+struct BirchMurnaghan{N,T} <: FiniteStrainEossParameters{N,T}
     x0::NTuple{N,T}
 end
 BirchMurnaghan(arr::AbstractArray{T}) where {T} = BirchMurnaghan{length(arr),T}(Tuple(arr))
