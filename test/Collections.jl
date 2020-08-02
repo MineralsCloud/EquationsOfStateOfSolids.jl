@@ -1,8 +1,17 @@
 module Collections
 
+using IntervalArithmetic
+using Measurements: Measurement, measurement
 using Test: @test, @testset
+using Unitful: Quantity, @u_str
 
 using EquationsOfStateOfSolids.Collections
+
+@testset "Test counstruction" begin
+    @test typeof(BirchMurnaghan(1u"angstrom^3", 3u"GPa", 4.0)) == BirchMurnaghan{3,Quantity{Float64}}
+    @test typeof(BirchMurnaghan(measurement("1 +- 0.1"), 3 // 1, 2, measurement("-123.4(56)"))) == BirchMurnaghan{4,Measurement{Float64}}
+    @test typeof(BirchMurnaghan(1..3, 2, 2..4)) == BirchMurnaghan{3,Interval{Float64}}
+end
 
 # Data in the following tests are from
 # https://github.com/materialsproject/pymatgen/blob/1f0957b8525ddc7d12ea348a19caecebe6c7ff34/pymatgen/analysis/tests/test_eos.py
