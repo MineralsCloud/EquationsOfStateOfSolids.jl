@@ -71,4 +71,6 @@ volume_from_strain(::Lagrangian, v0) = f -> v0 * (2f + 1)^(3 / 2)
 volume_from_strain(::Natural, v0) = f -> v0 * exp(3f)
 volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
 
+fieldvalues(x::EossParameters) = x.x0
+
 end

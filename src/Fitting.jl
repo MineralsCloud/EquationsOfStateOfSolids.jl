@@ -4,7 +4,7 @@ using ConstructionBase: constructorof
 using LsqFit: curve_fit
 using Unitful: AbstractQuantity, NoDims, upreferred, ustrip, unit, dimension, @u_str
 
-using ..Collections: EquationOfStateOfSolids
+using ..Collections: EquationOfStateOfSolids, fieldvalues
 
 export linfit, nonlinfit
 
@@ -17,7 +17,7 @@ function nonlinfit(eos::S, xs, ys; kwargs...) where {T,S<:EquationOfStateOfSolid
         model,
         float_collect(xs),
         float_collect(ys),
-        float_collect(eos.params.x0);
+        float_collect(fieldvalues(eos.params));
         kwargs...,
     )
     if fit.converged
