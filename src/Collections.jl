@@ -3,7 +3,17 @@ module Collections
 using AutoHashEquals: @auto_hash_equals
 using Unitful: AbstractQuantity, @u_str
 
-export BirchMurnaghan, BirchMurnaghan3rd, energyeos, pressureeos, bulkmoduluseos, nextorder
+export BirchMurnaghan,
+    Eulerian,
+    Lagrangian,
+    Natural,
+    Infinitesimal,
+    energyeos,
+    pressureeos,
+    bulkmoduluseos,
+    nextorder,
+    strain_from_volume,
+    volume_from_strain
 
 abstract type Parameters{T} end
 
@@ -12,13 +22,8 @@ abstract type ParametersFiniteStrain{N,T} <: Parameters{T} end
 struct BirchMurnaghan{N,T} <: ParametersFiniteStrain{N,T}
     x0::NTuple{N,T}
 end
-function BirchMurnaghan{3}(v0, b0, b′0)
-    T = Base.promote_typeof(v0, b0, b′0)
-    return BirchMurnaghan{3,T}(Tuple(convert(T, x) for x in (v0, b0, b′0)))
-end
-# BirchMurnaghan{3}(v0::Real, b0::Real, b′0::Real) = BirchMurnaghan{3}(v0, b0, b′0, 0)
-# BirchMurnaghan{3}(v0::AbstractQuantity, b0::AbstractQuantity, b′0) =
-#     BirchMurnaghan{3}(v0, b0, b′0, 0 * u"eV")
+BirchMurnaghan(arr::AbstractArray{T}) where {T} = BirchMurnaghan{length(arr),T}(Tuple(arr))
+BirchMurnaghan(args...) = BirchMurnaghan([args...])
 
 const BirchMurnaghan3rd = BirchMurnaghan{3}
 
