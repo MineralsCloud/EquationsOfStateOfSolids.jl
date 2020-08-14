@@ -73,4 +73,16 @@ volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
 
 fieldvalues(x::EossParameters) = x.x0
 
+function Base.getproperty(value::FiniteStrainEossParameters, name::Symbol)
+    if name == :v0
+        return value.x0[1]
+    elseif name == :b0
+        return value.x0[2]
+    elseif name == :b′0
+        return value.x0[3]
+    else
+        return getfield(value, name)
+    end
+end
+
 end
