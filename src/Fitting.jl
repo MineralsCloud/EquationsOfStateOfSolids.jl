@@ -22,7 +22,7 @@ function nonlinfit(eos::S, xs, ys; kwargs...) where {T,S<:EnergyEoss{T}}
         kwargs...,
     )
     if fit.converged
-        return constructorof(T)(fit.param), fit
+        return (constructorof(T)(fit.param), fit.param[end]), fit
     else
         @error "fitting is not converged! Check your initial parameters!"
         return nothing, fit
