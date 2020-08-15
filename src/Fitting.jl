@@ -12,7 +12,7 @@ function nonlinfit(eos::S, xs, ys; kwargs...) where {T,S<:EnergyEoss{T}}
     constructor = constructorof(S) ∘ constructorof(T)
     model(x, p) = map(constructor(p), x)
     fit =
-        curve_fit(model, float.(xs), float.(ys), float.(fieldvalues(eos.params)); kwargs...)
+        curve_fit(model, float.(xs), float.(ys), float.(fieldvalues(eos.param)); kwargs...)
     if fit.converged
         return constructorof(T)(fit.param), fit
     else
