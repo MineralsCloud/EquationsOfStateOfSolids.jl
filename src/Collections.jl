@@ -33,8 +33,6 @@ struct BirchMurnaghan3rd{T} <: FiniteStrainEossParam{3,T}
     e0::T
     BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-BirchMurnaghan3rd(arr::AbstractVector) = BirchMurnaghan3rd{eltype(arr)}(arr...)
-BirchMurnaghan3rd(args...) = BirchMurnaghan3rd([args...])
 struct PoirierTarantola2nd{T} <: FiniteStrainEossParam{2,T}
     v0::T
     b0::T
@@ -102,5 +100,13 @@ function Base.show(io::IO, eos::EossParam)  # Ref: https://github.com/mauro3/Par
         end
     end
 end # function Base.show
+
+for T in
+    (:BirchMurnaghan2nd, :BirchMurnaghan3rd, :PoirierTarantola2nd, :PoirierTarantola3rd)
+    eval(quote
+        $T(arr::AbstractVector) = $T{eltype(arr)}(arr...)
+        $T(args...) = $T([args...])
+    end)
+end
 
 end
