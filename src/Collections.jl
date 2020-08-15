@@ -102,4 +102,17 @@ function Base.getproperty(value::FiniteStrainEossParameters, name::Symbol)
     end
 end
 
+function Base.show(io::IO, eos::EossParameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
+    if get(io, :compact, false)
+        Base.show_default(IOContext(io, :limit => true), eos)
+    else
+        # just dumping seems to give ok output, in particular for big data-sets:
+        T = typeof(eos)
+        println(io, T)
+        for f in propertynames(eos)
+            println(io, " ", f, " = ", getproperty(eos, f))
+        end
+    end
+end # function Base.show
+
 end
