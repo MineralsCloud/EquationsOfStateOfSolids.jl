@@ -21,8 +21,16 @@ abstract type FiniteStrainEossParameters{N,T} <: EossParameters{T} end
 
 struct BirchMurnaghan{N,T} <: FiniteStrainEossParameters{N,T}
     x0::NTuple{N,T}
+    e0::T
+    function BirchMurnaghan{N,T}(x0, e0) where {N,T}
+        @assert 2 <= N <= 5
+        new(x0, e0)
+    end
 end
-BirchMurnaghan(arr::AbstractArray{T}) where {T} = BirchMurnaghan{length(arr),T}(Tuple(arr))
+BirchMurnaghan(x0::NTuple{N,T}, e0 = zero(x0[1] * x0[2])) where {N,T} =
+    BirchMurnaghan{N,T}(x0, e0)
+BirchMurnaghan(arr::AbstractArray{T}) where {T} =
+    BirchMurnaghan(Tuple(arr[1:end-1]), arr[end])
 BirchMurnaghan(args...) = BirchMurnaghan([args...])
 
 abstract type EquationOfStateOfSolids{T<:EossParameters} end
@@ -73,6 +81,11 @@ volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
 
 fieldvalues(x::EossParameters) = x.x0
 
+Base.propertynames(::FiniteStrainEossParameters{2}) = (:v0, :b0, :e0)
+Base.propertynames(::FiniteStrainEossParameters{3}) = (:v0, :b0, :b′0, :e0)
+Base.propertynames(::FiniteStrainEossParameters{4}) = (:v0, :b0, :b′0, :b′′0, :e0)
+Base.propertynames(::FiniteStrainEossParameters{5}) = (:v0, :b0, :b′0, :b′′0, :b′′′0, :e0)
+
 function Base.getproperty(value::FiniteStrainEossParameters, name::Symbol)
     if name == :v0
         return value.x0[1]
@@ -80,9 +93,26 @@ function Base.getproperty(value::FiniteStrainEossParameters, name::Symbol)
         return value.x0[2]
     elseif name == :b′0
         return value.x0[3]
+    elseif name == :b′′0
+        return value.x0[4]
+    elseif name == :b′′′0
+        return value.x0[5]
     else
         return getfield(value, name)
     end
 end
+
+function Base.show(io::IO, eos::EossParameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
+    if get(io, :compact, false)
+        Base.show_default(IOContext(io, :limit => true), eos)
+    else
+        # just dumping seems to give ok output, in particular for big data-sets:
+        T = typeof(eos)
+        println(io, T)
+        for f in propertynames(eos)
+            println(io, " ", f, " = ", getproperty(eos, f))
+        end
+    end
+end # function Base.show
 
 end
