@@ -27,7 +27,7 @@ struct BirchMurnaghan3rd{T} <: FiniteStrainEossParameters{3,T}
     e0::T
     BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-BirchMurnaghan3rd(arr::AbstractArray) = BirchMurnaghan3rd{eltype(arr)}(arr...)
+BirchMurnaghan3rd(arr::AbstractVector) = BirchMurnaghan3rd{eltype(arr)}(arr...)
 BirchMurnaghan3rd(args...) = BirchMurnaghan3rd([args...])
 
 abstract type EquationOfStateOfSolids{T<:EossParameters} end
