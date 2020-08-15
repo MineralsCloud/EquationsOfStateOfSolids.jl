@@ -3,7 +3,7 @@ module Collections
 using AutoHashEquals: @auto_hash_equals
 using Unitful: AbstractQuantity, @u_str
 
-export BirchMurnaghan,
+export BirchMurnaghan3rd,
     Eulerian,
     Lagrangian,
     Natural,
@@ -19,19 +19,15 @@ abstract type EossParameters{T} end
 
 abstract type FiniteStrainEossParameters{N,T} <: EossParameters{T} end
 
-struct BirchMurnaghan{N,T} <: FiniteStrainEossParameters{N,T}
-    x0::NTuple{N,T}
+struct BirchMurnaghan3rd{T} <: FiniteStrainEossParameters{3,T}
+    v0::T
+    b0::T
+    b′0::T
     e0::T
-    function BirchMurnaghan{N,T}(x0, e0) where {N,T}
-        @assert 2 <= N <= 5
-        new(x0, e0)
-    end
+    BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-BirchMurnaghan(x0::NTuple{N,T}, e0 = zero(x0[1] * x0[2])) where {N,T} =
-    BirchMurnaghan{N,T}(x0, e0)
-BirchMurnaghan(arr::AbstractArray{T}) where {T} =
-    BirchMurnaghan(Tuple(arr[1:end-1]), arr[end])
-BirchMurnaghan(args...) = BirchMurnaghan([args...])
+BirchMurnaghan3rd(arr::AbstractArray) = BirchMurnaghan3rd{eltype(arr)}(arr...)
+BirchMurnaghan3rd(args...) = BirchMurnaghan3rd([args...])
 
 abstract type EquationOfStateOfSolids{T<:EossParameters} end
 struct EnergyEoss{T} <: EquationOfStateOfSolids{T}
