@@ -21,8 +21,16 @@ abstract type FiniteStrainEossParameters{N,T} <: EossParameters{T} end
 
 struct BirchMurnaghan{N,T} <: FiniteStrainEossParameters{N,T}
     x0::NTuple{N,T}
+    e0::T
+    function BirchMurnaghan{N,T}(x0, e0) where {N,T}
+        @assert 2 <= N <= 5
+        new(x0, e0)
+    end
 end
-BirchMurnaghan(arr::AbstractArray{T}) where {T} = BirchMurnaghan{length(arr),T}(Tuple(arr))
+BirchMurnaghan(x0::NTuple{N,T}, e0 = zero(x0[1] * x0[2])) where {N,T} =
+    BirchMurnaghan{N,T}(x0, e0)
+BirchMurnaghan(arr::AbstractArray{T}) where {T} =
+    BirchMurnaghan(Tuple(arr[1:end-1]), arr[end])
 BirchMurnaghan(args...) = BirchMurnaghan([args...])
 
 abstract type EquationOfStateOfSolids{T<:EossParameters} end
