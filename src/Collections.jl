@@ -136,6 +136,7 @@ function (eos::PressureEoss{<:Vinet})(v)
     return 3b0 / x^2 * (1 - x) * exp(y * (1 - x))
 end
 
+(eos::BulkModulusEoss{<:Murnaghan})(v) = eos.param.b0 + PressureEoss(eos.param)(v)
 function (eos::BulkModulusEoss{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = eos.param
     f = strain_from_volume(Eulerian(), v0)(v)
