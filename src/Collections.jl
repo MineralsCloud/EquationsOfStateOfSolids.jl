@@ -3,7 +3,8 @@ module Collections
 using AutoHashEquals: @auto_hash_equals
 using UnPack: @unpack
 
-export BirchMurnaghan2nd,
+export Murnaghan,
+    BirchMurnaghan2nd,
     BirchMurnaghan3rd,
     PoirierTarantola2nd,
     PoirierTarantola3rd,
@@ -22,6 +23,13 @@ export BirchMurnaghan2nd,
 
 abstract type EossParam{T} end
 abstract type FiniteStrainEossParam{N,T} <: EossParam{T} end
+struct Murnaghan{T} <: EossParam{T}
+    v0::T
+    b0::T
+    b′0::T
+    e0::T
+    Murnaghan{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+end
 struct BirchMurnaghan2nd{T} <: FiniteStrainEossParam{2,T}
     v0::T
     b0::T
@@ -67,6 +75,11 @@ struct BulkModulusEoss{T} <: EquationOfStateOfSolids{T}
     param::T
 end
 
+function (eos::EnergyEoss{<:Murnaghan})(v)
+    @unpack v0, b0, b′0, e0 = eos.param
+    x, y = b′0 - 1, (v0 / v)^b′0
+    return e0 + b0 / b′0 * v * (y / x + 1) - v0 * b0 / x
+end
 function (eos::EnergyEoss{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0, e0 = eos.param
     f = strain_from_volume(Eulerian(), v0)(v)
@@ -93,6 +106,10 @@ function (eos::EnergyEoss{<:Vinet})(v)
     return e0 + 9b0 * v0 / y^2 * (1 + (x * y - 1) * exp(x * y))
 end
 
+function (eos::PressureEoss{<:Murnaghan})(v)
+    @unpack v0, b0, b′0, e0 = eos.param
+    return b0 / b′0 * ((v0 / v)^b′0 - 1)
+end
 function (eos::PressureEoss{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = eos.param
     f = strain_from_volume(Eulerian(), v0)(v)
@@ -177,6 +194,7 @@ function Base.show(io::IO, eos::EossParam)  # Ref: https://github.com/mauro3/Par
 end # function Base.show
 
 for T in (
+    :Murnaghan,
     :BirchMurnaghan2nd,
     :BirchMurnaghan3rd,
     :PoirierTarantola2nd,
