@@ -16,11 +16,11 @@ export BirchMurnaghan3rd,
     strain_from_volume,
     volume_from_strain
 
-abstract type EossParameters{T} end
+abstract type EossParam{T} end
 
-abstract type FiniteStrainEossParameters{N,T} <: EossParameters{T} end
+abstract type FiniteStrainEossParam{N,T} <: EossParam{T} end
 
-struct BirchMurnaghan3rd{T} <: FiniteStrainEossParameters{3,T}
+struct BirchMurnaghan3rd{T} <: FiniteStrainEossParam{3,T}
     v0::T
     b0::T
     b′0::T
@@ -30,35 +30,35 @@ end
 BirchMurnaghan3rd(arr::AbstractVector) = BirchMurnaghan3rd{eltype(arr)}(arr...)
 BirchMurnaghan3rd(args...) = BirchMurnaghan3rd([args...])
 
-abstract type EquationOfStateOfSolids{T<:EossParameters} end
+abstract type EquationOfStateOfSolids{T<:EossParam} end
 struct EnergyEoss{T} <: EquationOfStateOfSolids{T}
-    params::T
+    param::T
 end
 struct PressureEoss{T} <: EquationOfStateOfSolids{T}
-    params::T
+    param::T
 end
 struct BulkModulusEoss{T} <: EquationOfStateOfSolids{T}
-    params::T
+    param::T
 end
 
-energyeos(p::EossParameters) = EnergyEoss(p)
-pressureeos(p::EossParameters) = PressureEoss(p)
-bulkmoduluseos(p::EossParameters) = BulkModulusEoss(p)
+energyeos(p::EossParam) = EnergyEoss(p)
+pressureeos(p::EossParam) = PressureEoss(p)
+bulkmoduluseos(p::EossParam) = BulkModulusEoss(p)
 
 function (eos::EnergyEoss{<:BirchMurnaghan3rd})(v)
-    @unpack v0, b0, b′0, e0 = eos.params
+    @unpack v0, b0, b′0, e0 = eos.param
     x = cbrt(v0 / v)
     y = x^2 - 1
     return 9 / 16 * b0 * v0 * y^2 * (6 - 4 * x^2 + b′0 * y) + e0
 end
 
 function (eos::PressureEoss{<:BirchMurnaghan3rd})(v)
-    @unpack v0, b0, b′0 = eos.params
+    @unpack v0, b0, b′0 = eos.param
     f = strain_from_volume(Eulerian(), v0)(v)
     return 3f / 2 * b0 * sqrt(2f + 1)^5 * (2 + 3f * (b′0 - 4))
 end
 
-orderof(::FiniteStrainEossParameters{N}) where {N} = N
+orderof(::FiniteStrainEossParam{N}) where {N} = N
 
 abstract type FiniteStrain end  # Trait
 struct Eulerian <: FiniteStrain end
@@ -76,7 +76,7 @@ volume_from_strain(::Lagrangian, v0) = f -> v0 * (2f + 1)^(3 / 2)
 volume_from_strain(::Natural, v0) = f -> v0 * exp(3f)
 volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
 
-function Base.show(io::IO, eos::EossParameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
+function Base.show(io::IO, eos::EossParam)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
         Base.show_default(IOContext(io, :limit => true), eos)
     else
