@@ -75,29 +75,6 @@ volume_from_strain(::Lagrangian, v0) = f -> v0 * (2f + 1)^(3 / 2)
 volume_from_strain(::Natural, v0) = f -> v0 * exp(3f)
 volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
 
-fieldvalues(x::EossParameters) = x.x0
-
-Base.propertynames(::FiniteStrainEossParameters{2}) = (:v0, :b0, :e0)
-Base.propertynames(::FiniteStrainEossParameters{3}) = (:v0, :b0, :b′0, :e0)
-Base.propertynames(::FiniteStrainEossParameters{4}) = (:v0, :b0, :b′0, :b′′0, :e0)
-Base.propertynames(::FiniteStrainEossParameters{5}) = (:v0, :b0, :b′0, :b′′0, :b′′′0, :e0)
-
-function Base.getproperty(value::FiniteStrainEossParameters, name::Symbol)
-    if name == :v0
-        return value.x0[1]
-    elseif name == :b0
-        return value.x0[2]
-    elseif name == :b′0
-        return value.x0[3]
-    elseif name == :b′′0
-        return value.x0[4]
-    elseif name == :b′′′0
-        return value.x0[5]
-    else
-        return getfield(value, name)
-    end
-end
-
 function Base.show(io::IO, eos::EossParameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
         Base.show_default(IOContext(io, :limit => true), eos)
