@@ -25,6 +25,7 @@ struct BirchMurnaghan2nd{T} <: FiniteStrainEossParam{2,T}
     v0::T
     b0::T
     e0::T
+    BirchMurnaghan2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
 struct BirchMurnaghan3rd{T} <: FiniteStrainEossParam{3,T}
     v0::T
@@ -37,6 +38,7 @@ struct PoirierTarantola2nd{T} <: FiniteStrainEossParam{2,T}
     v0::T
     b0::T
     e0::T
+    PoirierTarantola2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
 struct PoirierTarantola3rd{T} <: FiniteStrainEossParam{3,T}
     v0::T
