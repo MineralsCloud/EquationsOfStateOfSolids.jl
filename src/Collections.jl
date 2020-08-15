@@ -59,17 +59,67 @@ struct BulkModulusEoss{T} <: EquationOfStateOfSolids{T}
     param::T
 end
 
+function (eos::EnergyEoss{<:BirchMurnaghan2nd})(v)
+    @unpack v0, b0, e0 = eos.param
+    f = strain_from_volume(Eulerian(), v0)(v)
+    return e0 + 9b0 * v0 * f^2 / 2
+end
 function (eos::EnergyEoss{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0, e0 = eos.param
-    x = cbrt(v0 / v)
-    y = x^2 - 1
-    return 9 / 16 * b0 * v0 * y^2 * (6 - 4 * x^2 + b′0 * y) + e0
+    f = strain_from_volume(Eulerian(), v0)(v)
+    return e0 + 9b0 * v0 * f^2 / 2 * (1 + f * (b′0 - 4))
+end
+function (eos::EnergyEoss{<:PoirierTarantola2nd})(v)
+    @unpack v0, b0, e0 = eos.param
+    f = strain_from_volume(Natural(), v0)(v)
+    return e0 + 9b0 * v0 * f^2 / 2
+end
+function (eos::EnergyEoss{<:PoirierTarantola3rd})(v)
+    @unpack v0, b0, b′0, e0 = eos.param
+    f = strain_from_volume(Natural(), v0)(v)
+    return e0 + 9b0 * v0 * f^2 / 2 * ((b′0 - 2) * f + 1)
 end
 
+function (eos::PressureEoss{<:BirchMurnaghan2nd})(v)
+    @unpack v0, b0 = eos.param
+    f = strain_from_volume(Eulerian(), v0)(v)
+    return 3b0 * f * (2f + 1)^(5 / 2)
+end
 function (eos::PressureEoss{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = eos.param
     f = strain_from_volume(Eulerian(), v0)(v)
     return 3f / 2 * b0 * sqrt(2f + 1)^5 * (2 + 3f * (b′0 - 4))
+end
+function (eos::PressureEoss{<:PoirierTarantola2nd})(v)
+    @unpack v0, b0, e0 = eos.param
+    f = strain_from_volume(Natural(), v0)(v)
+    return -3b0 * f * exp(-3f)
+end
+function (eos::PressureEoss{<:PoirierTarantola3rd})(v)
+    @unpack v0, b0, b′0 = eos.param
+    f = strain_from_volume(Natural(), v0)(v)
+    return -3b0 / 2 * f * exp(-3f) * (3f * (b′0 - 2) + 1)
+end
+
+function (eos::BulkModulusEoss{<:BirchMurnaghan2nd})(v)
+    @unpack v0, b0 = eos.param
+    f = strain_from_volume(Eulerian(), v0)(v)
+    return b0 * (7f + 1) * (2f + 1)^(5 / 2)
+end
+function (eos::BulkModulusEoss{<:BirchMurnaghan3rd})(v)
+    @unpack v0, b0, b′0, e0 = eos.param
+    f = strain_from_volume(Eulerian(), v0)(v)
+    return b0 / 2 * (2f + 1)^(5 / 2) * ((27f^2 + 6f) * (b′0 - 4) - 4f + 2)
+end
+function (eos::BulkModulusEoss{<:PoirierTarantola2nd})(v)
+    @unpack v0, b0, e0 = eos.param
+    f = strain_from_volume(Natural(), v0)(v)
+    return b0 * (1 - 3f) * exp(-3f)
+end
+function (eos::BulkModulusEoss{<:PoirierTarantola3rd})(v)
+    @unpack v0, b0, b′0, e0 = eos.param
+    f = strain_from_volume(Natural(), v0)(v)
+    return -b0 / 2 * exp(-3f) * (9f^2 * (b′0 - 2) - 6f * (b′0 + 1) - 2)
 end
 
 orderof(::FiniteStrainEossParam{N}) where {N} = N
