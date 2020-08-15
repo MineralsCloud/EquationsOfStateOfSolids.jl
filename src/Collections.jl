@@ -58,7 +58,7 @@ function (eos::PressureEoss{<:BirchMurnaghan3rd})(v)
     return 3f / 2 * b0 * sqrt(2f + 1)^5 * (2 + 3f * (b′0 - 4))
 end
 
-nextorder(::Type{BirchMurnaghan{N}}) where {N} = BirchMurnaghan{N + 1}
+orderof(::FiniteStrainEossParameters{N}) where {N} = N
 
 abstract type FiniteStrain end  # Trait
 struct Eulerian <: FiniteStrain end
