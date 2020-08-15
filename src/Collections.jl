@@ -1,7 +1,7 @@
 module Collections
 
 using AutoHashEquals: @auto_hash_equals
-using Unitful: AbstractQuantity, @u_str
+using UnPack: @unpack
 
 export BirchMurnaghan3rd,
     Eulerian,
@@ -11,6 +11,7 @@ export BirchMurnaghan3rd,
     energyeos,
     pressureeos,
     bulkmoduluseos,
+    orderof,
     nextorder,
     strain_from_volume,
     volume_from_strain
@@ -44,15 +45,15 @@ energyeos(p::EossParameters) = EnergyEoss(p)
 pressureeos(p::EossParameters) = PressureEoss(p)
 bulkmoduluseos(p::EossParameters) = BulkModulusEoss(p)
 
-function (eos::EnergyEoss{<:BirchMurnaghan{3}})(v, e0 = zero(eos.params.x0[1] * eos.params.x0[3]))
-    v0, b0, b′0 = eos.params.x0
+function (eos::EnergyEoss{<:BirchMurnaghan3rd})(v)
+    @unpack v0, b0, b′0, e0 = eos.params
     x = cbrt(v0 / v)
     y = x^2 - 1
     return 9 / 16 * b0 * v0 * y^2 * (6 - 4 * x^2 + b′0 * y) + e0
 end
 
-function (eos::PressureEoss{<:BirchMurnaghan{3}})(v)
-    v0, b0, b′0 = eos.params.x0
+function (eos::PressureEoss{<:BirchMurnaghan3rd})(v)
+    @unpack v0, b0, b′0 = eos.params
     f = strain_from_volume(Eulerian(), v0)(v)
     return 3f / 2 * b0 * sqrt(2f + 1)^5 * (2 + 3f * (b′0 - 4))
 end
