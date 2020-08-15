@@ -1,9 +1,9 @@
 module Collections
 
 using AutoHashEquals: @auto_hash_equals
-using Unitful: AbstractQuantity, @u_str
+using UnPack: @unpack
 
-export BirchMurnaghan,
+export BirchMurnaghan3rd,
     Eulerian,
     Lagrangian,
     Natural,
@@ -11,6 +11,7 @@ export BirchMurnaghan,
     energyeos,
     pressureeos,
     bulkmoduluseos,
+    orderof,
     nextorder,
     strain_from_volume,
     volume_from_strain
@@ -19,19 +20,15 @@ abstract type EossParameters{T} end
 
 abstract type FiniteStrainEossParameters{N,T} <: EossParameters{T} end
 
-struct BirchMurnaghan{N,T} <: FiniteStrainEossParameters{N,T}
-    x0::NTuple{N,T}
+struct BirchMurnaghan3rd{T} <: FiniteStrainEossParameters{3,T}
+    v0::T
+    b0::T
+    b′0::T
     e0::T
-    function BirchMurnaghan{N,T}(x0, e0) where {N,T}
-        @assert 2 <= N <= 5
-        new(x0, e0)
-    end
+    BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-BirchMurnaghan(x0::NTuple{N,T}, e0 = zero(x0[1] * x0[2])) where {N,T} =
-    BirchMurnaghan{N,T}(x0, e0)
-BirchMurnaghan(arr::AbstractArray{T}) where {T} =
-    BirchMurnaghan(Tuple(arr[1:end-1]), arr[end])
-BirchMurnaghan(args...) = BirchMurnaghan([args...])
+BirchMurnaghan3rd(arr::AbstractArray) = BirchMurnaghan3rd{eltype(arr)}(arr...)
+BirchMurnaghan3rd(args...) = BirchMurnaghan3rd([args...])
 
 abstract type EquationOfStateOfSolids{T<:EossParameters} end
 struct EnergyEoss{T} <: EquationOfStateOfSolids{T}
@@ -48,20 +45,20 @@ energyeos(p::EossParameters) = EnergyEoss(p)
 pressureeos(p::EossParameters) = PressureEoss(p)
 bulkmoduluseos(p::EossParameters) = BulkModulusEoss(p)
 
-function (eos::EnergyEoss{<:BirchMurnaghan{3}})(v, e0 = zero(eos.params.x0[1] * eos.params.x0[3]))
-    v0, b0, b′0 = eos.params.x0
+function (eos::EnergyEoss{<:BirchMurnaghan3rd})(v)
+    @unpack v0, b0, b′0, e0 = eos.params
     x = cbrt(v0 / v)
     y = x^2 - 1
     return 9 / 16 * b0 * v0 * y^2 * (6 - 4 * x^2 + b′0 * y) + e0
 end
 
-function (eos::PressureEoss{<:BirchMurnaghan{3}})(v)
-    v0, b0, b′0 = eos.params.x0
+function (eos::PressureEoss{<:BirchMurnaghan3rd})(v)
+    @unpack v0, b0, b′0 = eos.params
     f = strain_from_volume(Eulerian(), v0)(v)
     return 3f / 2 * b0 * sqrt(2f + 1)^5 * (2 + 3f * (b′0 - 4))
 end
 
-nextorder(::Type{BirchMurnaghan{N}}) where {N} = BirchMurnaghan{N + 1}
+orderof(::FiniteStrainEossParameters{N}) where {N} = N
 
 abstract type FiniteStrain end  # Trait
 struct Eulerian <: FiniteStrain end
@@ -78,29 +75,6 @@ volume_from_strain(::Eulerian, v0) = f -> v0 / (2f + 1)^(3 / 2)
 volume_from_strain(::Lagrangian, v0) = f -> v0 * (2f + 1)^(3 / 2)
 volume_from_strain(::Natural, v0) = f -> v0 * exp(3f)
 volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
-
-fieldvalues(x::EossParameters) = x.x0
-
-Base.propertynames(::FiniteStrainEossParameters{2}) = (:v0, :b0, :e0)
-Base.propertynames(::FiniteStrainEossParameters{3}) = (:v0, :b0, :b′0, :e0)
-Base.propertynames(::FiniteStrainEossParameters{4}) = (:v0, :b0, :b′0, :b′′0, :e0)
-Base.propertynames(::FiniteStrainEossParameters{5}) = (:v0, :b0, :b′0, :b′′0, :b′′′0, :e0)
-
-function Base.getproperty(value::FiniteStrainEossParameters, name::Symbol)
-    if name == :v0
-        return value.x0[1]
-    elseif name == :b0
-        return value.x0[2]
-    elseif name == :b′0
-        return value.x0[3]
-    elseif name == :b′′0
-        return value.x0[4]
-    elseif name == :b′′′0
-        return value.x0[5]
-    else
-        return getfield(value, name)
-    end
-end
 
 function Base.show(io::IO, eos::EossParameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
