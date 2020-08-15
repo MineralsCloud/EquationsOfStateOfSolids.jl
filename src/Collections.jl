@@ -8,9 +8,9 @@ export BirchMurnaghan3rd,
     Lagrangian,
     Natural,
     Infinitesimal,
-    energyeos,
-    pressureeos,
-    bulkmoduluseos,
+    EnergyEoss,
+    PressureEoss,
+    BulkModulusEoss,
     orderof,
     nextorder,
     strain_from_volume,
@@ -40,10 +40,6 @@ end
 struct BulkModulusEoss{T} <: EquationOfStateOfSolids{T}
     param::T
 end
-
-energyeos(p::EossParam) = EnergyEoss(p)
-pressureeos(p::EossParam) = PressureEoss(p)
-bulkmoduluseos(p::EossParam) = BulkModulusEoss(p)
 
 function (eos::EnergyEoss{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0, e0 = eos.param
