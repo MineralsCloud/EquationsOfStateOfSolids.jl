@@ -77,8 +77,6 @@ end
         -9.73155247952,
     ]
     x = BirchMurnaghan3rd(40.98926572528106, 0.5369258245417454, 4.178644235500821)
-    eos = energyeos(x)
-    @test eos.(volumes) .+ -10.842803908240892 .≈ energies
 end
 
 end
