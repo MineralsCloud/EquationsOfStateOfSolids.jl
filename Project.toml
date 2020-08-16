@@ -14,6 +14,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 AutoHashEquals = "0.2"
 ConstructionBase = "1.0"
 LsqFit = "0.8, 0.9, 0.10, 0.11"
+UnPack = "1.0"
 Unitful = "0.18, 1.0"
 julia = "1"
 
