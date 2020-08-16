@@ -28,7 +28,13 @@ using Roots:
     Newton
 using UnPack: @unpack
 
-using ..Collections
+using ..Collections:
+    PressureEoss,
+    EnergyEoss,
+    EquationOfStateOfSolids,
+    Murnaghan,
+    BirchMurnaghan2nd,
+    BirchMurnaghan3rd
 
 export findvolume
 
