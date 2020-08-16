@@ -1,31 +1,7 @@
 module Volume
 
 using PolynomialRoots: roots
-using Roots:
-    find_zero,
-    Halley,
-    Schroder,
-    Bisection,
-    BisectionExact,
-    FalsePosition,
-    A42,
-    AlefeldPotraShi,
-    Esser,
-    King,
-    KumarSinghAkanksha,
-    Order0,
-    Order16,
-    Order1B,
-    Order2,
-    Order2B,
-    Order5,
-    Order8,
-    Secant,
-    Steffensen,
-    Thukral16,
-    Thukral8,
-    Brent,
-    Newton
+using Roots: find_zero, AbstractBracketing, AbstractUnivariateZeroMethod
 using Statistics: mean
 using UnPack: @unpack
 
@@ -38,6 +14,16 @@ using ..Collections:
     BirchMurnaghan3rd
 
 export findvolume
+
+function _allsubtypes(t::Type, types = Type[])
+    for s in subtypes(t)
+        types = _allsubtypes(s, push!(types, s))
+    end
+    return types
+end
+_nonabstract(t::Type) = filter(!isabstracttype, _allsubtypes(t))
+
+const ROOT_FINDING_ALGORITHMS = _nonabstract(AbstractUnivariateZeroMethod)
 
 function findvolume(eos::PressureEoss{<:Murnaghan}, p)
     @unpack v0, b0, b′0, e0 = eos.param
@@ -59,7 +45,12 @@ function findvolume(eos::EnergyEoss{<:BirchMurnaghan3rd}, e; epsilon = 1e-20)
     vs = map(volume_from_strain(Eulerian(), v0), fs)
     return map(real, filter(isreal, vs))
 end
-function findvolume(eos::EquationOfStateOfSolids, y, v0, method)
+function findvolume(
+    eos::EquationOfStateOfSolids,
+    y,
+    v0,
+    method::AbstractUnivariateZeroMethod,
+)
     v = _findvolume(eos, y, v0, method)
     if v < zero(v)
         @error "the volume found is negative!"
@@ -67,38 +58,13 @@ function findvolume(eos::EquationOfStateOfSolids, y, v0, method)
     return v
 end # function findvolume
 function findvolume(eos::EquationOfStateOfSolids, y, v0; silent = false)
-    for T in [
-        Bisection,
-        BisectionExact,
-        FalsePosition,
-        A42,
-        AlefeldPotraShi,
-        Brent,
-        Halley,
-        Schroder,
-        Newton,
-        Esser,
-        King,
-        KumarSinghAkanksha,
-        Order0,
-        Order16,
-        Order1B,
-        Order2,
-        Order2B,
-        Order5,
-        Order8,
-        Secant,
-        Steffensen,
-        Thukral16,
-        Thukral8,
-    ]
+    for T in ROOT_FINDING_ALGORITHMS
         silent || @info "using method `$T`..."
         try
             # `maximum` and `minimum` also works with `AbstractQuantity`s.
             return findvolume(eos, y, v0, T())
         catch e
             silent || @info "method `$T` failed because of $e."
-            continue
         end
     end
 end # function findvolume
