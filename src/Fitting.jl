@@ -2,6 +2,7 @@ module Fitting
 
 using ConstructionBase: constructorof
 using LsqFit: curve_fit, coef
+using Setfield: @set!
 
 using ..Collections:
     EquationOfStateOfSolids, FiniteStrainEossParam, PressureEoss, EnergyEoss
@@ -37,9 +38,12 @@ function checkparam(param::FiniteStrainEossParam)  # Do not export!
 end
 
 getparam(eos, ::Any) = fieldvalues(eos.param)
-getparam(eos::EnergyEoss, energies) = iszero(eos.param.e0) ?
-    push!(collect(fieldvalues(eos.param))[1:end-1], minimum(energies)) :
-    fieldvalues(eos.param)
+function getparam(eos::EnergyEoss, energies)
+    if iszero(eos.param.e0)
+        @set! eos.param.e0 = minimum(energies)
+    end
+    return fieldvalues(eos.param)
+end
 
 fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
 
