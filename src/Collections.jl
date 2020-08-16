@@ -102,7 +102,7 @@ function (eos::EnergyEoss{<:PoirierTarantola3rd})(v)
 end
 function (eos::EnergyEoss{<:Vinet})(v)
     @unpack v0, b0, b′0, e0 = eos.param
-    x, y = 1 - cbrt(v / v0), 3 / 2 * (b′0 - 1)
+    x, y = 1 - (v / v0)^(1 / 3), 3 / 2 * (b′0 - 1)
     return e0 + 9b0 * v0 / y^2 * (1 + (x * y - 1) * exp(x * y))
 end
 
@@ -118,7 +118,7 @@ end
 function (eos::PressureEoss{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = eos.param
     f = strain_from_volume(Eulerian(), v0)(v)
-    return 3f / 2 * b0 * sqrt(2f + 1)^5 * (2 + 3f * (b′0 - 4))
+    return 3f / 2 * b0 * (2f + 1)^(5 / 2) * (2 + 3f * (b′0 - 4))
 end
 function (eos::PressureEoss{<:PoirierTarantola2nd})(v)
     @unpack v0, b0, e0 = eos.param
@@ -132,7 +132,7 @@ function (eos::PressureEoss{<:PoirierTarantola3rd})(v)
 end
 function (eos::PressureEoss{<:Vinet})(v)
     @unpack v0, b0, b′0, e0 = eos.param
-    x, y = cbrt(v / v0), 3 / 2 * (b′0 - 1)
+    x, y = (v / v0)^(1 / 3), 3 / 2 * (b′0 - 1)
     return 3b0 / x^2 * (1 - x) * exp(y * (1 - x))
 end
 
@@ -159,7 +159,7 @@ function (eos::BulkModulusEoss{<:PoirierTarantola3rd})(v)
 end
 function (eos::BulkModulusEoss{<:Vinet})(v)
     @unpack v0, b0, b′0, e0 = eos.param
-    x, ξ = cbrt(v / v0), 3 / 2 * (b′0 - 1)
+    x, ξ = (v / v0)^(1 / 3), 3 / 2 * (b′0 - 1)
     return -b0 / (2 * x^2) * (3x * (x - 1) * (b′0 - 1) + 2 * (x - 2)) * exp(-ξ * (x - 1))
 end
 
@@ -171,10 +171,10 @@ struct Lagrangian <: FiniteStrain end
 struct Natural <: FiniteStrain end
 struct Infinitesimal <: FiniteStrain end
 
-strain_from_volume(::Eulerian, v0) = v -> (cbrt(v0 / v)^2 - 1) / 2
-strain_from_volume(::Lagrangian, v0) = v -> (cbrt(v / v0)^2 - 1) / 2
+strain_from_volume(::Eulerian, v0) = v -> ((v0 / v)^(2 / 3) - 1) / 2
+strain_from_volume(::Lagrangian, v0) = v -> ((v / v0)^(2 / 3) - 1) / 2
 strain_from_volume(::Natural, v0) = v -> log(v / v0) / 3
-strain_from_volume(::Infinitesimal, v0) = v -> 1 - cbrt(v0 / v)
+strain_from_volume(::Infinitesimal, v0) = v -> 1 - (v0 / v)^(1 / 3)
 
 volume_from_strain(::Eulerian, v0) = f -> v0 / (2f + 1)^(3 / 2)
 volume_from_strain(::Lagrangian, v0) = f -> v0 * (2f + 1)^(3 / 2)
