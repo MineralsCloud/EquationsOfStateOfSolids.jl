@@ -26,6 +26,7 @@ using Roots:
     Thukral8,
     Brent,
     Newton
+using Statistics: mean
 using UnPack: @unpack
 
 using ..Collections:
@@ -101,36 +102,10 @@ function findvolume(eos::EquationOfStateOfSolids, y, v0; silent = false)
         end
     end
 end # function findvolume
-_findvolume(
-    eos,
-    y,
-    v0,
-    method::Union{Bisection,BisectionExact,FalsePosition,A42,AlefeldPotraShi},
-) = find_zero(v -> eos(v) - y, (minimum(v0), maximum(v0)), method)
-_findvolume(
-    eos,
-    y,
-    v0,
-    method::Union{
-        Brent,
-        Halley,
-        Schroder,
-        Newton,
-        Esser,
-        King,
-        KumarSinghAkanksha,
-        Order0,
-        Order16,
-        Order1B,
-        Order2,
-        Order2B,
-        Order5,
-        Order8,
-        Secant,
-        Steffensen,
-        Thukral16,
-        Thukral8,
-    },
-) = find_zero(v -> eos(v) - y, (minimum(v0) + maximum(v0)) / 2, method)
+_findvolume(eos, y, v0, method::AbstractBracketing) =
+    find_zero(v -> eos(v) - y, extrema(v0), method)
+# The rest of root-finding methods
+_findvolume(eos, y, v0, method::AbstractUnivariateZeroMethod) =
+    find_zero(v -> eos(v) - y, mean(v0), method)
 
 end
