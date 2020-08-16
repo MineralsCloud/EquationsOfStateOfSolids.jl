@@ -173,8 +173,23 @@ function volumeof(eos::EnergyEoss{<:BirchMurnaghan3rd}, e)
             1 // 3,
         ),
     ]
-    v = map(volume_from_strain(Eulerian(), v0) ∘ Complex, fs)
-    return v
+    vs = map(volume_from_strain(Eulerian(), v0), fs)
+    return map(real, filter(isreal, vs))
+end
+function volumeof2(eos::EnergyEoss{<:BirchMurnaghan3rd}, e)
+    @unpack v0, b0, b′0, e0 = eos.param  # https://math.vanderbilt.edu/schectex/courses/cubic/
+    # Constrcut ax^3 + bx^2 + d = 0
+    b, d = 9 / 2 * b0 * v0, e0 - e
+    a = b * (b′0 - 4)
+    # Solve ax^3 + bx^2 + d = 0
+    p = -b / 3 / a
+    q = p^3 - d / 2 / a
+    r = sqrt(Complex(q^2 - p^6))
+    f = (q + r)^(1 / 3) + (q - r)^(1 / 3) + p  # The real solution
+    fs = f .* (1, (-1 + √3im) / 2, (-1 - √3im) / 2)
+    vs = filter(isreal, map(volume_from_strain(Eulerian(), v0), fs))
+    return map(real, vs)
+end
 end
 
 function Power(f, g)
