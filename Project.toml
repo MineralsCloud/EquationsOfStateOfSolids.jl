@@ -9,6 +9,7 @@ ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"
 PolynomialRoots = "3a141323-8675-5d76-9d11-e1df1406c778"
 Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
