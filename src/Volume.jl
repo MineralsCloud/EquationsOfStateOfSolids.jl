@@ -1,5 +1,6 @@
 module Volume
 
+using InteractiveUtils: subtypes
 using PolynomialRoots: roots
 using Roots: find_zero, AbstractBracketing, AbstractUnivariateZeroMethod
 using Statistics: mean
