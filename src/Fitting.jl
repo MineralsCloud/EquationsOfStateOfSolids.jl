@@ -1,10 +1,10 @@
 module Fitting
 
 using ConstructionBase: constructorof
-using LsqFit: curve_fit
+using LsqFit: curve_fit, coef
 using Unitful: AbstractQuantity, NoDims, upreferred, ustrip, unit, dimension, @u_str
 
-using ..Collections: EquationOfStateOfSolids, FiniteStrainEossParam
+using ..Collections: EquationOfStateOfSolids, FiniteStrainEossParam, PressureEoss
 
 export linfit, nonlinfit
 
@@ -13,7 +13,7 @@ function nonlinfit(eos::EquationOfStateOfSolids{T}, xs, ys; kwargs...) where {T}
     fit =
         curve_fit(model, float.(xs), float.(ys), float.(fieldvalues(eos.param)); kwargs...)
     if fit.converged
-        param = constructorof(T)(fit.param)
+        param = constructorof(T)(coef(fit))
         checkparam(param)
         return param, fit
     else
@@ -31,6 +31,9 @@ function checkparam(param::FiniteStrainEossParam)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
         @error "fitted `v0` or `b0` is negative!"
     end
+    # if PressureEoss(param)(minimum(v)) >= param.b0
+    #     @warn "use higher order EOS!"
+    # end
 end
 
 fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
