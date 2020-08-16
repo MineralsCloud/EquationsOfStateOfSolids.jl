@@ -3,7 +3,6 @@ module Volume
 using InteractiveUtils: subtypes
 using PolynomialRoots: roots
 using Roots: find_zero, AbstractBracketing, AbstractUnivariateZeroMethod
-using Statistics: mean
 using UnPack: @unpack
 
 using ..Collections:
@@ -73,6 +72,6 @@ _findvolume(eos, y, v0, method::AbstractBracketing) =
     find_zero(v -> eos(v) - y, extrema(v0), method)
 # The rest of root-finding methods
 _findvolume(eos, y, v0, method::AbstractUnivariateZeroMethod) =
-    find_zero(v -> eos(v) - y, mean(v0), method)
+    find_zero(v -> eos(v) - y, sum(extrema(v0)) / 2, method)
 
 end
