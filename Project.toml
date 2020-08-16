@@ -7,6 +7,7 @@ version = "0.1.0"
 AutoHashEquals = "15f4f7f2-30c1-5605-9d31-71845cf9641f"
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"
+PolynomialRoots = "3a141323-8675-5d76-9d11-e1df1406c778"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
