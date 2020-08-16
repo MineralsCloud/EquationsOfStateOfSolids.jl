@@ -22,7 +22,7 @@ function _allsubtypes(t::Type, types = Type[])
     end
     return types
 end
-_nonabstract(t::Type) = filter(!isabstracttype, _allsubtypes(t))
+_nonabstract(t::Type) = filter(!isabstracttype, _allsubtypes(t))  # `Roots.FalsePosition` is not concrete!
 
 const ROOT_FINDING_ALGORITHMS = _nonabstract(AbstractUnivariateZeroMethod)
 
