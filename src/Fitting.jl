@@ -80,8 +80,7 @@ function _preprocess(eos, xs, ys)  # Do not export!
     if eos isa EnergyEOS && iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
     end
-    eos, xs, ys, rules = _ustrip_all(eos, xs, ys)
-    return collect(_splat(ustrip ∘ float, eos.param)), xs, ys, rules
+    return _ustrip_all(eos, xs, ys)
 end
 
 # No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
@@ -109,7 +108,7 @@ function _ustrip_all(eos::EnergyEOS, vs, es)  # Do not export!
         end
         from => to
     end
-    return eos, vs, es, rules
+    return collect(_splat(ustrip ∘ float, eos.param)), vs, es, rules
 end
 function _ustrip_all(eos::Union{PressureEOS,BulkModulusEOS}, vs, ps)
     vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
@@ -135,7 +134,7 @@ function _ustrip_all(eos::Union{PressureEOS,BulkModulusEOS}, vs, ps)
         end
         from => to
     end
-    return eos, vs, ps, rules
+    return collect(_splat(ustrip ∘ float, eos.param)), vs, ps, rules
 end
 
 _splat(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
