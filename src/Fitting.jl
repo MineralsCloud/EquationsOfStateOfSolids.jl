@@ -97,4 +97,7 @@ end
 
 _fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
 
+Base.float(p::Parameters) =
+    constructorof(typeof(p))((float(getfield(p, i)) for i in 1:nfields(p))...)
+
 end

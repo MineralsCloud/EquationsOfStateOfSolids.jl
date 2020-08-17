@@ -258,4 +258,6 @@ end # function Base.show
 (::Type{T})(arr::AbstractVector) where {T<:Parameters} = T{eltype(arr)}(arr...)
 (::Type{T})(args...) where {T<:Parameters} = T([args...])
 
+Base.eltype(::Type{<:Parameters{T}}) where {T} = T
+
 end
