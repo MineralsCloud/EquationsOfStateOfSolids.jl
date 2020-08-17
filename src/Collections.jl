@@ -194,18 +194,7 @@ function Base.show(io::IO, eos::EossParam)  # Ref: https://github.com/mauro3/Par
     end
 end # function Base.show
 
-for T in (
-    :Murnaghan,
-    :BirchMurnaghan2nd,
-    :BirchMurnaghan3rd,
-    :PoirierTarantola2nd,
-    :PoirierTarantola3rd,
-    :Vinet,
-)
-    eval(quote
-        $T(arr::AbstractVector) = $T{eltype(arr)}(arr...)
-        $T(args...) = $T([args...])
-    end)
-end
+(::Type{T})(arr::AbstractVector) where {T<:EossParam} = T{eltype(arr)}(arr...)
+(::Type{T})(args...) where {T<:EossParam} = T([args...])
 
 end
