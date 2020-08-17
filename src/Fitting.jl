@@ -17,7 +17,7 @@ using ..Collections:
 export linfit, nonlinfit
 
 function nonlinfit(
-    eos::EquationOfStateOfSolids{T},
+    eos::EquationOfStateOfSolids,
     xs,
     ys;
     xtol = 1e-8,
@@ -27,7 +27,7 @@ function nonlinfit(
     good_step_quality = 0.75,
     silent = true,
     saveto = "",
-) where {T}
+)
     model = createmodel(eos)
     p0, xs, ys, rules = _preprocess(eos, xs, ys)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
@@ -42,26 +42,33 @@ function nonlinfit(
         good_step_quality = good_step_quality,
         show_trace = !silent,
     )
-    if !isempty(saveto)
-        open(saveto, "r+") do io
-            serialize(io, fit)
-        end
-    end
-    if fit.converged
-        param = constructorof(T)(map(coef(fit), rules) do x, (from, to)
+    result = if fit.converged
+        constructorof(typeof(eos))(map(coef(fit), rules) do x, (from, to)
             x * to |> from
         end)
-        _checkparam(param)
-        return param
     else
-        @error "fitting is not converged! Change initial parameters!"
-        return nothing
+        if !isinteractive()
+            saveto = string(rand(UInt)) * ".jls"
+        end
+        @error "fitting is not converged, change initial parameters!"
     end
+    if !isempty(saveto)
+        _savefit(saveto, fit)
+    end
+    _checkparam(result)
+    return result
 end # function nonlinfit
 
 function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not export!
     constructor = constructorof(S) ∘ constructorof(T)
     return (x, p) -> map(constructor(p), x)
+end
+
+function _savefit(file, fit)  # Do not export!
+    open(file, "w") do io
+        @info "saving raw fitted data to '$file'..."
+        serialize(io, fit)
+    end
 end
 
 function _checkparam(param::FiniteStrainParameters)  # Do not export!
