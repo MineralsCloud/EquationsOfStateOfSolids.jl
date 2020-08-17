@@ -25,27 +25,27 @@ export Murnaghan,
 
 abstract type Parameters{T} end
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
-struct Murnaghan{T} <: Parameters{T}
+@auto_hash_equals struct Murnaghan{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
     e0::T
     Murnaghan{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-struct BirchMurnaghan2nd{T} <: FiniteStrainParameters{2,T}
+@auto_hash_equals struct BirchMurnaghan2nd{T} <: FiniteStrainParameters{2,T}
     v0::T
     b0::T
     e0::T
     BirchMurnaghan2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
-struct BirchMurnaghan3rd{T} <: FiniteStrainParameters{3,T}
+@auto_hash_equals struct BirchMurnaghan3rd{T} <: FiniteStrainParameters{3,T}
     v0::T
     b0::T
     b′0::T
     e0::T
     BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-struct BirchMurnaghan4th{T} <: FiniteStrainParameters{4,T}
+@auto_hash_equals struct BirchMurnaghan4th{T} <: FiniteStrainParameters{4,T}
     v0::T
     b0::T
     b′0::T
@@ -54,20 +54,20 @@ struct BirchMurnaghan4th{T} <: FiniteStrainParameters{4,T}
     BirchMurnaghan4th{T}(v0, b0, b′0, b′′0, e0 = zero(v0 * b0)) where {T} =
         new(v0, b0, b′0, b′′0, e0)
 end
-struct PoirierTarantola2nd{T} <: FiniteStrainParameters{2,T}
+@auto_hash_equals struct PoirierTarantola2nd{T} <: FiniteStrainParameters{2,T}
     v0::T
     b0::T
     e0::T
     PoirierTarantola2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
-struct PoirierTarantola3rd{T} <: FiniteStrainParameters{3,T}
+@auto_hash_equals struct PoirierTarantola3rd{T} <: FiniteStrainParameters{3,T}
     v0::T
     b0::T
     b′0::T
     e0::T
     PoirierTarantola3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-struct PoirierTarantola4th{T} <: FiniteStrainParameters{4,T}
+@auto_hash_equals struct PoirierTarantola4th{T} <: FiniteStrainParameters{4,T}
     v0::T
     b0::T
     b′0::T
@@ -76,7 +76,7 @@ struct PoirierTarantola4th{T} <: FiniteStrainParameters{4,T}
     PoirierTarantola4th{T}(v0, b0, b′0, b′′0, e0 = zero(v0 * b0)) where {T} =
         new(v0, b0, b′0, b′′0, e0)
 end
-struct Vinet{T} <: Parameters{T}
+@auto_hash_equals struct Vinet{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
