@@ -11,8 +11,8 @@ export linfit, nonlinfit
 
 function nonlinfit(eos::EquationOfStateOfSolids{T}, xs, ys; kwargs...) where {T}
     model = createmodel(eos)
-    p0 = getparam(eos, ys)
     fit = curve_fit(model, float.(xs), float.(ys), float.(p0); kwargs...)
+    p0 = initparam(eos, ys)
     if fit.converged
         param = constructorof(T)(coef(fit))
         checkparam(param)
@@ -36,9 +36,8 @@ function checkparam(param::FiniteStrainEossParam)  # Do not export!
     #     @warn "use higher order EOS!"
     # end
 end
-
-getparam(eos, ::Any) = fieldvalues(eos.param)
-function getparam(eos::EnergyEoss, energies)
+initparam(eos, ::Any) = fieldvalues(eos.param)
+function initparam(eos::EnergyEoss, energies)
     if iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(energies)
     end
