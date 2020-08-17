@@ -36,7 +36,7 @@ function findvolume(eos::EnergyEOS{<:BirchMurnaghan2nd}, e)
     vs = map(volume_from_strain(Eulerian(), v0), [f, -f])
     return map(real, filter(isreal, vs))
 end
-function findvolume(eos::EnergyEoss{<:BirchMurnaghan3rd}, e; epsilon = 1e-20)
+function findvolume(eos::EnergyEOS{<:BirchMurnaghan3rd}, e; epsilon = 1e-20)
     @unpack v0, b0, b′0, e0 = eos.param
     # Constrcut ax^3 + bx^2 + d = 0
     b, d = 9 / 2 * b0 * v0, e0 - e
