@@ -83,7 +83,7 @@ function _preprocess(eos, xs, ys)  # Do not export!
 end
 
 # Do not export!
-function _unifyunit(eos::EnergyEOS{<:Parameters{<:AbstractQuantity}}, vs, es)
+function _unifyunit(eos::EnergyEOS{<:Parameters}, vs, es)
     vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
     punit = eunit / vunit
     vs, es = ustrip.(vunit, vs), ustrip.(eunit, es)
@@ -102,7 +102,7 @@ function _unifyunit(
     eos::Union{PressureEOS{T},BulkModulusEOS{T}},
     vs,
     ps,
-) where {T<:Parameters{<:AbstractQuantity}}
+) where {T<:Parameters}
     vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
     punit = eunit / vunit
     vs, ps = ustrip.(vunit, vs), ustrip.(punit, ps)
