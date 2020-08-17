@@ -22,7 +22,7 @@ function nonlinfit(
     saveto = "",
 ) where {T}
     model = createmodel(eos)
-    p0 = initparam(eos, ys)
+    p0 = initparam(eos, xs, ys)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         float.(xs),
@@ -64,12 +64,14 @@ function checkparam(param::FiniteStrainParameters)  # Do not export!
     # end
 end
 
-initparam(eos, ::Any) = fieldvalues(eos.param)
-function initparam(eos::EnergyEOS, energies)
+function initparam(eos, xs, ys)
+    _initparam(eos, xs, ys)
+    return fieldvalues(eos.param)
+end
+function _initparam(eos::EnergyEOS, ::Any, energies)
     if iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(energies)
     end
-    return fieldvalues(eos.param)
 end
 
 fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
