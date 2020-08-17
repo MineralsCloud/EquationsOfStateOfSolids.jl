@@ -2,6 +2,7 @@ module Fitting
 
 using ConstructionBase: constructorof
 using LsqFit: curve_fit, coef
+using Serialization: serialize
 using Setfield: @set!
 
 using ..Collections:
@@ -35,13 +36,18 @@ function nonlinfit(
         good_step_quality = good_step_quality,
         show_trace = !silent,
     )
+    if !isempty(saveto)
+        open(saveto, "r+") do io
+            serialize(io, fit)
+        end
+    end
     if fit.converged
         param = constructorof(T)(coef(fit))
         checkparam(param)
-        return param, fit
+        return param
     else
-        @error "fitting is not converged! Check your initial parameters!"
-        return nothing, fit
+        @error "fitting is not converged! Change initial parameters!"
+        return nothing
     end
 end # function nonlinfit
 
