@@ -6,12 +6,13 @@ using Roots: find_zero, AbstractBracketing, AbstractUnivariateZeroMethod
 using UnPack: @unpack
 
 using ..Collections:
-    PressureEoss,
-    EnergyEoss,
+    PressureEOS,
+    EnergyEOS,
     EquationOfStateOfSolids,
     Murnaghan,
     BirchMurnaghan2nd,
-    BirchMurnaghan3rd
+    BirchMurnaghan3rd,
+    PoirierTarantola3rd
 
 export findvolume
 
@@ -25,11 +26,11 @@ _nonabstract(t::Type) = filter(!isabstracttype, _allsubtypes(t))  # `Roots.False
 
 const ROOT_FINDING_ALGORITHMS = _nonabstract(AbstractUnivariateZeroMethod)
 
-function findvolume(eos::PressureEoss{<:Murnaghan}, p)
+function findvolume(eos::PressureEOS{<:Murnaghan}, p)
     @unpack v0, b0, b′0, e0 = eos.param
     return v0 * (1 + b′0 / b0 * p)^(-1 / b′0)
 end
-function findvolume(eos::EnergyEoss{<:BirchMurnaghan2nd}, e)
+function findvolume(eos::EnergyEOS{<:BirchMurnaghan2nd}, e)
     @unpack v0, b0, b′0, e0 = eos.param
     f = sqrt(2 / 9 * (e - e0) / b0 / v0)
     vs = map(volume_from_strain(Eulerian(), v0), [f, -f])

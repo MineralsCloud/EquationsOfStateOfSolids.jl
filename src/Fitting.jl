@@ -5,8 +5,7 @@ using LsqFit: curve_fit, coef
 using Serialization: serialize
 using Setfield: @set!
 
-using ..Collections:
-    EquationOfStateOfSolids, FiniteStrainEossParam, PressureEoss, EnergyEoss
+using ..Collections: EquationOfStateOfSolids, FiniteStrainParameters, PressureEOS, EnergyEOS
 
 export linfit, nonlinfit
 
@@ -56,7 +55,7 @@ function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not expo
     return (x, p) -> map(constructor(p), x)
 end
 
-function checkparam(param::FiniteStrainEossParam)  # Do not export!
+function checkparam(param::FiniteStrainParameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
         @error "fitted `v0` or `b0` is negative!"
     end
@@ -66,7 +65,7 @@ function checkparam(param::FiniteStrainEossParam)  # Do not export!
 end
 
 initparam(eos, ::Any) = fieldvalues(eos.param)
-function initparam(eos::EnergyEoss, energies)
+function initparam(eos::EnergyEOS, energies)
     if iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(energies)
     end
