@@ -48,7 +48,7 @@ function nonlinfit(
             end,
         )
     else
-        if !isinteractive()
+        if !isinteractive() && isempty(saveto)
             saveto = string(rand(UInt)) * ".jls"
         end
         @error "fitting is not converged, change initial parameters!"
