@@ -4,8 +4,15 @@ using ConstructionBase: constructorof
 using LsqFit: curve_fit, coef
 using Serialization: serialize
 using Setfield: @set!
+using Unitful: AbstractQuantity, ustrip, unit
 
-using ..Collections: EquationOfStateOfSolids, FiniteStrainParameters, PressureEOS, EnergyEOS
+using ..Collections:
+    EquationOfStateOfSolids,
+    FiniteStrainParameters,
+    Parameters,
+    PressureEOS,
+    EnergyEOS,
+    BulkModulusEOS
 
 export linfit, nonlinfit
 
@@ -72,6 +79,19 @@ function _initparam(eos::EnergyEOS, ::Any, energies)
     if iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(energies)
     end
+function _unifyunit(eos::EnergyEOS{<:Parameters{<:AbstractQuantity}}, vs, es)
+    es = ustrip.(unit(eos.param.e0), es)
+    vs = ustrip.(unit(eos.param.v0), vs)
+    return vs, es
+end
+function _unifyunit(
+    eos::Union{PressureEOS{T},BulkModulusEOS{T}},
+    vs,
+    ps,
+) where {T<:Parameters{<:AbstractQuantity}}
+    ps = ustrip.(unit(eos.param.e0) / unit(eos.param.v0), ps)
+    vs = ustrip.(unit(eos.param.v0), vs)
+    return vs, ps
 end
 
 _fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
