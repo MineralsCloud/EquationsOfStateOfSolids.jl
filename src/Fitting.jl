@@ -75,27 +75,47 @@ const collect_float = collect ∘ Base.Fix1(map, float)
 
 function _preprocess(eos, xs, ys)  # Do not export!
     xs, ys = collect_float(xs), collect_float(ys)  # `xs` & `ys` may not be arrays
-    xs, ys = _unifyunit(eos, xs, ys)
+    eos, xs, ys = _unifyunit(eos, xs, ys)
     if eos isa EnergyEOS && iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
     end
-    return collect(_fieldvalues(float(eos.param))), xs, ys
+    return ustrip.(collect(_fieldvalues(float(eos.param)))), xs, ys
 end
 
 # Do not export!
 function _unifyunit(eos::EnergyEOS{<:Parameters{<:AbstractQuantity}}, vs, es)
-    es = ustrip.(unit(eos.param.e0), es)
-    vs = ustrip.(unit(eos.param.v0), vs)
-    return vs, es
+    vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
+    punit = eunit / vunit
+    vs, es = ustrip.(vunit, vs), ustrip.(eunit, es)
+    if hasfield(typeof(eos.param), :b0)
+        @set! eos.param.b0 = ustrip(punit, eos.param.b0)
+    end
+    if hasfield(typeof(eos.param), :b′′0)
+        @set! eos.param.b0 = ustrip(punit^(-1), eos.param.b′′0)
+    end
+    if hasfield(typeof(eos.param), :b′′′0)
+        @set! eos.param.b0 = ustrip(punit^(-2), eos.param.b′′′0)
+    end
+    return eos, vs, es
 end
 function _unifyunit(
     eos::Union{PressureEOS{T},BulkModulusEOS{T}},
     vs,
     ps,
 ) where {T<:Parameters{<:AbstractQuantity}}
-    ps = ustrip.(unit(eos.param.e0) / unit(eos.param.v0), ps)
-    vs = ustrip.(unit(eos.param.v0), vs)
-    return vs, ps
+    vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
+    punit = eunit / vunit
+    vs, ps = ustrip.(vunit, vs), ustrip.(punit, ps)
+    if hasfield(typeof(eos.param), :b0)
+        @set! eos.param.b0 = ustrip(punit, eos.param.b0)
+    end
+    if hasfield(typeof(eos.param), :b′′0)
+        @set! eos.param.b0 = ustrip(punit^(-1), eos.param.b′′0)
+    end
+    if hasfield(typeof(eos.param), :b′′′0)
+        @set! eos.param.b0 = ustrip(punit^(-2), eos.param.b′′′0)
+    end
+    return eos, vs, ps
 end
 
 _fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
