@@ -84,8 +84,8 @@ function _preprocess(eos, xs, ys)  # Do not export!
     return collect(_splat(ustrip ∘ float, eos.param)), xs, ys, rules
 end
 
-# Do not export!
-function _ustrip_all(eos::EnergyEOS{<:Parameters}, vs, es)
+# No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
+function _ustrip_all(eos::EnergyEOS, vs, es)  # Do not export!
     vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
     punit = eunit / vunit
     vs, es = ustrip.(vunit, vs), ustrip.(eunit, es)
@@ -111,11 +111,7 @@ function _ustrip_all(eos::EnergyEOS{<:Parameters}, vs, es)
     end
     return eos, vs, es, rules
 end
-function _ustrip_all(
-    eos::Union{PressureEOS{T},BulkModulusEOS{T}},
-    vs,
-    ps,
-) where {T<:Parameters}
+function _ustrip_all(eos::Union{PressureEOS,BulkModulusEOS}, vs, ps)
     vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
     punit = eunit / vunit
     vs, ps = ustrip.(vunit, vs), ustrip.(punit, ps)
