@@ -242,15 +242,15 @@ volume_from_strain(::Lagrangian, v0) = f -> v0 * (2f + 1)^(3 / 2)
 volume_from_strain(::Natural, v0) = f -> v0 * exp(3f)
 volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
 
-function Base.show(io::IO, eos::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
+function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
-        Base.show_default(IOContext(io, :limit => true), eos)
+        Base.show_default(IOContext(io, :limit => true), param)
     else
         # just dumping seems to give ok output, in particular for big data-sets:
-        T = typeof(eos)
+        T = typeof(param)
         println(io, T)
-        for f in propertynames(eos)
-            println(io, " ", f, " = ", getproperty(eos, f))
+        for f in propertynames(param)
+            println(io, " ", f, " = ", getproperty(param, f))
         end
     end
 end # function Base.show
