@@ -2,6 +2,7 @@ module Fitting
 
 using ConstructionBase: constructorof
 using LsqFit: curve_fit, coef
+using Serialization: serialize
 using Setfield: @set!
 
 using ..Collections:
@@ -9,17 +10,44 @@ using ..Collections:
 
 export linfit, nonlinfit
 
-function nonlinfit(eos::EquationOfStateOfSolids{T}, xs, ys; kwargs...) where {T}
+function nonlinfit(
+    eos::EquationOfStateOfSolids{T},
+    xs,
+    ys;
+    xtol,
+    gtol,
+    maxiter::Integer = 1000,
+    min_step_quality = 1e-3,
+    good_step_quality = 0.75,
+    silent = true,
+    saveto = "",
+) where {T}
     model = createmodel(eos)
-    p0 = getparam(eos, ys)
-    fit = curve_fit(model, float.(xs), float.(ys), float.(p0); kwargs...)
+    p0 = initparam(eos, ys)
+    fit = curve_fit(
+        model,
+        float.(xs),
+        float.(ys),
+        float.(p0);
+        x_tol = xtol,
+        g_tol = gtol,
+        maxIter = maxiter,
+        min_step_quality = min_step_quality,
+        good_step_quality = good_step_quality,
+        show_trace = !silent,
+    )
+    if !isempty(saveto)
+        open(saveto, "r+") do io
+            serialize(io, fit)
+        end
+    end
     if fit.converged
         param = constructorof(T)(coef(fit))
         checkparam(param)
-        return param, fit
+        return param
     else
-        @error "fitting is not converged! Check your initial parameters!"
-        return nothing, fit
+        @error "fitting is not converged! Change initial parameters!"
+        return nothing
     end
 end # function nonlinfit
 
@@ -37,8 +65,8 @@ function checkparam(param::FiniteStrainEossParam)  # Do not export!
     # end
 end
 
-getparam(eos, ::Any) = fieldvalues(eos.param)
-function getparam(eos::EnergyEoss, energies)
+initparam(eos, ::Any) = fieldvalues(eos.param)
+function initparam(eos::EnergyEoss, energies)
     if iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(energies)
     end
