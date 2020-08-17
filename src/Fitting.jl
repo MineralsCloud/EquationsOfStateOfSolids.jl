@@ -5,8 +5,7 @@ using LsqFit: curve_fit, coef
 using Serialization: serialize
 using Setfield: @set!
 
-using ..Collections:
-    EquationOfStateOfSolids, FiniteStrainEossParam, PressureEoss, EnergyEoss
+using ..Collections: EquationOfStateOfSolids, FiniteStrainParameters, PressureEOS, EnergyEOS
 
 export linfit, nonlinfit
 
@@ -66,7 +65,7 @@ function checkparam(param::FiniteStrainParameters)  # Do not export!
 end
 
 initparam(eos, ::Any) = fieldvalues(eos.param)
-function initparam(eos::EnergyEoss, energies)
+function initparam(eos::EnergyEOS, energies)
     if iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(energies)
     end
