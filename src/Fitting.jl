@@ -9,10 +9,32 @@ using ..Collections:
 
 export linfit, nonlinfit
 
-function nonlinfit(eos::EquationOfStateOfSolids{T}, xs, ys; kwargs...) where {T}
+function nonlinfit(
+    eos::EquationOfStateOfSolids{T},
+    xs,
+    ys;
+    xtol,
+    gtol,
+    maxiter::Integer = 1000,
+    min_step_quality = 1e-3,
+    good_step_quality = 0.75,
+    silent = true,
+    saveto = "",
+) where {T}
     model = createmodel(eos)
-    fit = curve_fit(model, float.(xs), float.(ys), float.(p0); kwargs...)
     p0 = initparam(eos, ys)
+    fit = curve_fit(
+        model,
+        float.(xs),
+        float.(ys),
+        float.(p0);
+        x_tol = xtol,
+        g_tol = gtol,
+        maxIter = maxiter,
+        min_step_quality = min_step_quality,
+        good_step_quality = good_step_quality,
+        show_trace = !silent,
+    )
     if fit.converged
         param = constructorof(T)(coef(fit))
         checkparam(param)
@@ -36,6 +58,7 @@ function checkparam(param::FiniteStrainEossParam)  # Do not export!
     #     @warn "use higher order EOS!"
     # end
 end
+
 initparam(eos, ::Any) = fieldvalues(eos.param)
 function initparam(eos::EnergyEoss, energies)
     if iszero(eos.param.e0)
