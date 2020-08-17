@@ -28,7 +28,7 @@ function nonlinfit(
     saveto = "",
 )
     model = createmodel(eos)
-    p0, xs, ys = _preprocess(eos, xs, ys)
+    p0, xs, ys = _prepare(eos, xs, ys)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         xs,
@@ -81,7 +81,7 @@ function _checkparam(param::FiniteStrainParameters)  # Do not export!
     # end
 end
 
-function _preprocess(eos, xs, ys)  # Do not export!
+function _prepare(eos, xs, ys)  # Do not export!
     xs, ys = _collect_float(xs), _collect_float(ys)  # `xs` & `ys` may not be arrays
     if eos isa EnergyEOS && iszero(eos.param.e0)
         eos = EnergyEOS(setproperties(eos.param; e0 = minimum(ys)))  # Energy minimum as e0
