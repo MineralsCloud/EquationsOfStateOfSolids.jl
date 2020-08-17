@@ -143,9 +143,8 @@ function _ustrip_all(eos::Union{PressureEOS,BulkModulusEOS}, vs, ps)
     return collect(_splat(ustrip ∘ float, eos.param)), vs, ps, rules
 end
 
-_splat(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
-_splat(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))
+_mapfields(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))  # Do not export!
 
-Base.float(p::Parameters) = constructorof(typeof(p))(_splat(float, p)...)
+Base.float(p::Parameters) = constructorof(typeof(p))(_mapfields(float, p)...)  # Not used here but may be useful
 
 end
