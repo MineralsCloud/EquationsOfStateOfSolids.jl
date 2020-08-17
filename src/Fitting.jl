@@ -29,7 +29,7 @@ function nonlinfit(
     saveto = "",
 ) where {T}
     model = createmodel(eos)
-    p0, xs, ys = _preprocess(eos, xs, ys)
+    p0, xs, ys, rules = _preprocess(eos, xs, ys)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         xs,
@@ -48,7 +48,9 @@ function nonlinfit(
         end
     end
     if fit.converged
-        param = constructorof(T)(coef(fit))
+        param = constructorof(T)(map(coef(fit), rules) do x, (from, to)
+            x * to |> from
+        end)
         _checkparam(param)
         return param
     else
@@ -75,11 +77,11 @@ _collect_float(x) = collect(float.(x))  # Do not export!
 
 function _preprocess(eos, xs, ys)  # Do not export!
     xs, ys = _collect_float(xs), _collect_float(ys)  # `xs` & `ys` may not be arrays
-    eos, xs, ys = _ustrip_all(eos, xs, ys)
     if eos isa EnergyEOS && iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
     end
-    return collect(_splat(ustrip ∘ float, eos.param)), xs, ys
+    eos, xs, ys, rules = _ustrip_all(eos, xs, ys)
+    return collect(_splat(ustrip ∘ float, eos.param)), xs, ys, rules
 end
 
 # Do not export!
@@ -87,16 +89,27 @@ function _ustrip_all(eos::EnergyEOS{<:Parameters}, vs, es)
     vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
     punit = eunit / vunit
     vs, es = ustrip.(vunit, vs), ustrip.(eunit, es)
-    if hasfield(typeof(eos.param), :b0)
-        @set! eos.param.b0 = ustrip(punit, eos.param.b0)
+    rules = map(fieldnames(typeof(eos.param))) do f
+        from = unit(getfield(eos.param, f))
+        to = if f == :b0
+            @set! eos.param.b0 = ustrip(punit, eos.param.b0)
+            punit
+        elseif f == :b′0
+            1
+        elseif f == :b′′0
+            @set! eos.param.b′′0 = ustrip(punit^(-1), eos.param.b′′0)
+            punit^(-1)
+        elseif f == :b′′′0
+            @set! eos.param.b′′′0 = ustrip(punit^(-2), eos.param.b′′′0)
+            punit^(-2)
+        elseif f == :v0
+            vunit
+        elseif f == :e0
+            eunit
+        end
+        from => to
     end
-    if hasfield(typeof(eos.param), :b′′0)
-        @set! eos.param.b′′0 = ustrip(punit^(-1), eos.param.b′′0)
-    end
-    if hasfield(typeof(eos.param), :b′′′0)
-        @set! eos.param.b′′′0 = ustrip(punit^(-2), eos.param.b′′′0)
-    end
-    return eos, vs, es
+    return eos, vs, es, rules
 end
 function _ustrip_all(
     eos::Union{PressureEOS{T},BulkModulusEOS{T}},
@@ -106,16 +119,27 @@ function _ustrip_all(
     vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
     punit = eunit / vunit
     vs, ps = ustrip.(vunit, vs), ustrip.(punit, ps)
-    if hasfield(typeof(eos.param), :b0)
-        @set! eos.param.b0 = ustrip(punit, eos.param.b0)
+    rules = map(fieldnames(typeof(eos.param))) do f
+        from = unit(getfield(eos.param, f))
+        to = if f == :b0
+            @set! eos.param.b0 = ustrip(punit, eos.param.b0)
+            punit
+        elseif f == :b′0
+            1
+        elseif f == :b′′0
+            @set! eos.param.b′′0 = ustrip(punit^(-1), eos.param.b′′0)
+            punit^(-1)
+        elseif f == :b′′′0
+            @set! eos.param.b′′′0 = ustrip(punit^(-2), eos.param.b′′′0)
+            punit^(-2)
+        elseif f == :v0
+            vunit
+        elseif f == :e0
+            eunit
+        end
+        from => to
     end
-    if hasfield(typeof(eos.param), :b′′0)
-        @set! eos.param.b′′0 = ustrip(punit^(-1), eos.param.b′′0)
-    end
-    if hasfield(typeof(eos.param), :b′′′0)
-        @set! eos.param.b′′′0 = ustrip(punit^(-2), eos.param.b′′′0)
-    end
-    return eos, vs, ps
+    return eos, vs, ps, rules
 end
 
 _splat(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
