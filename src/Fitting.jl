@@ -1,9 +1,8 @@
 module Fitting
 
-using ConstructionBase: constructorof
+using ConstructionBase: constructorof, setproperties
 using LsqFit: curve_fit, coef
 using Serialization: serialize
-using Setfield: @set!
 using Unitful: AbstractQuantity, ustrip, unit
 
 using ..Collections:
@@ -85,7 +84,7 @@ _collect_float(x) = collect(float.(x))  # Do not export!
 function _preprocess(eos, xs, ys)  # Do not export!
     xs, ys = _collect_float(xs), _collect_float(ys)  # `xs` & `ys` may not be arrays
     if eos isa EnergyEOS && iszero(eos.param.e0)
-        @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
+        eos = EnergyEOS(setproperties(eos.param; e0 = minimum(ys)))  # Energy minimum as e0
     end
     return _ustrip_all(eos, xs, ys)
 end
