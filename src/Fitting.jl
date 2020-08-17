@@ -28,12 +28,12 @@ function nonlinfit(
     saveto = "",
 )
     model = createmodel(eos)
-    p0, xs, ys, rules = _preprocess(eos, xs, ys)
+    p0, xs, ys = _preprocess(eos, xs, ys)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         xs,
         ys,
-        p0;
+        collect(last.(p0));
         x_tol = xtol,
         g_tol = gtol,
         maxIter = maxiter,
@@ -42,9 +42,11 @@ function nonlinfit(
         show_trace = !silent,
     )
     result = if fit.converged
-        constructorof(typeof(eos))(map(coef(fit), rules) do x, (from, to)
-            x * to |> from
-        end)
+        constructorof(typeof(eos.param))(
+            map(coef(fit), first.(p0), _mapfields(unit, eos.param)) do x, c, u
+                x / c * u
+            end,
+        )
     else
         if !isinteractive()
             saveto = string(rand(UInt)) * ".jls"
@@ -79,8 +81,6 @@ function _checkparam(param::FiniteStrainParameters)  # Do not export!
     # end
 end
 
-_collect_float(x) = collect(float.(x))  # Do not export!
-
 function _preprocess(eos, xs, ys)  # Do not export!
     xs, ys = _collect_float(xs), _collect_float(ys)  # `xs` & `ys` may not be arrays
     if eos isa EnergyEOS && iszero(eos.param.e0)
@@ -90,58 +90,26 @@ function _preprocess(eos, xs, ys)  # Do not export!
 end
 
 # No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
-function _ustrip_all(eos::EnergyEOS, vs, es)  # Do not export!
-    vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
-    punit = eunit / vunit
-    vs, es = ustrip.(vunit, vs), ustrip.(eunit, es)
-    rules = map(fieldnames(typeof(eos.param))) do f
-        from = unit(getfield(eos.param, f))
-        to = if f == :b0
-            @set! eos.param.b0 = ustrip(punit, eos.param.b0)
-            punit
-        elseif f == :b′0
-            1
+function _ustrip_all(eos, xs, ys)  # Do not export!
+    xs, ys = ustrip.(unit(eos.param.v0), xs), ustrip.(_yunit(eos), ys)
+    punit = unit(eos.param.e0) / unit(eos.param.v0)
+    return map(fieldnames(typeof(eos.param))) do f
+        x = getfield(eos.param, f)
+        if f == :b0
+            ustrip(punit, oneunit(x)) => ustrip(punit, float(x))
         elseif f == :b′′0
-            @set! eos.param.b′′0 = ustrip(punit^(-1), eos.param.b′′0)
-            punit^(-1)
+            ustrip(punit^(-1), oneunit(x)) => ustrip(punit^(-1), float(x))
         elseif f == :b′′′0
-            @set! eos.param.b′′′0 = ustrip(punit^(-2), eos.param.b′′′0)
-            punit^(-2)
-        elseif f == :v0
-            vunit
-        elseif f == :e0
-            eunit
+            ustrip(punit^(-2), oneunit(x)) => ustrip(punit^(-2), float(x))
+        else
+            1 => ustrip(float(x))
         end
-        from => to
-    end
-    return collect(_splat(ustrip ∘ float, eos.param)), vs, es, rules
+    end, xs, ys
 end
-function _ustrip_all(eos::Union{PressureEOS,BulkModulusEOS}, vs, ps)
-    vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
-    punit = eunit / vunit
-    vs, ps = ustrip.(vunit, vs), ustrip.(punit, ps)
-    rules = map(fieldnames(typeof(eos.param))) do f
-        from = unit(getfield(eos.param, f))
-        to = if f == :b0
-            @set! eos.param.b0 = ustrip(punit, eos.param.b0)
-            punit
-        elseif f == :b′0
-            1
-        elseif f == :b′′0
-            @set! eos.param.b′′0 = ustrip(punit^(-1), eos.param.b′′0)
-            punit^(-1)
-        elseif f == :b′′′0
-            @set! eos.param.b′′′0 = ustrip(punit^(-2), eos.param.b′′′0)
-            punit^(-2)
-        elseif f == :v0
-            vunit
-        elseif f == :e0
-            eunit
-        end
-        from => to
-    end
-    return collect(_splat(ustrip ∘ float, eos.param)), vs, ps, rules
-end
+_yunit(eos::EnergyEOS) = unit(eos.param.e0)
+_yunit(eos::Union{PressureEOS,BulkModulusEOS}) = unit(eos.param.e0) / unit(eos.param.v0)
+
+_collect_float(x) = collect(float.(x))  # Do not export!
 
 _mapfields(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))  # Do not export!
 
