@@ -71,10 +71,10 @@ function _checkparam(param::FiniteStrainParameters)  # Do not export!
     # end
 end
 
-const collect_float = collect ∘ Base.Fix1(map, float)
+_collect_float(x) = collect(float.(x))  # Do not export!
 
 function _preprocess(eos, xs, ys)  # Do not export!
-    xs, ys = collect_float(xs), collect_float(ys)  # `xs` & `ys` may not be arrays
+    xs, ys = _collect_float(xs), _collect_float(ys)  # `xs` & `ys` may not be arrays
     eos, xs, ys = _unifyunit(eos, xs, ys)
     if eos isa EnergyEOS && iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
