@@ -75,7 +75,7 @@ _collect_float(x) = collect(float.(x))  # Do not export!
 
 function _preprocess(eos, xs, ys)  # Do not export!
     xs, ys = _collect_float(xs), _collect_float(ys)  # `xs` & `ys` may not be arrays
-    eos, xs, ys = _unifyunit(eos, xs, ys)
+    eos, xs, ys = _ustrip_all(eos, xs, ys)
     if eos isa EnergyEOS && iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
     end
@@ -83,7 +83,7 @@ function _preprocess(eos, xs, ys)  # Do not export!
 end
 
 # Do not export!
-function _unifyunit(eos::EnergyEOS{<:Parameters}, vs, es)
+function _ustrip_all(eos::EnergyEOS{<:Parameters}, vs, es)
     vunit, eunit = unit(eos.param.v0), unit(eos.param.e0)
     punit = eunit / vunit
     vs, es = ustrip.(vunit, vs), ustrip.(eunit, es)
@@ -91,14 +91,14 @@ function _unifyunit(eos::EnergyEOS{<:Parameters}, vs, es)
         @set! eos.param.b0 = ustrip(punit, eos.param.b0)
     end
     if hasfield(typeof(eos.param), :b′′0)
-        @set! eos.param.b0 = ustrip(punit^(-1), eos.param.b′′0)
+        @set! eos.param.b′′0 = ustrip(punit^(-1), eos.param.b′′0)
     end
     if hasfield(typeof(eos.param), :b′′′0)
-        @set! eos.param.b0 = ustrip(punit^(-2), eos.param.b′′′0)
+        @set! eos.param.b′′′0 = ustrip(punit^(-2), eos.param.b′′′0)
     end
     return eos, vs, es
 end
-function _unifyunit(
+function _ustrip_all(
     eos::Union{PressureEOS{T},BulkModulusEOS{T}},
     vs,
     ps,
@@ -110,10 +110,10 @@ function _unifyunit(
         @set! eos.param.b0 = ustrip(punit, eos.param.b0)
     end
     if hasfield(typeof(eos.param), :b′′0)
-        @set! eos.param.b0 = ustrip(punit^(-1), eos.param.b′′0)
+        @set! eos.param.b′′0 = ustrip(punit^(-1), eos.param.b′′0)
     end
     if hasfield(typeof(eos.param), :b′′′0)
-        @set! eos.param.b0 = ustrip(punit^(-2), eos.param.b′′′0)
+        @set! eos.param.b′′′0 = ustrip(punit^(-2), eos.param.b′′′0)
     end
     return eos, vs, ps
 end
