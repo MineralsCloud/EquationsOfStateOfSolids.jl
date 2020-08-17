@@ -42,7 +42,7 @@ function nonlinfit(
     end
     if fit.converged
         param = constructorof(T)(coef(fit))
-        checkparam(param)
+        _checkparam(param)
         return param
     else
         @error "fitting is not converged! Change initial parameters!"
@@ -55,7 +55,7 @@ function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not expo
     return (x, p) -> map(constructor(p), x)
 end
 
-function checkparam(param::FiniteStrainParameters)  # Do not export!
+function _checkparam(param::FiniteStrainParameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
         @error "fitted `v0` or `b0` is negative!"
     end
@@ -74,6 +74,6 @@ function _initparam(eos::EnergyEOS, ::Any, energies)
     end
 end
 
-fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
+_fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
 
 end
