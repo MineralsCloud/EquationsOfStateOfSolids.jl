@@ -13,8 +13,8 @@ function nonlinfit(
     eos::EquationOfStateOfSolids{T},
     xs,
     ys;
-    xtol,
-    gtol,
+    xtol = 1e-8,
+    gtol = 1e-2,
     maxiter::Integer = 1000,
     min_step_quality = 1e-3,
     good_step_quality = 0.75,
@@ -23,7 +23,7 @@ function nonlinfit(
 ) where {T}
     model = createmodel(eos)
     p0 = initparam(eos, ys)
-    fit = curve_fit(
+    fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         float.(xs),
         float.(ys),
