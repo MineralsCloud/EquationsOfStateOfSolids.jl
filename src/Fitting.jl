@@ -29,12 +29,12 @@ function nonlinfit(
     saveto = "",
 ) where {T}
     model = createmodel(eos)
-    p0 = initparam(eos, xs, ys)
+    p0, xs, ys = _preprocess(eos, xs, ys)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
-        float.(xs),
-        float.(ys),
-        float.(p0);
+        xs,
+        ys,
+        p0;
         x_tol = xtol,
         g_tol = gtol,
         maxIter = maxiter,
@@ -71,14 +71,15 @@ function _checkparam(param::FiniteStrainParameters)  # Do not export!
     # end
 end
 
-function initparam(eos, xs, ys)
-    _initparam(eos, xs, ys)
-    return fieldvalues(eos.param)
-end
-function _initparam(eos::EnergyEOS, ::Any, energies)
-    if iszero(eos.param.e0)
-        @set! eos.param.e0 = minimum(energies)
+function _preprocess(eos, xs, ys)
+    eos, xs, ys = float(eos), float.(xs), float.(ys)
+    if eos isa EnergyEOS && iszero(eos.param.e0)
+        @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
     end
+    xs, ys = _unifyunit(eos, xs, ys)
+    return _fieldvalues(eos.param), xs, ys
+end
+
 function _unifyunit(eos::EnergyEOS{<:Parameters{<:AbstractQuantity}}, vs, es)
     es = ustrip.(unit(eos.param.e0), es)
     vs = ustrip.(unit(eos.param.v0), vs)
