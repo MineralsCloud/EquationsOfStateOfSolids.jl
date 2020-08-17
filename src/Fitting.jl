@@ -71,15 +71,18 @@ function _checkparam(param::FiniteStrainParameters)  # Do not export!
     # end
 end
 
-function _preprocess(eos, xs, ys)
-    eos, xs, ys = float(eos), float.(xs), float.(ys)
+const collect_float = collect ∘ Base.Fix1(map, float)
+
+function _preprocess(eos, xs, ys)  # Do not export!
+    xs, ys = collect_float(xs), collect_float(ys)  # `xs` & `ys` may not be arrays
+    xs, ys = _unifyunit(eos, xs, ys)
     if eos isa EnergyEOS && iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
     end
-    xs, ys = _unifyunit(eos, xs, ys)
-    return _fieldvalues(eos.param), xs, ys
+    return collect(_fieldvalues(float(eos.param))), xs, ys
 end
 
+# Do not export!
 function _unifyunit(eos::EnergyEOS{<:Parameters{<:AbstractQuantity}}, vs, es)
     es = ustrip.(unit(eos.param.e0), es)
     vs = ustrip.(unit(eos.param.v0), vs)
