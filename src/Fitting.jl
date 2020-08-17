@@ -79,7 +79,7 @@ function _preprocess(eos, xs, ys)  # Do not export!
     if eos isa EnergyEOS && iszero(eos.param.e0)
         @set! eos.param.e0 = minimum(ys)  # Energy minimum as e0
     end
-    return collect(_fieldvalues(ustrip ∘ float, eos.param)), xs, ys
+    return collect(_splat(ustrip ∘ float, eos.param)), xs, ys
 end
 
 # Do not export!
@@ -118,9 +118,9 @@ function _unifyunit(
     return eos, vs, ps
 end
 
-_fieldvalues(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
-_fieldvalues(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))
+_splat(x) = (getfield(x, i) for i in 1:nfields(x))  # Do not export!
+_splat(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))
 
-Base.float(p::Parameters) = constructorof(typeof(p))(_fieldvalues(float, p)...)
+Base.float(p::Parameters) = constructorof(typeof(p))(_splat(float, p)...)
 
 end
