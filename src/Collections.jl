@@ -23,29 +23,29 @@ export Murnaghan,
     strain_from_volume,
     volume_from_strain
 
-abstract type EossParam{T} end
-abstract type FiniteStrainEossParam{N,T} <: EossParam{T} end
-struct Murnaghan{T} <: EossParam{T}
+abstract type Parameters{T} end
+abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
+struct Murnaghan{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
     e0::T
     Murnaghan{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-struct BirchMurnaghan2nd{T} <: FiniteStrainEossParam{2,T}
+struct BirchMurnaghan2nd{T} <: FiniteStrainParameters{2,T}
     v0::T
     b0::T
     e0::T
     BirchMurnaghan2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
-struct BirchMurnaghan3rd{T} <: FiniteStrainEossParam{3,T}
+struct BirchMurnaghan3rd{T} <: FiniteStrainParameters{3,T}
     v0::T
     b0::T
     b′0::T
     e0::T
     BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-struct BirchMurnaghan4th{T} <: FiniteStrainEossParam{4,T}
+struct BirchMurnaghan4th{T} <: FiniteStrainParameters{4,T}
     v0::T
     b0::T
     b′0::T
@@ -54,20 +54,20 @@ struct BirchMurnaghan4th{T} <: FiniteStrainEossParam{4,T}
     BirchMurnaghan4th{T}(v0, b0, b′0, b′′0, e0 = zero(v0 * b0)) where {T} =
         new(v0, b0, b′0, b′′0, e0)
 end
-struct PoirierTarantola2nd{T} <: FiniteStrainEossParam{2,T}
+struct PoirierTarantola2nd{T} <: FiniteStrainParameters{2,T}
     v0::T
     b0::T
     e0::T
     PoirierTarantola2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
-struct PoirierTarantola3rd{T} <: FiniteStrainEossParam{3,T}
+struct PoirierTarantola3rd{T} <: FiniteStrainParameters{3,T}
     v0::T
     b0::T
     b′0::T
     e0::T
     PoirierTarantola3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-struct PoirierTarantola4th{T} <: FiniteStrainEossParam{4,T}
+struct PoirierTarantola4th{T} <: FiniteStrainParameters{4,T}
     v0::T
     b0::T
     b′0::T
@@ -76,7 +76,7 @@ struct PoirierTarantola4th{T} <: FiniteStrainEossParam{4,T}
     PoirierTarantola4th{T}(v0, b0, b′0, b′′0, e0 = zero(v0 * b0)) where {T} =
         new(v0, b0, b′0, b′′0, e0)
 end
-struct Vinet{T} <: EossParam{T}
+struct Vinet{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
@@ -223,7 +223,7 @@ function (eos::BulkModulusEoss{<:Vinet})(v)
     return -b0 / (2 * x^2) * (3x * (x - 1) * (b′0 - 1) + 2 * (x - 2)) * exp(-ξ * (x - 1))
 end
 
-orderof(::FiniteStrainEossParam{N}) where {N} = N
+orderof(::FiniteStrainParameters{N}) where {N} = N
 
 abstract type FiniteStrain end  # Trait
 struct Eulerian <: FiniteStrain end
@@ -241,7 +241,7 @@ volume_from_strain(::Lagrangian, v0) = f -> v0 * (2f + 1)^(3 / 2)
 volume_from_strain(::Natural, v0) = f -> v0 * exp(3f)
 volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
 
-function Base.show(io::IO, eos::EossParam)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
+function Base.show(io::IO, eos::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
         Base.show_default(IOContext(io, :limit => true), eos)
     else
@@ -254,7 +254,7 @@ function Base.show(io::IO, eos::EossParam)  # Ref: https://github.com/mauro3/Par
     end
 end # function Base.show
 
-(::Type{T})(arr::AbstractVector) where {T<:EossParam} = T{eltype(arr)}(arr...)
-(::Type{T})(args...) where {T<:EossParam} = T([args...])
+(::Type{T})(arr::AbstractVector) where {T<:Parameters} = T{eltype(arr)}(arr...)
+(::Type{T})(args...) where {T<:Parameters} = T([args...])
 
 end

@@ -56,7 +56,7 @@ function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not expo
     return (x, p) -> map(constructor(p), x)
 end
 
-function checkparam(param::FiniteStrainEossParam)  # Do not export!
+function checkparam(param::FiniteStrainParameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
         @error "fitted `v0` or `b0` is negative!"
     end
