@@ -140,7 +140,7 @@ function (eos::EnergyEOS{<:Vinet})(v)
 end
 
 function (eos::PressureEOS{<:Murnaghan})(v)
-    @unpack v0, b0, b′0, e0 = eos.param
+    @unpack v0, b0, b′0 = eos.param
     return b0 / b′0 * ((v0 / v)^b′0 - 1)
 end
 function (eos::PressureEOS{<:BirchMurnaghan2nd})(v)
@@ -154,13 +154,13 @@ function (eos::PressureEOS{<:BirchMurnaghan3rd})(v)
     return 3f / 2 * b0 * (2f + 1)^(5 / 2) * (2 + 3f * (b′0 - 4))
 end
 function (eos::PressureEOS{<:BirchMurnaghan4th})(v)
-    @unpack v0, b0, b′0, b′′0, e0 = eos.param
+    @unpack v0, b0, b′0, b′′0 = eos.param
     f = strain_from_volume(Eulerian(), v0)(v)
     h = b′′0 * b0 + b′0^2
     return b0 / 2 * (2f + 1)^(5 / 2) * ((9h - 63b′0 + 143) * f^2 + 9f * (b′0 - 4) + 6)
 end
 function (eos::PressureEOS{<:PoirierTarantola2nd})(v)
-    @unpack v0, b0, e0 = eos.param
+    @unpack v0, b0 = eos.param
     f = strain_from_volume(Natural(), v0)(v)
     return -3b0 * f * exp(-3f)
 end
@@ -170,13 +170,13 @@ function (eos::PressureEOS{<:PoirierTarantola3rd})(v)
     return -3b0 / 2 * f * exp(-3f) * (3f * (b′0 - 2) + 1)
 end
 function (eos::PressureEOS{<:PoirierTarantola4th})(v)
-    @unpack v0, b0, b′0, b′′0, e0 = eos.param
+    @unpack v0, b0, b′0, b′′0 = eos.param
     f = strain_from_volume(Natural(), v0)(v)
     h = b′′0 * b0 + b′0^2
     return -3b0 / 2 * f * exp(-3f) * (3f^2 * (h + 3b′0 + 3) + 3f * (b′0 - 2) + 2)
 end
 function (eos::PressureEOS{<:Vinet})(v)
-    @unpack v0, b0, b′0, e0 = eos.param
+    @unpack v0, b0, b′0 = eos.param
     x, y = (v / v0)^(1 / 3), 3 / 2 * (b′0 - 1)
     return 3b0 / x^2 * (1 - x) * exp(y * (1 - x))
 end
