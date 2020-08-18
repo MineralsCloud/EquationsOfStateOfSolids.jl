@@ -224,7 +224,9 @@ function (eos::BulkModulusEOS{<:Vinet})(v)
     return -b0 / (2 * x^2) * (3x * (x - 1) * (b′0 - 1) + 2 * (x - 2)) * exp(-ξ * (x - 1))
 end
 
-orderof(::FiniteStrainParameters{N}) where {N} = N
+# Ref: https://github.com/JuliaLang/julia/blob/4a2830a/base/array.jl#L125
+orderof(::Type{<:FiniteStrainParameters{N}}) where {N} = N
+orderof(x) = orderof(typeof(x))
 
 abstract type FiniteStrain end  # Trait
 struct Eulerian <: FiniteStrain end
