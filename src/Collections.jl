@@ -1,6 +1,7 @@
 module Collections
 
 using AutoHashEquals: @auto_hash_equals
+using Unitful: NoUnits, ħ, me
 using UnPack: @unpack
 
 export Murnaghan,
@@ -11,6 +12,7 @@ export Murnaghan,
     PoirierTarantola3rd,
     PoirierTarantola4th,
     Vinet,
+    Holzapfel,
     Eulerian,
     Lagrangian,
     Natural,
@@ -19,9 +21,12 @@ export Murnaghan,
     PressureEOS,
     BulkModulusEOS,
     orderof,
+    atomic_number,
     nextorder,
     strain_from_volume,
     volume_from_strain
+
+const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
 
 abstract type Parameters{T} end
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
@@ -82,6 +87,16 @@ end
     b′0::T
     e0::T
     Vinet{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+end
+@auto_hash_equals struct Holzapfel{Z,T} <: Parameters{T}
+    v0::T
+    b0::T
+    b′0::T
+    e0::T
+    function Holzapfel{Z,T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {Z,T}
+        @assert 1 <= Z <= 118 "elements are between 1 and 118!"
+        return new(v0, b0, b′0, e0)
+    end
 end
 
 abstract type EquationOfState{T<:Parameters} end
@@ -180,6 +195,14 @@ function (eos::PressureEOS{<:Vinet})(v)
     x, y = (v / v0)^(1 / 3), 3 / 2 * (b′0 - 1)
     return 3b0 / x^2 * (1 - x) * exp(y * (1 - x))
 end
+function (eos::PressureEOS{<:Holzapfel{Z}})(v) where {Z}
+    @unpack v0, b0, b′0 = eos.param
+    η = (v / v0)^(1 / 3)
+    p0 = FERMI_GAS_CONSTANT * (Z / v0)^(5 / 3)
+    c0 = -log(3b0 / p0 |> NoUnits)
+    c2 = 3 / 2 * (b′0 - 3) - c0
+    return 3b0 * (1 - η) / η^5 * exp(c0 * (1 - η)) * (1 + c2 * η * (1 - η))
+end
 
 (eos::BulkModulusEOS{<:Murnaghan})(v) = eos.param.b0 + PressureEOS(eos.param)(v)
 function (eos::BulkModulusEOS{<:BirchMurnaghan2nd})(v)
@@ -227,6 +250,9 @@ end
 # Ref: https://github.com/JuliaLang/julia/blob/4a2830a/base/array.jl#L125
 orderof(::Type{<:FiniteStrainParameters{N}}) where {N} = N
 orderof(x) = orderof(typeof(x))
+
+atomic_number(::Type{<:Holzapfel{Z}}) where {Z} = Z
+atomic_number(x) = atomic_number(typeof(x))
 
 abstract type FiniteStrain end  # Trait
 struct Eulerian <: FiniteStrain end
