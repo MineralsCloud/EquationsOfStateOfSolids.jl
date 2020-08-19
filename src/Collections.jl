@@ -94,6 +94,7 @@ end
     b0::T
     b′0::T
     e∞::T
+    AntonSchmidt{T}(v0, b0, b′0, e∞ = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e∞)
 end
 @auto_hash_equals struct Holzapfel{Z,T} <: Parameters{T}
     v0::T
