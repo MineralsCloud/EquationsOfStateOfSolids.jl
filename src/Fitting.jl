@@ -73,7 +73,7 @@ function _savefit(file, fit)  # Do not export!
     end
 end
 
-function _checkresult(param::FiniteStrainParameters)  # Do not export!
+function _checkresult(param::Parameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
         @error "fitted `v0` or `b0` is negative!"
     end
