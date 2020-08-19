@@ -12,7 +12,9 @@ using ..Collections:
     Murnaghan,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
-    PoirierTarantola3rd
+    PoirierTarantola3rd,
+    Eulerian,
+    volume_from_strain
 
 export findvolume
 
