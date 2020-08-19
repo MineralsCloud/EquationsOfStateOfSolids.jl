@@ -3,7 +3,7 @@ module Collections
 using IntervalArithmetic
 using Measurements: Measurement, measurement
 using Test: @test, @testset
-using Unitful: Quantity, @u_str
+using Unitful: Quantity, DimensionlessQuantity, @u_str
 
 using EquationsOfStateOfSolids.Collections
 
@@ -16,7 +16,7 @@ using EquationsOfStateOfSolids.Collections
     @test typeof(PoirierTarantola3rd(1, 2, 3.0, 0)) === PoirierTarantola3rd{Float64}
     @test typeof(PoirierTarantola4th(1, 2, 3, 4, 0)) === PoirierTarantola4th{Int}
     @test typeof(Vinet(1, 2, 3.0, 0)) === Vinet{Float64}
-    # @test typeof(AntonSchmidt(1, 2, 3.0, 0)) === AntonSchmidt{Float64}
+    @test typeof(AntonSchmidt(1, 2, 3.0, 0)) === AntonSchmidt{Float64}
     # @test typeof(BreenanStacey(1, 2, 3.0, 0)) === BreenanStacey{Float64}
     @test Murnaghan(1, Int32(2), Int8(3), 0) === Murnaghan{Int}(1, 2, 3, 0)
     @test Murnaghan(1, 2 // 1, Int8(3), 0) ===
@@ -55,9 +55,9 @@ using EquationsOfStateOfSolids.Collections
     @test Vinet(Int8(1), 2, 3, Int16(4)) === Vinet{Int}(1, 2, 3, 4)
     @test Vinet(Int8(1), 2 // 1, 3, Int16(4)) ===
           Vinet{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 4 // 1)
-    # @test AntonSchmidt(Int8(1), 2, 3, 0) === AntonSchmidt{Int}(1, 2, 3, 0)
-    # @test AntonSchmidt(Int8(1), 2 // 1, 3, 0) ===
-    #       AntonSchmidt{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 0 // 1)
+    @test AntonSchmidt(Int8(1), 2, 3, 0) === AntonSchmidt{Int}(1, 2, 3, 0)
+    @test AntonSchmidt(Int8(1), 2 // 1, 3, 0) ===
+          AntonSchmidt{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 0 // 1)
     # @test BreenanStacey(1, 2, 3, 0) === BreenanStacey{Int}(1, 2, 3, 0)
     # @test BreenanStacey(1, 2, 3 // 1, 0) ===
     #       BreenanStacey{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 0 // 1)
@@ -119,10 +119,10 @@ using EquationsOfStateOfSolids.Collections
           Vinet{Quantity{Float64}}
     @test typeof(Vinet(1 * u"nm^3", 2 * u"GPa", 3, 4 // 1 * u"eV")) ===
           Vinet{Quantity{Rational{Int}}}
-    # @test typeof(AntonSchmidt(1 * u"nm^3", 2 * u"GPa", 3.0, 0 * u"eV")) ===
-    #       AntonSchmidt{Quantity{Float64}}
-    # @test typeof(AntonSchmidt(1 * u"nm^3", 2 * u"GPa", 3 // 1, 0 * u"eV")) ===
-    #       AntonSchmidt{Quantity{Rational{Int}}}
+    @test typeof(AntonSchmidt(1 * u"nm^3", 2 * u"GPa", 3.0, 0 * u"eV")) ===
+          AntonSchmidt{Quantity{Float64}}
+    @test typeof(AntonSchmidt(1 * u"nm^3", 2 * u"GPa", 3 // 1, 0 * u"eV")) ===
+          AntonSchmidt{Quantity{Rational{Int}}}
     # @test typeof(BreenanStacey(1 * u"nm^3", 2 * u"GPa", 3.0, 0 * u"eV")) ===
     #       BreenanStacey{Quantity{Float64}}
     # @test typeof(BreenanStacey(1 * u"nm^3", 2 * u"GPa", 3 // 1, 0 * u"eV")) ===
@@ -140,7 +140,7 @@ end
     @test PoirierTarantola2nd(1, 2.0) === PoirierTarantola2nd(1.0, 2.0, 0.0)
     @test PoirierTarantola3rd(1, 2, 3.0) === PoirierTarantola3rd(1.0, 2.0, 3.0, 0.0)
     @test PoirierTarantola4th(1, 2, 3, 4) === PoirierTarantola4th(1, 2, 3, 4, 0)
-    # @test AntonSchmidt(1, 2, 3.0) === AntonSchmidt(1.0, 2.0, 3.0, 0.0)
+    @test AntonSchmidt(1, 2, 3.0) === AntonSchmidt(1.0, 2.0, 3.0, 0.0)
     # @test BreenanStacey(1, 2, 3.0) === BreenanStacey(1.0, 2.0, 3.0, 0.0)
     @test typeof(Murnaghan(1 * u"angstrom^3", 2 * u"eV/angstrom^3", 3)) ===
           Murnaghan{Quantity{Int}}
@@ -172,8 +172,8 @@ end
           PoirierTarantola4th{Quantity{Float64}}
     @test typeof(Vinet(1 * u"nm^3", 2 * u"GPa", 3)) === Vinet{Quantity{Int}}
     @test typeof(Vinet(1 * u"nm^3", 2 * u"GPa", 3.0)) === Vinet{Quantity{Float64}}
-    #@test typeof(AntonSchmidt(1u"nm^3", 2u"GPa", 3))
-    #@test typeof(AntonSchmidt(1u"nm^3", 2u"GPa", 3.0))
+    @test typeof(AntonSchmidt(1u"nm^3", 2u"GPa", 3)) === AntonSchmidt{Quantity{Int}}
+    @test typeof(AntonSchmidt(1u"nm^3", 2u"GPa", 3.0)) === AntonSchmidt{Quantity{Float64}}
     #@test typeof(BreenanStacey(1u"nm^3", 2u"GPa", 3))
     #@test typeof(BreenanStacey(1u"nm^3", 2u"GPa", 3.0)
     # @test typeof(PolynomialEOS(1, [1, 2, 3], 4.0)) === PolynomialEOS{3,Float64}
@@ -201,17 +201,13 @@ end
 end # testset
 
 @testset "Test counstruction" begin
-    @test typeof(BirchMurnaghan(1u"angstrom^3", 3u"GPa", 4.0)) ==
-          BirchMurnaghan{3,Quantity{Float64}}
-    @test typeof(BirchMurnaghan(
+    @test typeof(BirchMurnaghan3rd(1u"angstrom^3", 3u"GPa", 4.0)) ==
+          BirchMurnaghan3rd{Quantity{Float64}}
+    @test typeof(BirchMurnaghan4th(
         measurement("1 +- 0.1"),
         3 // 1,
         2,
         measurement("-123.4(56)"),
-    )) == BirchMurnaghan{4,Measurement{Float64}}
-    @test typeof(BirchMurnaghan(1..3, 2, 2..4)) == BirchMurnaghan{3,Interval{Float64}}
-end
-
     )) == BirchMurnaghan4th{Measurement{Float64}}
     @test typeof(BirchMurnaghan3rd(1..3, 2, 2..4)) == BirchMurnaghan3rd{Interval{Float64}}
 end
