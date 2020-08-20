@@ -98,9 +98,9 @@ function _ustrip_all(eos, xs, ys)  # Do not export!
         x = getfield(eos.param, f)
         if f == :b0
             ustrip(punit, oneunit(x)) => ustrip(punit, float(x))
-        elseif f == :b′′0
+        elseif f == :b″0
             ustrip(punit^(-1), oneunit(x)) => ustrip(punit^(-1), float(x))
-        elseif f == :b′′′0
+        elseif f == :b‴0
             ustrip(punit^(-2), oneunit(x)) => ustrip(punit^(-2), float(x))
         else
             1 => ustrip(float(x))
