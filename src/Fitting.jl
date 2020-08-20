@@ -33,7 +33,8 @@ _findminimum(y) = _findminimum(y, _findlocalminima(y))
 function _findminimum(y, localminima)  # Find the minimal in the minima
     # https://stackoverflow.com/a/21367608/3260253
     if isempty(localminima)
-        error("no real local minima found!")  # For some polynomials, could be all complex
+        @error "no real local minima found!"  # For some polynomials, could be all complex
+        return nothing, nothing
     else
         y0, i = findmin(y.(localminima))
         x0 = localminima[i]
