@@ -296,6 +296,34 @@ volume_from_strain(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^(3 / 2)
 volume_from_strain(::NaturalStrain, v0) = f -> v0 * exp(3f)
 volume_from_strain(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
 
+function strain_volume_derivative(s::EulerianStrain, v0, v, deg::Integer)
+    if deg == 1
+        return -1 / 3 / v * cbrt(v0 / v)^2
+    else  # Recursion
+        return -(3deg + 2) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+    end
+end
+function strain_volume_derivative(s::LagrangianStrain, v0, v, deg::Integer)
+    if deg == 1
+        return -1 / 3 / v * cbrt(v / v0)^2
+    else  # Recursion
+        return -(3deg - 2) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+    end
+end
+function strain_volume_derivative(s::NaturalStrain, v0, v, deg::Integer)
+    if deg == 1
+        return 1 / 3 / v
+    else  # Recursion
+        return -deg / v * strain_volume_derivative(s, v0, v, deg - 1)
+    end
+end
+function strain_volume_derivative(s::InfinitesimalStrain, v0, v, deg::Integer)
+    if deg == 1
+        return (1 - s(v0, v))^4 / 3 / v0
+    else  # Recursion
+        return -(3deg + 1) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+    end
+end
 
 whatstrain(::BirchMurnaghan) = EulerianStrain()
 whatstrain(::PoirierTarantola) = NaturalStrain()
