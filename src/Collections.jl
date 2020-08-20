@@ -275,10 +275,10 @@ end
 
 # Ref: https://github.com/JuliaLang/julia/blob/4a2830a/base/array.jl#L125
 orderof(::Type{<:FiniteStrainParameters{N}}) where {N} = N
-orderof(x) = orderof(typeof(x))
+orderof(x::FiniteStrainParameters) = orderof(typeof(x))
 
 atomic_number(::Type{<:Holzapfel{Z}}) where {Z} = Z
-atomic_number(x) = atomic_number(typeof(x))
+atomic_number(x::Holzapfel) = atomic_number(typeof(x))
 
 abstract type FiniteStrain end  # Trait
 struct EulerianStrain <: FiniteStrain end
@@ -298,35 +298,36 @@ volume_from_strain(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
 
 function strain_volume_derivative(s::EulerianStrain, v0, v, deg::Integer)
     if deg == 1
-        return -1 / 3 / v * cbrt(v0 / v)^2
+        return -(v0 / v)^(2 / 3) / 3 / v
     else  # Recursion
-        return -(3deg + 2) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+        return -(3deg - 1) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
     end
 end
 function strain_volume_derivative(s::LagrangianStrain, v0, v, deg::Integer)
     if deg == 1
-        return -1 / 3 / v * cbrt(v / v0)^2
+        return -(v / v0)^(2 / 3) / 3 / v
     else  # Recursion
-        return -(3deg - 2) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+        return -(3deg - 5) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
     end
 end
 function strain_volume_derivative(s::NaturalStrain, v0, v, deg::Integer)
     if deg == 1
         return 1 / 3 / v
     else  # Recursion
-        return -deg / v * strain_volume_derivative(s, v0, v, deg - 1)
+        return -(deg - 1) / v * strain_volume_derivative(s, v0, v, deg - 1)
     end
 end
 function strain_volume_derivative(s::InfinitesimalStrain, v0, v, deg::Integer)
     if deg == 1
-        return (1 - s(v0, v))^4 / 3 / v0
+        return (1 - strain_from_volume(s, v0)(v))^4 / 3 / v0
     else  # Recursion
-        return -(3deg + 1) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+        return -(3deg - 2) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
     end
 end
 
-whatstrain(::BirchMurnaghan) = EulerianStrain()
-whatstrain(::PoirierTarantola) = NaturalStrain()
+whatstrain(::Type{<:BirchMurnaghan}) = EulerianStrain()
+whatstrain(::Type{<:PoirierTarantola}) = NaturalStrain()
+whatstrain(x::FiniteStrainParameters) = whatstrain(typeof(x))
 
 function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
