@@ -71,14 +71,14 @@ end
     return constructorof(eos.param)(v0_final, b0, b′0, e0)
 end
 
-energy′ᵥ(f, e) = e[1] * f[1]
-energy″ᵥ(f, e) = e[2] * f[1]^2 + e[1] * f[1]
-energy‴ᵥ(f, e) = e[3] * f[1]^3 + 3 * f[1] * f[2] * e[2] + e[1] * f[3]
-energy⁗ᵥ(f, e) =
-    e[4] * f[1]^4 +
-    6 * f[1]^2 * f[2] * e[3] +
-    (4 * f[1] * f[3] + 3 * f[3]^2) * e[2] +
-    e[1] * f[3]
+_energy′ᵥ(fᵥ, e_f) = e_f[1] * fᵥ[1]
+_energy″ᵥ(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
+_energy‴ᵥ(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
+_energy⁗ᵥ(fᵥ, e_f) =
+    e_f[4] * fᵥ[1]^4 +
+    6fᵥ[1]^2 * fᵥ[2] * e_f[3] +
+    (4fᵥ[1] * fᵥ[3] + 3fᵥ[3]^2) * e_f[2] +
+    e_f[1] * fᵥ[4]
 
 function nonlinfit(
     eos::EquationOfStateOfSolids,
