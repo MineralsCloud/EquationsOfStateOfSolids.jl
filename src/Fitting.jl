@@ -2,6 +2,8 @@ module Fitting
 
 using ConstructionBase: constructorof, setproperties
 using LsqFit: curve_fit, coef
+using PolynomialRoots: roots
+using Polynomials: Polynomial, fit, derivative, coeffs, derivative
 using Serialization: serialize
 using Unitful: AbstractQuantity, ustrip, unit
 
@@ -11,10 +13,63 @@ using ..Collections:
     Parameters,
     PressureEOS,
     EnergyEOS,
-    BulkModulusEOS
+    BulkModulusEOS,
+    orderof,
+    strain_from_volume,
+    volume_from_strain,
+    whatstrain
 
 export linfit, nonlinfit
 
+_islocalminimum(y, x) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `x` is a local minimum.
+
+function _findlocalminima(y)
+    y′ = derivative(y, 1)
+    pool = real(filter(isreal, roots(coeffs(y′))))  # Complex volumes are meaningless
+    return [x for x in pool if _islocalminimum(y, x)]
+end
+
+_findminimum(y) = _findminimum(y, _findlocalminima(y))
+function _findminimum(y, localminima)  # Find the minimal in the minima
+    # https://stackoverflow.com/a/21367608/3260253
+    if isempty(localminima)
+        error("no real local minima found!")  # For some polynomials, could be all complex
+    else
+        y0, i = findmin(y.(localminima))
+        x0 = localminima[i]
+        return x0, y0
+    end
+end
+
+function linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies)
+    deg = orderof(eos)
+    v0_init = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0
+    st = whatstrain(eos.param)
+    strains = map(strain_from_volume(st, v0_init), volumes)
+    poly = fit(strains, energies, deg)
+    f0, e0 = _findminimum(poly)
+    v0_final = volume_from_strain(st, v0_init)(f0)
+    f′ᵥ = -(2f0 + 1)^(5 / 2) / 3 / v0_final
+    f″ᵥ = (2f0 + 1)^4 / (5 / (9 * v0_final^2))
+    f‴ᵥ = -(2f0 + 1)^(11 / 2) * (40 / (27 * v0_final^3))
+    e″ᵥ = derivative(poly, 2)(f0) * f′ᵥ^2 + derivative(poly, 1)(f0) * f″ᵥ
+    b0 = v0_final * e″ᵥ
+    e‴ᵥ =
+        f′ᵥ^3 * derivative(poly, 3) +
+        3f′ᵥ * f″ᵥ * derivative(poly, 2) +
+        derivative(poly, 1) * f‴ᵥ
+    b′0 = -v0_final * e‴ᵥ / e″ᵥ - 1
+    return constructorof(eos.param)(v0_final, b0, b′0, e0)
+end
+    e″ᵥ = derivative(poly, 2)(f0) * f′ᵥ^2 + derivative(poly, 1)(f0) * f″ᵥ
+    b0 = v0_final * e″ᵥ
+    e‴ᵥ =
+        f′ᵥ^3 * derivative(poly, 3) +
+        3f′ᵥ * f″ᵥ * derivative(poly, 2) +
+        derivative(poly, 1) * f‴ᵥ
+    b′0 = -v0_final * e‴ᵥ / e″ᵥ - 1
+    return constructorof(eos.param)(v0_final, b0, b′0, e0)
+end
 
 energy′ᵥ(f, e) = e[1] * f[1]
 energy″ᵥ(f, e) = e[2] * f[1]^2 + e[1] * f[1]
