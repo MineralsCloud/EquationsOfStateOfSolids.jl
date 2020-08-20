@@ -31,6 +31,8 @@ const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
 
 abstract type Parameters{T} end
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
+abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
+abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
 @auto_hash_equals struct Murnaghan{T} <: Parameters{T}
     v0::T
     b0::T
@@ -38,20 +40,20 @@ abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
     e0::T
     Murnaghan{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-@auto_hash_equals struct BirchMurnaghan2nd{T} <: FiniteStrainParameters{2,T}
+@auto_hash_equals struct BirchMurnaghan2nd{T} <: BirchMurnaghan{2,T}
     v0::T
     b0::T
     e0::T
     BirchMurnaghan2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
-@auto_hash_equals struct BirchMurnaghan3rd{T} <: FiniteStrainParameters{3,T}
+@auto_hash_equals struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
     v0::T
     b0::T
     b′0::T
     e0::T
     BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-@auto_hash_equals struct BirchMurnaghan4th{T} <: FiniteStrainParameters{4,T}
+@auto_hash_equals struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
     v0::T
     b0::T
     b′0::T
@@ -60,20 +62,20 @@ end
     BirchMurnaghan4th{T}(v0, b0, b′0, b′′0, e0 = zero(v0 * b0)) where {T} =
         new(v0, b0, b′0, b′′0, e0)
 end
-@auto_hash_equals struct PoirierTarantola2nd{T} <: FiniteStrainParameters{2,T}
+@auto_hash_equals struct PoirierTarantola2nd{T} <: PoirierTarantola{2,T}
     v0::T
     b0::T
     e0::T
     PoirierTarantola2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
-@auto_hash_equals struct PoirierTarantola3rd{T} <: FiniteStrainParameters{3,T}
+@auto_hash_equals struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
     v0::T
     b0::T
     b′0::T
     e0::T
     PoirierTarantola3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-@auto_hash_equals struct PoirierTarantola4th{T} <: FiniteStrainParameters{4,T}
+@auto_hash_equals struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
     v0::T
     b0::T
     b′0::T
