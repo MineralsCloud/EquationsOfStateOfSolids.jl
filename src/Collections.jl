@@ -23,9 +23,9 @@ export Murnaghan,
     BulkModulusEOS,
     orderof,
     atomic_number,
-    nextorder,
     strain_from_volume,
-    volume_from_strain
+    volume_from_strain,
+    whatstrain
 
 const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
 
@@ -295,6 +295,10 @@ volume_from_strain(::EulerianStrain, v0) = f -> v0 / (2f + 1)^(3 / 2)
 volume_from_strain(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^(3 / 2)
 volume_from_strain(::NaturalStrain, v0) = f -> v0 * exp(3f)
 volume_from_strain(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
+
+
+whatstrain(::BirchMurnaghan) = EulerianStrain()
+whatstrain(::PoirierTarantola) = NaturalStrain()
 
 function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
