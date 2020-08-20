@@ -26,7 +26,7 @@ _islocalminimum(y, x) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`,
 function _findlocalminima(y)
     y′ = derivative(y, 1)
     pool = real(filter(isreal, roots(coeffs(y′))))  # Complex volumes are meaningless
-    return [x for x in pool if _islocalminimum(y, x)]
+    return filter(x -> _islocalminimum(y, x), pool)
 end
 
 _findminimum(y) = _findminimum(y, _findlocalminima(y))
