@@ -275,10 +275,10 @@ end
 
 # Ref: https://github.com/JuliaLang/julia/blob/4a2830a/base/array.jl#L125
 orderof(::Type{<:FiniteStrainParameters{N}}) where {N} = N
-orderof(x) = orderof(typeof(x))
+orderof(x::FiniteStrainParameters) = orderof(typeof(x))
 
 atomic_number(::Type{<:Holzapfel{Z}}) where {Z} = Z
-atomic_number(x) = atomic_number(typeof(x))
+atomic_number(x::Holzapfel) = atomic_number(typeof(x))
 
 abstract type FiniteStrain end  # Trait
 struct EulerianStrain <: FiniteStrain end
@@ -325,8 +325,9 @@ function strain_volume_derivative(s::InfinitesimalStrain, v0, v, deg::Integer)
     end
 end
 
-whatstrain(::BirchMurnaghan) = EulerianStrain()
-whatstrain(::PoirierTarantola) = NaturalStrain()
+whatstrain(::Type{<:BirchMurnaghan}) = EulerianStrain()
+whatstrain(::Type{<:PoirierTarantola}) = NaturalStrain()
+whatstrain(x::FiniteStrainParameters) = whatstrain(typeof(x))
 
 function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
