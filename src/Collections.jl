@@ -14,23 +14,25 @@ export Murnaghan,
     Vinet,
     AntonSchmidt,
     Holzapfel,
-    Eulerian,
-    Lagrangian,
-    Natural,
-    Infinitesimal,
+    EulerianStrain,
+    LagrangianStrain,
+    NaturalStrain,
+    InfinitesimalStrain,
     EnergyEOS,
     PressureEOS,
     BulkModulusEOS,
     orderof,
     atomic_number,
-    nextorder,
     strain_from_volume,
-    volume_from_strain
+    volume_from_strain,
+    whatstrain
 
 const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
 
 abstract type Parameters{T} end
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
+abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
+abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
 @auto_hash_equals struct Murnaghan{T} <: Parameters{T}
     v0::T
     b0::T
@@ -38,49 +40,49 @@ abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
     e0::T
     Murnaghan{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-@auto_hash_equals struct BirchMurnaghan2nd{T} <: FiniteStrainParameters{2,T}
+@auto_hash_equals struct BirchMurnaghan2nd{T} <: BirchMurnaghan{2,T}
     v0::T
     b0::T
     e0::T
     BirchMurnaghan2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
-@auto_hash_equals struct BirchMurnaghan3rd{T} <: FiniteStrainParameters{3,T}
+@auto_hash_equals struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
     v0::T
     b0::T
     b′0::T
     e0::T
     BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-@auto_hash_equals struct BirchMurnaghan4th{T} <: FiniteStrainParameters{4,T}
+@auto_hash_equals struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
     v0::T
     b0::T
     b′0::T
-    b′′0::T
+    b″0::T
     e0::T
-    BirchMurnaghan4th{T}(v0, b0, b′0, b′′0, e0 = zero(v0 * b0)) where {T} =
-        new(v0, b0, b′0, b′′0, e0)
+    BirchMurnaghan4th{T}(v0, b0, b′0, b″0, e0 = zero(v0 * b0)) where {T} =
+        new(v0, b0, b′0, b″0, e0)
 end
-@auto_hash_equals struct PoirierTarantola2nd{T} <: FiniteStrainParameters{2,T}
+@auto_hash_equals struct PoirierTarantola2nd{T} <: PoirierTarantola{2,T}
     v0::T
     b0::T
     e0::T
     PoirierTarantola2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
-@auto_hash_equals struct PoirierTarantola3rd{T} <: FiniteStrainParameters{3,T}
+@auto_hash_equals struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
     v0::T
     b0::T
     b′0::T
     e0::T
     PoirierTarantola3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-@auto_hash_equals struct PoirierTarantola4th{T} <: FiniteStrainParameters{4,T}
+@auto_hash_equals struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
     v0::T
     b0::T
     b′0::T
-    b′′0::T
+    b″0::T
     e0::T
-    PoirierTarantola4th{T}(v0, b0, b′0, b′′0, e0 = zero(v0 * b0)) where {T} =
-        new(v0, b0, b′0, b′′0, e0)
+    PoirierTarantola4th{T}(v0, b0, b′0, b″0, e0 = zero(v0 * b0)) where {T} =
+        new(v0, b0, b′0, b″0, e0)
 end
 @auto_hash_equals struct Vinet{T} <: Parameters{T}
     v0::T
@@ -126,34 +128,34 @@ function (eos::EnergyEOS{<:Murnaghan})(v)
 end
 function (eos::EnergyEOS{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0, e0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
+    f = strain_from_volume(EulerianStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2
 end
 function (eos::EnergyEOS{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0, e0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
+    f = strain_from_volume(EulerianStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2 * (1 + f * (b′0 - 4))
 end
 function (eos::EnergyEOS{<:BirchMurnaghan4th})(v)
-    @unpack v0, b0, b′0, b′′0, e0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
-    h = b′′0 * b0 + b′0^2
+    @unpack v0, b0, b′0, b″0, e0 = eos.param
+    f = strain_from_volume(EulerianStrain(), v0)(v)
+    h = b″0 * b0 + b′0^2
     return e0 + 3b0 * v0 / 8 * f^2 * ((9h - 63b′0 + 143) * f^2 + 12f * (b′0 - 4) + 12)
 end
 function (eos::EnergyEOS{<:PoirierTarantola2nd})(v)
     @unpack v0, b0, e0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
+    f = strain_from_volume(NaturalStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2
 end
 function (eos::EnergyEOS{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0, e0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
+    f = strain_from_volume(NaturalStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2 * ((b′0 - 2) * f + 1)
 end
 function (eos::EnergyEOS{<:PoirierTarantola4th})(v)
-    @unpack v0, b0, b′0, b′′0, e0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
-    h = b′′0 * b0 + b′0^2
+    @unpack v0, b0, b′0, b″0, e0 = eos.param
+    f = strain_from_volume(NaturalStrain(), v0)(v)
+    h = b″0 * b0 + b′0^2
     return e0 + 9b0 * v0 * f^2 * (3f^2 * (h + 3b′0 + 3) + 4f * (b′0 + 2) + 4)
 end
 function (eos::EnergyEOS{<:Vinet})(v)
@@ -174,34 +176,34 @@ function (eos::PressureEOS{<:Murnaghan})(v)
 end
 function (eos::PressureEOS{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
+    f = strain_from_volume(EulerianStrain(), v0)(v)
     return 3b0 * f * (2f + 1)^(5 / 2)
 end
 function (eos::PressureEOS{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
+    f = strain_from_volume(EulerianStrain(), v0)(v)
     return 3f / 2 * b0 * (2f + 1)^(5 / 2) * (2 + 3f * (b′0 - 4))
 end
 function (eos::PressureEOS{<:BirchMurnaghan4th})(v)
-    @unpack v0, b0, b′0, b′′0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
-    h = b′′0 * b0 + b′0^2
+    @unpack v0, b0, b′0, b″0 = eos.param
+    f = strain_from_volume(EulerianStrain(), v0)(v)
+    h = b″0 * b0 + b′0^2
     return b0 / 2 * (2f + 1)^(5 / 2) * ((9h - 63b′0 + 143) * f^2 + 9f * (b′0 - 4) + 6)
 end
 function (eos::PressureEOS{<:PoirierTarantola2nd})(v)
     @unpack v0, b0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
+    f = strain_from_volume(NaturalStrain(), v0)(v)
     return -3b0 * f * exp(-3f)
 end
 function (eos::PressureEOS{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
+    f = strain_from_volume(NaturalStrain(), v0)(v)
     return -3b0 / 2 * f * exp(-3f) * (3f * (b′0 - 2) + 1)
 end
 function (eos::PressureEOS{<:PoirierTarantola4th})(v)
-    @unpack v0, b0, b′0, b′′0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
-    h = b′′0 * b0 + b′0^2
+    @unpack v0, b0, b′0, b″0 = eos.param
+    f = strain_from_volume(NaturalStrain(), v0)(v)
+    h = b″0 * b0 + b′0^2
     return -3b0 / 2 * f * exp(-3f) * (3f^2 * (h + 3b′0 + 3) + 3f * (b′0 - 2) + 2)
 end
 function (eos::PressureEOS{<:Vinet})(v)
@@ -226,36 +228,36 @@ end
 (eos::BulkModulusEOS{<:Murnaghan})(v) = eos.param.b0 + PressureEOS(eos.param)(v)
 function (eos::BulkModulusEOS{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
+    f = strain_from_volume(EulerianStrain(), v0)(v)
     return b0 * (7f + 1) * (2f + 1)^(5 / 2)
 end
 function (eos::BulkModulusEOS{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
+    f = strain_from_volume(EulerianStrain(), v0)(v)
     return b0 / 2 * (2f + 1)^(5 / 2) * ((27f^2 + 6f) * (b′0 - 4) - 4f + 2)
 end
 function (eos::BulkModulusEOS{<:BirchMurnaghan4th})(v)
-    @unpack v0, b0, b′0, b′′0 = eos.param
-    f = strain_from_volume(Eulerian(), v0)(v)
-    h = b′′0 * b0 + b′0^2
+    @unpack v0, b0, b′0, b″0 = eos.param
+    f = strain_from_volume(EulerianStrain(), v0)(v)
+    h = b″0 * b0 + b′0^2
     return b0 / 6 *
            (2f + 1)^(5 / 2) *
            ((99h - 693b′0 + 1573) * f^3 + (27h - 108b′0 + 105) * f^2 + 6f * (3b′0 - 5) + 6)
 end
 function (eos::BulkModulusEOS{<:PoirierTarantola2nd})(v)
     @unpack v0, b0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
+    f = strain_from_volume(NaturalStrain(), v0)(v)
     return b0 * (1 - 3f) * exp(-3f)
 end
 function (eos::BulkModulusEOS{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
+    f = strain_from_volume(NaturalStrain(), v0)(v)
     return -b0 / 2 * exp(-3f) * (9f^2 * (b′0 - 2) - 6f * (b′0 + 1) - 2)
 end
 function (eos::BulkModulusEOS{<:PoirierTarantola4th})(v)
-    @unpack v0, b0, b′0, b′′0 = eos.param
-    f = strain_from_volume(Natural(), v0)(v)
-    h = b′′0 * b0 + b′0^2
+    @unpack v0, b0, b′0, b″0 = eos.param
+    f = strain_from_volume(NaturalStrain(), v0)(v)
+    h = b″0 * b0 + b′0^2
     return -b0 / 2 *
            exp(-3f) *
            (9f^3 * (h + 3b′0 + 3) - 9f^2 * (h + 2b′0 + 1) - 6f * (b′0 + 1) - 2)
@@ -279,20 +281,52 @@ atomic_number(::Type{<:Holzapfel{Z}}) where {Z} = Z
 atomic_number(x) = atomic_number(typeof(x))
 
 abstract type FiniteStrain end  # Trait
-struct Eulerian <: FiniteStrain end
-struct Lagrangian <: FiniteStrain end
-struct Natural <: FiniteStrain end
-struct Infinitesimal <: FiniteStrain end
+struct EulerianStrain <: FiniteStrain end
+struct LagrangianStrain <: FiniteStrain end
+struct NaturalStrain <: FiniteStrain end
+struct InfinitesimalStrain <: FiniteStrain end
 
-strain_from_volume(::Eulerian, v0) = v -> ((v0 / v)^(2 / 3) - 1) / 2
-strain_from_volume(::Lagrangian, v0) = v -> ((v / v0)^(2 / 3) - 1) / 2
-strain_from_volume(::Natural, v0) = v -> log(v / v0) / 3
-strain_from_volume(::Infinitesimal, v0) = v -> 1 - (v0 / v)^(1 / 3)
+strain_from_volume(::EulerianStrain, v0) = v -> ((v0 / v)^(2 / 3) - 1) / 2
+strain_from_volume(::LagrangianStrain, v0) = v -> ((v / v0)^(2 / 3) - 1) / 2
+strain_from_volume(::NaturalStrain, v0) = v -> log(v / v0) / 3
+strain_from_volume(::InfinitesimalStrain, v0) = v -> 1 - (v0 / v)^(1 / 3)
 
-volume_from_strain(::Eulerian, v0) = f -> v0 / (2f + 1)^(3 / 2)
-volume_from_strain(::Lagrangian, v0) = f -> v0 * (2f + 1)^(3 / 2)
-volume_from_strain(::Natural, v0) = f -> v0 * exp(3f)
-volume_from_strain(::Infinitesimal, v0) = f -> v0 / (1 - f)^3
+volume_from_strain(::EulerianStrain, v0) = f -> v0 / (2f + 1)^(3 / 2)
+volume_from_strain(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^(3 / 2)
+volume_from_strain(::NaturalStrain, v0) = f -> v0 * exp(3f)
+volume_from_strain(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
+
+function strain_volume_derivative(s::EulerianStrain, v0, v, deg::Integer)
+    if deg == 1
+        return -1 / 3 / v * cbrt(v0 / v)^2
+    else  # Recursion
+        return -(3deg + 2) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+    end
+end
+function strain_volume_derivative(s::LagrangianStrain, v0, v, deg::Integer)
+    if deg == 1
+        return -1 / 3 / v * cbrt(v / v0)^2
+    else  # Recursion
+        return -(3deg - 2) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+    end
+end
+function strain_volume_derivative(s::NaturalStrain, v0, v, deg::Integer)
+    if deg == 1
+        return 1 / 3 / v
+    else  # Recursion
+        return -deg / v * strain_volume_derivative(s, v0, v, deg - 1)
+    end
+end
+function strain_volume_derivative(s::InfinitesimalStrain, v0, v, deg::Integer)
+    if deg == 1
+        return (1 - s(v0, v))^4 / 3 / v0
+    else  # Recursion
+        return -(3deg + 1) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+    end
+end
+
+whatstrain(::BirchMurnaghan) = EulerianStrain()
+whatstrain(::PoirierTarantola) = NaturalStrain()
 
 function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
