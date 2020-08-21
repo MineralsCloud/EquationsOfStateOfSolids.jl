@@ -42,8 +42,8 @@ function _localminima(y::Polynomial)
     end
 end
 
-_globalminimum(y) = _globalminimum(y, _localminima(y))
-function _globalminimum(y, localminima)  # Find the minimal in the minima
+_absminimum(y) = _absminimum(y, _localminima(y))
+function _absminimum(y, localminima)  # Find the minimal in the minima
     # https://stackoverflow.com/a/21367608/3260253
     y0, i = findmin(map(y, localminima))
     x0 = localminima[i]
@@ -76,7 +76,7 @@ function _selfconsistent(v0, volumes, energies, st, deg; maxiter = 1000, epsilon
         v0_prev = v0
         strains = map(volume2strain(st, v0), volumes)
         poly = fit(strains, energies, deg)
-        f0, e0 = _globalminimum(poly)
+        f0, e0 = _absminimum(poly)
         v0 = strain2volume(st, v0)(f0)
         if abs((v0_prev - v0) / v0_prev) <= epsilon
             return v0, f0, e0, poly  # Final converged result
