@@ -23,6 +23,11 @@ using ..Collections:
 
 export linfit, nonlinfit
 
+# Referd from https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
+struct ConvergenceFailed
+    reason::AbstractString
+end
+
 _islocalmin(x, y) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
 
 function _localminima(y::Polynomial)
@@ -77,7 +82,7 @@ function _selfconsistent(v0, volumes, energies, st, deg; maxiter = 1000, epsilon
             return v0, f0, e0, poly  # Final converged result
         end
     end
-    return nothing, nothing, nothing, nothing
+    throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
 end
 
 function _buildeos(::T, v0, b0, b′0, b″0, e0) where {T<:FiniteStrainParameters}
