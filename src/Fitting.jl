@@ -34,20 +34,20 @@ function _localminima(y::Polynomial)
     y′ = derivative(y, 1)
     rawpool = roots(coeffs(y′); polish = true, epsilon = 1e-20)
     pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
-    return filter(x -> _islocalmin(x, y), pool)
+    if isempty(pool)
+        # For some polynomials, could be all complex
+        error("no real local minima found!")
+    else
+        return filter(x -> _islocalmin(x, y), pool)
+    end
 end
 
 _globalminimum(y) = _globalminimum(y, _localminima(y))
 function _globalminimum(y, localminima)  # Find the minimal in the minima
     # https://stackoverflow.com/a/21367608/3260253
-    if isempty(localminima)
-        @error "no real local minima found!"  # For some polynomials, could be all complex
-        return nothing, nothing
-    else
-        y0, i = findmin(map(y, localminima))
-        x0 = localminima[i]
-        return x0, y0
-    end
+    y0, i = findmin(map(y, localminima))
+    x0 = localminima[i]
+    return x0, y0
 end
 
 function linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; maxiter = 1000)
