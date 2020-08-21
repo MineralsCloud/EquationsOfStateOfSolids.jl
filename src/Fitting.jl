@@ -30,9 +30,9 @@ end
 
 _islocalmin(x, y) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
 
-function _localminima(y::Polynomial)
+function _localminima(y::Polynomial, root_thr = 1e-20)
     y′ = derivative(y, 1)
-    rawpool = roots(coeffs(y′); polish = true, epsilon = 1e-20)
+    rawpool = roots(coeffs(y′); polish = true, epsilon = root_thr)
     pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
     if isempty(pool)
         # For some polynomials, could be all complex
@@ -42,9 +42,9 @@ function _localminima(y::Polynomial)
     end
 end
 
-_absminimum(y) = _absminimum(y, _localminima(y))
-function _absminimum(y, localminima)  # Find the minimal in the minima
-    # https://stackoverflow.com/a/21367608/3260253
+# https://stackoverflow.com/a/21367608/3260253
+function _absminimum(y, root_thr = 1e-20)  # Find the minimal in the minima
+    localminima = _localminima(y, root_thr)
     y0, i = findmin(map(y, localminima))
     x0 = localminima[i]
     return x0, y0
@@ -76,7 +76,7 @@ function _selfconsistent(v0, volumes, energies, st, deg; maxiter = 1000, epsilon
         v0_prev = v0
         strains = map(volume2strain(st, v0), volumes)
         poly = fit(strains, energies, deg)
-        f0, e0 = _absminimum(poly)
+        f0, e0 = _absminimum(poly, root_thr)
         v0 = strain2volume(st, v0)(f0)
         if abs((v0_prev - v0) / v0_prev) <= epsilon
             return v0, f0, e0, poly  # Final converged result
