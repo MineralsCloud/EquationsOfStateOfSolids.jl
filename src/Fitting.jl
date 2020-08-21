@@ -81,18 +81,18 @@ function _buildeos(::T, v0, b0, b′0, b″0, e0) where {T<:FiniteStrainParamete
 end
 
 function _bulkmoduli(v0, fᵥ, e_f)
-    e″ᵥ = _energy″ᵥ(fᵥ, e_f)
-    e‴ᵥ = _energy‴ᵥ(fᵥ, e_f)
+    e″ᵥ = _D²ᵥe(fᵥ, e_f)
+    e‴ᵥ = _D³ᵥe(fᵥ, e_f)
     b0 = v0 * e″ᵥ
     b′0 = -v0 * e‴ᵥ / e″ᵥ - 1
-    b″0 = (v0 * (_energy⁗ᵥ(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
+    b″0 = (v0 * (_D⁴ᵥe(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
     return b0, b′0, b″0
 end
 
-_energy′ᵥ(fᵥ, e_f) = e_f[1] * fᵥ[1]
-_energy″ᵥ(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
-_energy‴ᵥ(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
-_energy⁗ᵥ(fᵥ, e_f) =
+_D¹ᵥe(fᵥ, e_f) = e_f[1] * fᵥ[1]
+_D²ᵥe(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
+_D³ᵥe(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
+_D⁴ᵥe(fᵥ, e_f) =
     e_f[4] * fᵥ[1]^4 +
     6fᵥ[1]^2 * fᵥ[2] * e_f[3] +
     (4fᵥ[1] * fᵥ[3] + 3fᵥ[3]^2) * e_f[2] +
