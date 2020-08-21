@@ -16,8 +16,8 @@ using ..Collections:
     BulkModulusEOS,
     FiniteStrain,
     orderof,
-    strain_from_volume,
-    volume_from_strain,
+    volume2strain,
+    strain2volume,
     strain_volume_derivative,
     whatstrain
 
@@ -51,14 +51,14 @@ function linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies)
     else
         v0_init = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0
         st = whatstrain(eos.param)
-        strains = map(strain_from_volume(st, v0_init), volumes)
+        strains = map(volume2strain(st, v0_init), volumes)
         poly = fit(strains, energies, deg)
         f0, e0 = _globalminimum(poly)
         if (f0, e0) == (nothing, nothing)
             @error "linear fitting failed!"
             return
         else
-            v0 = volume_from_strain(st, v0_init)(f0)  # Final result
+            v0 = strain2volume(st, v0_init)(f0)  # Final result
             fᵥ = map(deg -> strain_volume_derivative(st, v0, v0, deg), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
             b0, b′0, b″0 = _bulkmoduli(v0, fᵥ, e_f)
