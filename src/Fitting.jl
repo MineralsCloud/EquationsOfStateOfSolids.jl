@@ -67,8 +67,9 @@ function linfit(
         f0, e0 = _absminimum(poly, root_thr)
         v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
+            fᵥ = map(deg -> Dⁿᵥf(s, deg, v0)(v0), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
-            b0, b′0, b″0 = _bulkmoduli(v0, fᵥ, e_f)
+            b0, b′0, b″0 = _Dₚb(v0, fᵥ, e_f)
             return _update(eos.param; v0 = v0, b0 = b0, b′0 = b′0, b″0 = b″0, e0 = e0)
         end
     end
@@ -81,7 +82,7 @@ function _update(x::FiniteStrainParameters; kwargs...)
 end
 
 # See Eq. (55) - (57) in Ref. 1.
-function _bulkmoduli(v0, fᵥ, e_f)
+function _Dₚb(v0, fᵥ, e_f)  # Bulk modulus & its derivatives
     e″ᵥ = _D²ᵥe(fᵥ, e_f)
     e‴ᵥ = _D³ᵥe(fᵥ, e_f)
     b0 = v0 * e″ᵥ
