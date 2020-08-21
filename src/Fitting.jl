@@ -18,7 +18,7 @@ using ..Collections:
     orderof,
     volume2strain,
     strain2volume,
-    strain_volume_derivative,
+    Dⁿᵥf,
     whatstrain
 
 export linfit, nonlinfit
@@ -59,7 +59,7 @@ function linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies)
             return
         else
             v0 = strain2volume(st, v0_init)(f0)  # Final result
-            fᵥ = map(deg -> strain_volume_derivative(st, v0, v0, deg), 1:4)
+            fᵥ = map(deg -> Dⁿᵥf(st, v0, v0, deg), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
             b0, b′0, b″0 = _bulkmoduli(v0, fᵥ, e_f)
             return _buildeos(eos.param, v0, b0, b′0, b″0, e0)

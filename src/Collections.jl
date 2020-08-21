@@ -296,32 +296,32 @@ strain2volume(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^(3 / 2)
 strain2volume(::NaturalStrain, v0) = f -> v0 * exp(3f)
 strain2volume(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
 
-function strain_volume_derivative(s::EulerianStrain, v0, v, deg::Integer)
+function Dⁿᵥf(s::EulerianStrain, v0, v, deg::Integer)
     if deg == 1
         return -(v0 / v)^(2 / 3) / 3 / v
     else  # Recursion
-        return -(3deg - 1) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+        return -(3deg - 1) / 3 / v * Dⁿᵥf(s, v0, v, deg - 1)
     end
 end
-function strain_volume_derivative(s::LagrangianStrain, v0, v, deg::Integer)
+function Dⁿᵥf(s::LagrangianStrain, v0, v, deg::Integer)
     if deg == 1
         return -(v / v0)^(2 / 3) / 3 / v
     else  # Recursion
-        return -(3deg - 5) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+        return -(3deg - 5) / 3 / v * Dⁿᵥf(s, v0, v, deg - 1)
     end
 end
-function strain_volume_derivative(s::NaturalStrain, v0, v, deg::Integer)
+function Dⁿᵥf(s::NaturalStrain, v0, v, deg::Integer)
     if deg == 1
         return 1 / 3 / v
     else  # Recursion
-        return -(deg - 1) / v * strain_volume_derivative(s, v0, v, deg - 1)
+        return -(deg - 1) / v * Dⁿᵥf(s, v0, v, deg - 1)
     end
 end
-function strain_volume_derivative(s::InfinitesimalStrain, v0, v, deg::Integer)
+function Dⁿᵥf(s::InfinitesimalStrain, v0, v, deg::Integer)
     if deg == 1
         return (1 - volume2strain(s, v0)(v))^4 / 3 / v0
     else  # Recursion
-        return -(3deg - 2) / 3 / v * strain_volume_derivative(s, v0, v, deg - 1)
+        return -(3deg - 2) / 3 / v * Dⁿᵥf(s, v0, v, deg - 1)
     end
 end
 
