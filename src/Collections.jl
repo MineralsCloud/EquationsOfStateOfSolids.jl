@@ -25,7 +25,7 @@ export Murnaghan,
     atomic_number,
     volume2strain,
     strain2volume,
-    whatstrain
+    straintype
 
 const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
 
@@ -296,38 +296,46 @@ strain2volume(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^(3 / 2)
 strain2volume(::NaturalStrain, v0) = f -> v0 * exp(3f)
 strain2volume(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
 
-function Dⁿᵥf(s::EulerianStrain, v0, v, deg::Integer)
-    if deg == 1
-        return -(v0 / v)^(2 / 3) / 3 / v
-    else  # Recursion
-        return -(3deg - 1) / 3 / v * Dⁿᵥf(s, v0, v, deg - 1)
+function Dⁿᵥf(s::EulerianStrain, deg, v0)
+    function (v)
+        if isone(deg)  # Stop recursion
+            return -(v0 / v)^(2 / 3) / 3 / v
+        else  # Recursion
+            return -(3deg - 1) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
+        end
     end
 end
-function Dⁿᵥf(s::LagrangianStrain, v0, v, deg::Integer)
-    if deg == 1
-        return -(v / v0)^(2 / 3) / 3 / v
-    else  # Recursion
-        return -(3deg - 5) / 3 / v * Dⁿᵥf(s, v0, v, deg - 1)
+function Dⁿᵥf(s::LagrangianStrain, deg, v0)
+    function (v)
+        if isone(deg)  # Stop recursion
+            return -(v / v0)^(2 / 3) / 3 / v
+        else  # Recursion
+            return -(3deg - 5) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
+        end
     end
 end
-function Dⁿᵥf(s::NaturalStrain, v0, v, deg::Integer)
-    if deg == 1
-        return 1 / 3 / v
-    else  # Recursion
-        return -(deg - 1) / v * Dⁿᵥf(s, v0, v, deg - 1)
+function Dⁿᵥf(s::NaturalStrain, deg, v0)
+    function (v)
+        if isone(deg)  # Stop recursion
+            return 1 / 3 / v
+        else  # Recursion
+            return -(deg - 1) / v * Dⁿᵥf(s, deg - 1, v0)(v)
+        end
     end
 end
-function Dⁿᵥf(s::InfinitesimalStrain, v0, v, deg::Integer)
-    if deg == 1
-        return (1 - volume2strain(s, v0)(v))^4 / 3 / v0
-    else  # Recursion
-        return -(3deg - 2) / 3 / v * Dⁿᵥf(s, v0, v, deg - 1)
+function Dⁿᵥf(s::InfinitesimalStrain, deg, v0)
+    function (v)
+        if isone(deg)  # Stop recursion
+            return (1 - volume2strain(s, v0)(v))^4 / 3 / v0
+        else  # Recursion
+            return -(3deg - 2) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
+        end
     end
 end
 
-whatstrain(::Type{<:BirchMurnaghan}) = EulerianStrain()
-whatstrain(::Type{<:PoirierTarantola}) = NaturalStrain()
-whatstrain(x::FiniteStrainParameters) = whatstrain(typeof(x))
+straintype(::Type{<:BirchMurnaghan}) = EulerianStrain
+straintype(::Type{<:PoirierTarantola}) = NaturalStrain
+straintype(x::FiniteStrainParameters) = straintype(typeof(x))
 
 function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
