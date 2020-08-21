@@ -119,7 +119,7 @@ function nonlinfit(
     ys;
     xtol = 1e-8,
     gtol = 1e-2,
-    maxiter::Integer = 1000,
+    maxiter = 1000,
     min_step_quality = 1e-3,
     good_step_quality = 0.75,
     silent = true,
