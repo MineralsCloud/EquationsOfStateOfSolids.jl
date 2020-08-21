@@ -27,7 +27,8 @@ _islocalmin(x, y) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `(x
 
 function _localminima(y::Polynomial)
     y′ = derivative(y, 1)
-    pool = real(filter(isreal, roots(coeffs(y′))))  # Complex volumes are meaningless
+    rawpool = roots(coeffs(y′); polish = true, epsilon = 1e-20)
+    pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
     return filter(x -> _islocalmin(x, y), pool)
 end
 
@@ -80,6 +81,7 @@ function _buildeos(::T, v0, b0, b′0, b″0, e0) where {T<:FiniteStrainParamete
     end
 end
 
+# See Eq. (55) - (57) in Ref. 1.
 function _bulkmoduli(v0, fᵥ, e_f)
     e″ᵥ = _D²ᵥe(fᵥ, e_f)
     e‴ᵥ = _D³ᵥe(fᵥ, e_f)
@@ -89,6 +91,7 @@ function _bulkmoduli(v0, fᵥ, e_f)
     return b0, b′0, b″0
 end
 
+# Energy-volume derivatives, see Eq. (50) - (53) in Ref. 1.
 _D¹ᵥe(fᵥ, e_f) = e_f[1] * fᵥ[1]
 _D²ᵥe(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
 _D³ᵥe(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
