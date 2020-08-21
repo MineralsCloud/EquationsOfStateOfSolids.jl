@@ -6,15 +6,14 @@ using YAML
 
 using EquationsOfStateOfSolids.Collections:
     Parameters, BirchMurnaghan3rd, Murnaghan, PoirierTarantola3rd, Vinet, EnergyEOS
-using EquationsOfStateOfSolids.Fitting: nonlinfit
+using EquationsOfStateOfSolids.Fitting: nonlinfit, linfit
 
 # Do not export! Only for internal use!
 _getfields(x) = (getfield(x, i) for i in 1:nfields(x))
 _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
     isapprox(ustrip.(_getfields(a)), ustrip.(_getfields(b)); kwargs...)
 
-# Data in the following tests are from
-# https://github.com/materialsproject/pymatgen/blob/1f0957b8525ddc7d12ea348a19caecebe6c7ff34/pymatgen/analysis/tests/test_eos.py
+# Data in the following tests are from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L17-L73
 @testset "Test data from Pymatgen" begin
     data = open("test/data/si.yml", "r") do io
         YAML.load(io)
@@ -22,6 +21,15 @@ _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
     volumes, energies = data["volume"], data["energy"]
     @test _isapprox(
         nonlinfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4, 0)), volumes, energies),
+        BirchMurnaghan3rd(
+            40.98926572528106,
+            0.5369258245417454,
+            4.178644235500821,
+            -10.842803908240892,
+        ),
+    )
+    @test _isapprox(
+        linfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4, 0)), volumes, energies),
         BirchMurnaghan3rd(
             40.98926572528106,
             0.5369258245417454,
@@ -40,6 +48,15 @@ _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
     )
     @test _isapprox(
         nonlinfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4, 0)), volumes, energies),
+        PoirierTarantola3rd(
+            40.86770643373908,
+            0.5667729960804602,
+            4.331688936974368,
+            -10.851486685041658,
+        ),
+    )
+    @test _isapprox(
+        linfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4, 0)), volumes, energies),
         PoirierTarantola3rd(
             40.86770643373908,
             0.5667729960804602,
