@@ -344,6 +344,30 @@ end # function Base.show
 
 (::Type{T})(arr::AbstractVector) where {T<:Parameters} = T{eltype(arr)}(arr...)
 (::Type{T})(args...) where {T<:Parameters} = T([args...])
+function BirchMurnaghan(args...)
+    N = length(args)
+    if N == 3
+        return BirchMurnaghan2nd(args...)
+    elseif N == 4
+        return BirchMurnaghan3rd(args...)
+    elseif N == 5
+        return BirchMurnaghan4th(args...)
+    else
+        throw(ArgumentError("unknown number of arguments $N."))
+    end
+end
+function PoirierTarantola(args...)
+    N = length(args)
+    if N == 3
+        return PoirierTarantola2nd(args...)
+    elseif N == 4
+        return PoirierTarantola3rd(args...)
+    elseif N == 5
+        return PoirierTarantola4th(args...)
+    else
+        throw(ArgumentError("unknown number of arguments $N."))
+    end
+end
 
 Base.eltype(::Type{<:Parameters{T}}) where {T} = T
 
