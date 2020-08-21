@@ -57,6 +57,7 @@ function linfit(
     maxiter = 1000,
     conv_thr = eps(),
     root_thr = 1e-20,
+    silent = false,
 )
     deg = orderof(eos.param)
     s = straintype(eos.param)()
@@ -67,6 +68,9 @@ function linfit(
         f0, e0 = _absminimum(poly, root_thr)
         v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
+            if !silent
+                @info "convergence reached after $i steps!"
+            end
             fᵥ = map(deg -> Dⁿᵥf(s, deg, v0)(v0), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
             b0, b′0, b″0 = _Dₚb(v0, fᵥ, e_f)
