@@ -94,7 +94,7 @@ function _buildeos(::T, v0, b0, b′0, b″0, e0) where {T<:FiniteStrainParamete
     elseif N == 4
         return constructorof(T)(v0, b0, b′0, b″0, e0)
     else
-        error("unsupported for 5th order EOS and higher!")
+        error("this shold never happen!")
     end
 end
 
