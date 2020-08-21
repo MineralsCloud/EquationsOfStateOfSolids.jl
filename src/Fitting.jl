@@ -14,76 +14,100 @@ using ..Collections:
     PressureEOS,
     EnergyEOS,
     BulkModulusEOS,
+    FiniteStrain,
     orderof,
-    strain_from_volume,
-    volume_from_strain,
-    strain_volume_derivative,
+    volume2strain,
+    strain2volume,
+    Dⁿᵥf,
     whatstrain
 
 export linfit, nonlinfit
 
-_islocalminimum(y, x) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `x` is a local minimum.
+_islocalmin(x, y) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
 
-function _findlocalminima(y)
+function _localminima(y::Polynomial)
     y′ = derivative(y, 1)
-    pool = real(filter(isreal, roots(coeffs(y′))))  # Complex volumes are meaningless
-    return filter(x -> _islocalminimum(y, x), pool)
+    rawpool = roots(coeffs(y′); polish = true, epsilon = 1e-20)
+    pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
+    return filter(x -> _islocalmin(x, y), pool)
 end
 
-_findminimum(y) = _findminimum(y, _findlocalminima(y))
-function _findminimum(y, localminima)  # Find the minimal in the minima
+_globalminimum(y) = _globalminimum(y, _localminima(y))
+function _globalminimum(y, localminima)  # Find the minimal in the minima
     # https://stackoverflow.com/a/21367608/3260253
     if isempty(localminima)
         @error "no real local minima found!"  # For some polynomials, could be all complex
         return nothing, nothing
     else
-        y0, i = findmin(y.(localminima))
+        y0, i = findmin(map(y, localminima))
         x0 = localminima[i]
         return x0, y0
     end
 end
 
-function linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies)
+function linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; maxiter = 1000)
     deg = orderof(eos.param)
-    v0_init = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0
-    st = whatstrain(eos.param)
-    strains = map(strain_from_volume(st, v0_init), volumes)
-    poly = fit(strains, energies, deg)
-    f0, e0 = _findminimum(poly)
-    v0_final = volume_from_strain(st, v0_init)(f0)
-    fᵥ = map(deg -> strain_volume_derivative(st, v0_final, v0_final, deg), 1:4)
-    e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
-    b0, b′0, b″0 = _bulkmoduli(eos, v0_final, fᵥ, e_f)
-    return _buildeos(eos.param, v0_final, b0, b′0, b″0, e0)
-end
-
-function _buildeos(T::FiniteStrainParameters, v0, b0, b′0, b″0, e0)
-    N = orderof(T)
-    if N == 2
-        return constructorof(typeof(T))(v0, b0, e0)
-    elseif N == 3
-        return constructorof(typeof(T))(v0, b0, b′0, e0)
-    elseif N == 4
-        return constructorof(typeof(T))(v0, b0, b′0, b″0, e0)
+    if deg >= 5
+        error("unsupported for 5th order EOS and higher!")
     else
-        error("")
+        v0_init = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0
+        st = whatstrain(eos.param)
+        v0, f0, e0, poly =
+            _selfconsistent(v0_init, volumes, energies, st, deg; maxiter = maxiter)
+        if v0 === nothing
+            @error "linear fitting failed!"
+            return
+        else
+            fᵥ = map(deg -> Dⁿᵥf(st, v0, v0, deg), 1:4)
+            e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
+            b0, b′0, b″0 = _bulkmoduli(v0, fᵥ, e_f)
+            return _buildeos(eos.param, v0, b0, b′0, b″0, e0)
+        end
     end
 end
 
-function _bulkmoduli(eos::EnergyEOS, v0_final, fᵥ, e_f)
-    st = whatstrain(eos.param)
-    e″ᵥ = _energy″ᵥ(fᵥ, e_f)
-    e‴ᵥ = _energy‴ᵥ(fᵥ, e_f)
-    b0 = v0_final * e″ᵥ
-    b′0 = -v0_final * e‴ᵥ / e″ᵥ - 1
-    b″0 = (v0_final * (_energy⁗ᵥ(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
+function _selfconsistent(v0, volumes, energies, st, deg; maxiter = 1000, epsilon = eps())
+    for i in 1:maxiter
+        v0_prev = v0
+        strains = map(volume2strain(st, v0), volumes)
+        poly = fit(strains, energies, deg)
+        f0, e0 = _globalminimum(poly)
+        v0 = strain2volume(st, v0)(f0)
+        if abs((v0_prev - v0) / v0_prev) <= epsilon
+            return v0, f0, e0, poly  # Final converged result
+        end
+    end
+    return nothing, nothing, nothing, nothing
+end
+
+function _buildeos(::T, v0, b0, b′0, b″0, e0) where {T<:FiniteStrainParameters}
+    N = orderof(T)
+    if N == 2
+        return constructorof(T)(v0, b0, e0)
+    elseif N == 3
+        return constructorof(T)(v0, b0, b′0, e0)
+    elseif N == 4
+        return constructorof(T)(v0, b0, b′0, b″0, e0)
+    else
+        error("unsupported for 5th order EOS and higher!")
+    end
+end
+
+# See Eq. (55) - (57) in Ref. 1.
+function _bulkmoduli(v0, fᵥ, e_f)
+    e″ᵥ = _D²ᵥe(fᵥ, e_f)
+    e‴ᵥ = _D³ᵥe(fᵥ, e_f)
+    b0 = v0 * e″ᵥ
+    b′0 = -v0 * e‴ᵥ / e″ᵥ - 1
+    b″0 = (v0 * (_D⁴ᵥe(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
     return b0, b′0, b″0
 end
 
-_energy′ᵥ(fᵥ, e_f) = e_f[1] * fᵥ[1]
-_energy″ᵥ(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
-_energy‴ᵥ(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
-_energy⁗ᵥ(fᵥ, e_f) =
+# Energy-volume derivatives, see Eq. (50) - (53) in Ref. 1.
+_D¹ᵥe(fᵥ, e_f) = e_f[1] * fᵥ[1]
+_D²ᵥe(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
+_D³ᵥe(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
+_D⁴ᵥe(fᵥ, e_f) =
     e_f[4] * fᵥ[1]^4 +
     6fᵥ[1]^2 * fᵥ[2] * e_f[3] +
     (4fᵥ[1] * fᵥ[3] + 3fᵥ[3]^2) * e_f[2] +
@@ -95,7 +119,7 @@ function nonlinfit(
     ys;
     xtol = 1e-8,
     gtol = 1e-2,
-    maxiter::Integer = 1000,
+    maxiter = 1000,
     min_step_quality = 1e-3,
     good_step_quality = 0.75,
     silent = true,
