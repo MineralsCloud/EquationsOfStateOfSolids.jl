@@ -48,22 +48,16 @@ function findvolume(eos::EnergyEOS{<:BirchMurnaghan3rd}, e; root_thr = 1e-20)
     vs = map(strain2volume(EulerianStrain(), v0), fs)
     return map(real, filter(isreal, vs))
 end
-function findvolume(
-    eos::EquationOfStateOfSolids,
-    y,
-    v0,
-    method::AbstractUnivariateZeroMethod,
-)
-    v = _findvolume(eos, y, v0, method)
+function findvolume(eos::EquationOfStateOfSolids, y, method::AbstractUnivariateZeroMethod)
+    v = _find_zero(x -> eos(x) - y, (0.5, 1.5) .* eos.param.v0, method)
     if v < zero(v)
         @error "the volume found is negative!"
     end
     return v
-end # function findvolume
-_findvolume(eos, y, v0, method::AbstractBracketing) =
-    find_zero(v -> eos(v) - y, extrema(v0), method)
+end
+_find_zero(f, v0, method::AbstractBracketing) = find_zero(f, extrema(v0), method)
 # The rest of root-finding methods
-_findvolume(eos, y, v0, method::AbstractUnivariateZeroMethod) =
-    find_zero(v -> eos(v) - y, sum(extrema(v0)) / 2, method)
+_find_zero(f, v0, method::AbstractUnivariateZeroMethod) =
+    find_zero(f, sum(extrema(v0)) / 2, method)
 
 end
