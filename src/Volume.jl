@@ -60,17 +60,6 @@ function findvolume(
     end
     return v
 end # function findvolume
-function findvolume(eos::EquationOfStateOfSolids, y, v0; silent = false)
-    for T in ROOT_FINDING_ALGORITHMS
-        silent || @info "using method `$T`..."
-        try
-            # `maximum` and `minimum` also works with `AbstractQuantity`s.
-            return findvolume(eos, y, v0, T())
-        catch e
-            silent || @info "method `$T` failed because of $e."
-        end
-    end
-end # function findvolume
 _findvolume(eos, y, v0, method::AbstractBracketing) =
     find_zero(v -> eos(v) - y, extrema(v0), method)
 # The rest of root-finding methods
