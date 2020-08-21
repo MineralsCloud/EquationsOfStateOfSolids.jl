@@ -14,6 +14,7 @@ using ..Collections:
     PressureEOS,
     EnergyEOS,
     BulkModulusEOS,
+    FiniteStrain,
     orderof,
     strain_from_volume,
     volume_from_strain,
@@ -22,22 +23,22 @@ using ..Collections:
 
 export linfit, nonlinfit
 
-_islocalminimum(y, x) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `x` is a local minimum.
+_islocalmin(x, y) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
 
-function _findlocalminima(y)
+function _localminima(y::Polynomial)
     y′ = derivative(y, 1)
     pool = real(filter(isreal, roots(coeffs(y′))))  # Complex volumes are meaningless
-    return filter(x -> _islocalminimum(y, x), pool)
+    return filter(x -> _islocalmin(x, y), pool)
 end
 
-_findminimum(y) = _findminimum(y, _findlocalminima(y))
-function _findminimum(y, localminima)  # Find the minimal in the minima
+_globalminimum(y) = _globalminimum(y, _localminima(y))
+function _globalminimum(y, localminima)  # Find the minimal in the minima
     # https://stackoverflow.com/a/21367608/3260253
     if isempty(localminima)
         @error "no real local minima found!"  # For some polynomials, could be all complex
         return nothing, nothing
     else
-        y0, i = findmin(y.(localminima))
+        y0, i = findmin(map(y, localminima))
         x0 = localminima[i]
         return x0, y0
     end
@@ -45,38 +46,46 @@ end
 
 function linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies)
     deg = orderof(eos.param)
-    v0_init = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0
-    st = whatstrain(eos.param)
-    strains = map(strain_from_volume(st, v0_init), volumes)
-    poly = fit(strains, energies, deg)
-    f0, e0 = _findminimum(poly)
-    v0_final = volume_from_strain(st, v0_init)(f0)
-    fᵥ = map(deg -> strain_volume_derivative(st, v0_final, v0_final, deg), 1:4)
-    e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
-    b0, b′0, b″0 = _bulkmoduli(eos, v0_final, fᵥ, e_f)
-    return _buildeos(eos.param, v0_final, b0, b′0, b″0, e0)
-end
-
-function _buildeos(T::FiniteStrainParameters, v0, b0, b′0, b″0, e0)
-    N = orderof(T)
-    if N == 2
-        return constructorof(typeof(T))(v0, b0, e0)
-    elseif N == 3
-        return constructorof(typeof(T))(v0, b0, b′0, e0)
-    elseif N == 4
-        return constructorof(typeof(T))(v0, b0, b′0, b″0, e0)
+    if deg >= 5
+        error("unsupported for 5th order EOS and higher!")
     else
-        error("")
+        v0_init = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0
+        st = whatstrain(eos.param)
+        strains = map(strain_from_volume(st, v0_init), volumes)
+        poly = fit(strains, energies, deg)
+        f0, e0 = _globalminimum(poly)
+        if (f0, e0) == (nothing, nothing)
+            @error "linear fitting failed!"
+            return
+        else
+            v0 = volume_from_strain(st, v0_init)(f0)  # Final result
+            fᵥ = map(deg -> strain_volume_derivative(st, v0, v0, deg), 1:4)
+            e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
+            b0, b′0, b″0 = _bulkmoduli(v0, fᵥ, e_f)
+            return _buildeos(eos.param, v0, b0, b′0, b″0, e0)
+        end
     end
 end
 
-function _bulkmoduli(eos::EnergyEOS, v0_final, fᵥ, e_f)
-    st = whatstrain(eos.param)
+function _buildeos(::T, v0, b0, b′0, b″0, e0) where {T<:FiniteStrainParameters}
+    N = orderof(T)
+    if N == 2
+        return constructorof(T)(v0, b0, e0)
+    elseif N == 3
+        return constructorof(T)(v0, b0, b′0, e0)
+    elseif N == 4
+        return constructorof(T)(v0, b0, b′0, b″0, e0)
+    else
+        error("unsupported for 5th order EOS and higher!")
+    end
+end
+
+function _bulkmoduli(v0, fᵥ, e_f)
     e″ᵥ = _energy″ᵥ(fᵥ, e_f)
     e‴ᵥ = _energy‴ᵥ(fᵥ, e_f)
-    b0 = v0_final * e″ᵥ
-    b′0 = -v0_final * e‴ᵥ / e″ᵥ - 1
-    b″0 = (v0_final * (_energy⁗ᵥ(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
+    b0 = v0 * e″ᵥ
+    b′0 = -v0 * e‴ᵥ / e″ᵥ - 1
+    b″0 = (v0 * (_energy⁗ᵥ(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
     return b0, b′0, b″0
 end
 
