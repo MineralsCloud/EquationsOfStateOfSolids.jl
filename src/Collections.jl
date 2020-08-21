@@ -25,7 +25,7 @@ export Murnaghan,
     atomic_number,
     volume2strain,
     strain2volume,
-    whatstrain
+    straintype
 
 const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
 
@@ -333,9 +333,9 @@ function Dⁿᵥf(s::InfinitesimalStrain, deg, v0)
     end
 end
 
-whatstrain(::Type{<:BirchMurnaghan}) = EulerianStrain()
-whatstrain(::Type{<:PoirierTarantola}) = NaturalStrain()
-whatstrain(x::FiniteStrainParameters) = whatstrain(typeof(x))
+straintype(::Type{<:BirchMurnaghan}) = EulerianStrain
+straintype(::Type{<:PoirierTarantola}) = NaturalStrain
+straintype(x::FiniteStrainParameters) = straintype(typeof(x))
 
 function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
