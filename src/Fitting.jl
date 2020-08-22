@@ -137,24 +137,23 @@ function nonlinfit(
         good_step_quality = good_step_quality,
         show_trace = !silent,
     )
-    result = if fit.converged
-        constructorof(typeof(eos.param))(
+    if fit.converged
+        result = constructorof(typeof(eos.param))(
             map(coef(fit), first.(p0), _mapfields(unit, eos.param)) do x, c, u
                 x / c * u
             end,
         )
+        _checkresult(result)
+        return result
     else
-        @error "fitting is not converged, change initial parameters!"
         if !isinteractive() && isempty(saveto)
             saveto = string(rand(UInt)) * ".jls"
         end
-        nothing
+        throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
     end
     if !isempty(saveto)
         _savefit(saveto, fit)
     end
-    _checkresult(result)
-    return result
 end
 
 function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not export!
