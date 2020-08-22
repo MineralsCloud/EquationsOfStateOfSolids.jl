@@ -13,7 +13,7 @@ _getfields(x) = (getfield(x, i) for i in 1:nfields(x))
 _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
     isapprox(ustrip.(_getfields(a)), ustrip.(_getfields(b)); kwargs...)
 
-# Data in the following tests are from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L17-L73
+# Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L17-L73
 @testset "Test data from Pymatgen" begin
     data = open("test/data/si.yml", "r") do io
         YAML.load(io)
@@ -73,6 +73,21 @@ _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
             -10.846160810560756,
         ),
     )
+end
+
+# Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L92-L167
+@testset "Test Mg dataset" begin
+    data = open("test/data/mp153.yml", "r") do io
+        YAML.load(io)
+    end
+    volumes, energies, known_energies_vinet =
+        data["volume"], data["energy"], data["known_energy_vinet"]
+    fitted_eos = nonlinfit(EnergyEOS(Vinet(23, 0.5, 4, -2)), volumes, energies)
+    @test _isapprox(
+        fitted_eos,
+        Vinet(22.95764159, 0.2257091141420788, 4.590843262, -1.594429229),
+    )
+    @test isapprox(map(EnergyEOS(fitted_eos), volumes), known_energies_vinet; atol = 1e-5)
 end
 
 end
