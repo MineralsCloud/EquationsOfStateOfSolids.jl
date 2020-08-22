@@ -23,33 +23,12 @@ using ..Collections:
 
 export linfit, nonlinfit
 
-# Referd from https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
+# See https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
 struct ConvergenceFailed
-    reason::AbstractString
+    msg::AbstractString
 end
 
-_islocalmin(x, y) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
-
-function _localminima(y::Polynomial, root_thr = 1e-20)
-    y′ = derivative(y, 1)
-    rawpool = roots(coeffs(y′); polish = true, epsilon = root_thr)
-    pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
-    if isempty(pool)
-        # For some polynomials, could be all complex
-        error("no real local minima found!")
-    else
-        return filter(x -> _islocalmin(x, y), pool)
-    end
-end
-
-# https://stackoverflow.com/a/21367608/3260253
-function _absminimum(y, root_thr = 1e-20)  # Find the minimal in the minima
-    localminima = _localminima(y, root_thr)
-    y0, i = findmin(map(y, localminima))
-    x0 = localminima[i]
-    return x0, y0
-end
-
+# ================================== Linear fitting ==================================
 function linfit(
     eos::EnergyEOS{<:FiniteStrainParameters},
     volumes,
@@ -58,7 +37,7 @@ function linfit(
     conv_thr = eps(),
     root_thr = 1e-20,
     silent = false,
-)
+)::FiniteStrainParameters
     deg = orderof(eos.param)
     s = straintype(eos.param)()
     v0 = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0  # Initial v0
@@ -66,7 +45,7 @@ function linfit(
         strains = map(volume2strain(s, v0), volumes)
         poly = fit(strains, energies, deg)
         f0, e0 = _absminimum(poly, root_thr)
-        v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, update v0
+        v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
             if !silent
                 @info "convergence reached after $i steps!"
@@ -80,9 +59,30 @@ function linfit(
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
 end
 
-function _update(x::FiniteStrainParameters; kwargs...)
-    patch = (; (f => kwargs[f] for f in propertynames(x))...)
-    return setproperties(x, patch)
+_islocalmin(x, y) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
+
+function _localminima(y::Polynomial, root_thr = 1e-20)
+    y′ = derivative(y, 1)
+    rawpool = roots(coeffs(y′); polish = true, epsilon = root_thr)
+    pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
+    if isempty(pool)
+        error("no real maxima/minima found! Consider changing `root_thr`!")  # For some polynomials, could be all complex
+    else
+        localminima = filter(x -> _islocalmin(x, y), pool)
+        if isempty(localminima)
+            error("no local minima found!")
+        else
+            return localminima
+        end
+    end
+end
+
+# https://stackoverflow.com/a/21367608/3260253
+function _absminimum(y, root_thr = 1e-20)  # Find the minimal in the minima
+    localminima = _localminima(y, root_thr)
+    y0, i = findmin(map(y, localminima))
+    x0 = localminima[i]
+    return x0, y0
 end
 
 # See Eq. (55) - (57) in Ref. 1.
@@ -105,6 +105,12 @@ _D⁴ᵥe(fᵥ, e_f) =
     (4fᵥ[1] * fᵥ[3] + 3fᵥ[3]^2) * e_f[2] +
     e_f[1] * fᵥ[4]
 
+function _update(x::FiniteStrainParameters; kwargs...)
+    patch = (; (f => kwargs[f] for f in propertynames(x))...)
+    return setproperties(x, patch)
+end
+
+# ================================== Nonlinear fitting ==================================
 function nonlinfit(
     eos::EquationOfStateOfSolids,
     xs,
@@ -116,7 +122,7 @@ function nonlinfit(
     good_step_quality = 0.75,
     silent = true,
     saveto = "",
-)
+)::Parameters
     model = createmodel(eos)
     p0, xs, ys = _prepare(eos, xs, ys)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
@@ -131,24 +137,23 @@ function nonlinfit(
         good_step_quality = good_step_quality,
         show_trace = !silent,
     )
-    result = if fit.converged
-        constructorof(typeof(eos.param))(
+    if fit.converged
+        result = constructorof(typeof(eos.param))(
             map(coef(fit), first.(p0), _mapfields(unit, eos.param)) do x, c, u
                 x / c * u
             end,
         )
+        _checkresult(result)
+        return result
     else
-        @error "fitting is not converged, change initial parameters!"
         if !isinteractive() && isempty(saveto)
             saveto = string(rand(UInt)) * ".jls"
         end
-        nothing
+        throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
     end
     if !isempty(saveto)
         _savefit(saveto, fit)
     end
-    _checkresult(result)
-    return result
 end
 
 function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not export!

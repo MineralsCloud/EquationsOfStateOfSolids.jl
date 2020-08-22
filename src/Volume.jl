@@ -38,43 +38,26 @@ function findvolume(eos::EnergyEOS{<:BirchMurnaghan2nd}, e)
     vs = map(strain2volume(EulerianStrain(), v0), [f, -f])
     return map(real, filter(isreal, vs))
 end
-function findvolume(eos::EnergyEOS{<:BirchMurnaghan3rd}, e; epsilon = 1e-20)
+function findvolume(eos::EnergyEOS{<:BirchMurnaghan3rd}, e; root_thr = 1e-20)
     @unpack v0, b0, b′0, e0 = eos.param
     # Constrcut ax^3 + bx^2 + d = 0
     b, d = 9 / 2 * b0 * v0, e0 - e
     a = b * (b′0 - 4)
     # Solve ax^3 + bx^2 + d = 0
-    fs = roots([d, 0, b, a]; polish = true, epsilon = epsilon)
+    fs = roots([d, 0, b, a]; polish = true, epsilon = root_thr)
     vs = map(strain2volume(EulerianStrain(), v0), fs)
     return map(real, filter(isreal, vs))
 end
-function findvolume(
-    eos::EquationOfStateOfSolids,
-    y,
-    v0,
-    method::AbstractUnivariateZeroMethod,
-)
-    v = _findvolume(eos, y, v0, method)
+function findvolume(eos::EquationOfStateOfSolids, y, method::AbstractUnivariateZeroMethod)
+    v = _find_zero(x -> eos(x) - y, (0.5, 1.5) .* eos.param.v0, method)
     if v < zero(v)
-        @error "the volume found is negative!"
+        @warn "the volume found is negative!"
     end
     return v
-end # function findvolume
-function findvolume(eos::EquationOfStateOfSolids, y, v0; silent = false)
-    for T in ROOT_FINDING_ALGORITHMS
-        silent || @info "using method `$T`..."
-        try
-            # `maximum` and `minimum` also works with `AbstractQuantity`s.
-            return findvolume(eos, y, v0, T())
-        catch e
-            silent || @info "method `$T` failed because of $e."
-        end
-    end
-end # function findvolume
-_findvolume(eos, y, v0, method::AbstractBracketing) =
-    find_zero(v -> eos(v) - y, extrema(v0), method)
+end
+_find_zero(f, v0, method::AbstractBracketing) = find_zero(f, extrema(v0), method)
 # The rest of root-finding methods
-_findvolume(eos, y, v0, method::AbstractUnivariateZeroMethod) =
-    find_zero(v -> eos(v) - y, sum(extrema(v0)) / 2, method)
+_find_zero(f, v0, method::AbstractUnivariateZeroMethod) =
+    find_zero(f, sum(extrema(v0)) / 2, method)
 
 end
