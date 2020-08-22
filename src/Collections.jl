@@ -1,7 +1,7 @@
 module Collections
 
 using AutoHashEquals: @auto_hash_equals
-using Unitful: NoUnits, ħ, me
+using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
 
 export Murnaghan,
@@ -41,13 +41,13 @@ const _2½ = FiveHalves()
 const _1½ = ThreeHalves()
 
 Base.:(^)(x, ::TwoThirds) = x^(2 // 3)
-Base.:(^)(x::Real, ::TwoThirds) = x^(2 / 3)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::TwoThirds) = x^(2 / 3)
 Base.:(^)(x, ::OneThird) = x^(1 // 3)
-Base.:(^)(x::Real, ::OneThird) = x^(1 / 3)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::OneThird) = x^(1 / 3)
 Base.:(^)(x, ::FiveHalves) = x^(5 // 2)
-Base.:(^)(x::Real, ::FiveHalves) = x^(5 / 2)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::FiveHalves) = x^(5 / 2)
 Base.:(^)(x, ::ThreeHalves) = x^(3 // 2)
-Base.:(^)(x::Real, ::ThreeHalves) = x^(3 / 2)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::ThreeHalves) = x^(3 / 2)
 
 abstract type Parameters{T} end
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
