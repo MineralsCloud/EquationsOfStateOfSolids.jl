@@ -51,7 +51,7 @@ end
 function findvolume(eos::EquationOfStateOfSolids, y, method::AbstractUnivariateZeroMethod)
     v = _find_zero(x -> eos(x) - y, (0.5, 1.5) .* eos.param.v0, method)
     if v < zero(v)
-        @error "the volume found is negative!"
+        @warn "the volume found is negative!"
     end
     return v
 end
