@@ -66,10 +66,14 @@ function _localminima(y::Polynomial, root_thr = 1e-20)
     rawpool = roots(coeffs(y′); polish = true, epsilon = root_thr)
     pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
     if isempty(pool)
-        # For some polynomials, could be all complex
-        error("no real local minima found!")
+        error("no real maxima/minima found! Consider changing `root_thr`!")  # For some polynomials, could be all complex
     else
-        return filter(x -> _islocalmin(x, y), pool)
+        localminima = filter(x -> _islocalmin(x, y), pool)
+        if isempty(localminima)
+            error("no local minima found!")
+        else
+            return localminima
+        end
     end
 end
 
