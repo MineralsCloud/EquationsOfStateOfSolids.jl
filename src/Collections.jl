@@ -1,7 +1,7 @@
 module Collections
 
 using AutoHashEquals: @auto_hash_equals
-using Unitful: NoUnits, ħ, me
+using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
 
 export Murnaghan,
@@ -28,6 +28,26 @@ export Murnaghan,
     straintype
 
 const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
+
+abstract type Power end
+struct TwoThirds <: Power end
+struct OneThird <: Power end
+struct FiveHalves <: Power end
+struct ThreeHalves <: Power end
+
+const _⅔ = TwoThirds()
+const _⅓ = OneThird()
+const _2½ = FiveHalves()
+const _1½ = ThreeHalves()
+
+Base.:(^)(x, ::TwoThirds) = x^(2 // 3)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::TwoThirds) = x^(2 / 3)
+Base.:(^)(x, ::OneThird) = x^(1 // 3)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::OneThird) = x^(1 / 3)
+Base.:(^)(x, ::FiveHalves) = x^(5 // 2)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::FiveHalves) = x^(5 / 2)
+Base.:(^)(x, ::ThreeHalves) = x^(3 // 2)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::ThreeHalves) = x^(3 / 2)
 
 abstract type Parameters{T} end
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
@@ -160,7 +180,7 @@ function (eos::EnergyEOS{<:PoirierTarantola4th})(v)
 end
 function (eos::EnergyEOS{<:Vinet})(v)
     @unpack v0, b0, b′0, e0 = eos.param
-    x, y = 1 - (v / v0)^(1 / 3), 3 / 2 * (b′0 - 1)
+    x, y = 1 - (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return e0 + 9b0 * v0 / y^2 * (1 + (x * y - 1) * exp(x * y))
 end
 function (f::EnergyEOS{<:AntonSchmidt})(v)
@@ -177,18 +197,18 @@ end
 function (eos::PressureEOS{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = eos.param
     f = volume2strain(EulerianStrain(), v0)(v)
-    return 3b0 * f * (2f + 1)^(5 / 2)
+    return 3b0 * f * (2f + 1)^_2½
 end
 function (eos::PressureEOS{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = eos.param
     f = volume2strain(EulerianStrain(), v0)(v)
-    return 3f / 2 * b0 * (2f + 1)^(5 / 2) * (2 + 3f * (b′0 - 4))
+    return 3f / 2 * b0 * (2f + 1)^_2½ * (2 + 3f * (b′0 - 4))
 end
 function (eos::PressureEOS{<:BirchMurnaghan4th})(v)
     @unpack v0, b0, b′0, b″0 = eos.param
     f = volume2strain(EulerianStrain(), v0)(v)
     h = b″0 * b0 + b′0^2
-    return b0 / 2 * (2f + 1)^(5 / 2) * ((9h - 63b′0 + 143) * f^2 + 9f * (b′0 - 4) + 6)
+    return b0 / 2 * (2f + 1)^_2½ * ((9h - 63b′0 + 143) * f^2 + 9f * (b′0 - 4) + 6)
 end
 function (eos::PressureEOS{<:PoirierTarantola2nd})(v)
     @unpack v0, b0 = eos.param
@@ -208,7 +228,7 @@ function (eos::PressureEOS{<:PoirierTarantola4th})(v)
 end
 function (eos::PressureEOS{<:Vinet})(v)
     @unpack v0, b0, b′0 = eos.param
-    x, y = (v / v0)^(1 / 3), 3 / 2 * (b′0 - 1)
+    x, y = (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return 3b0 / x^2 * (1 - x) * exp(y * (1 - x))
 end
 function (f::PressureEOS{<:AntonSchmidt})(v)
@@ -218,7 +238,7 @@ function (f::PressureEOS{<:AntonSchmidt})(v)
 end
 function (eos::PressureEOS{<:Holzapfel{Z}})(v) where {Z}
     @unpack v0, b0, b′0 = eos.param
-    η = (v / v0)^(1 / 3)
+    η = (v / v0)^_⅓
     p0 = FERMI_GAS_CONSTANT * (Z / v0)^(5 / 3)
     c0 = -log(3b0 / p0 |> NoUnits)
     c2 = 3 / 2 * (b′0 - 3) - c0
@@ -229,19 +249,19 @@ end
 function (eos::BulkModulusEOS{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = eos.param
     f = volume2strain(EulerianStrain(), v0)(v)
-    return b0 * (7f + 1) * (2f + 1)^(5 / 2)
+    return b0 * (7f + 1) * (2f + 1)^_2½
 end
 function (eos::BulkModulusEOS{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = eos.param
     f = volume2strain(EulerianStrain(), v0)(v)
-    return b0 / 2 * (2f + 1)^(5 / 2) * ((27f^2 + 6f) * (b′0 - 4) - 4f + 2)
+    return b0 / 2 * (2f + 1)^_2½ * ((27f^2 + 6f) * (b′0 - 4) - 4f + 2)
 end
 function (eos::BulkModulusEOS{<:BirchMurnaghan4th})(v)
     @unpack v0, b0, b′0, b″0 = eos.param
     f = volume2strain(EulerianStrain(), v0)(v)
     h = b″0 * b0 + b′0^2
     return b0 / 6 *
-           (2f + 1)^(5 / 2) *
+           (2f + 1)^_2½ *
            ((99h - 693b′0 + 1573) * f^3 + (27h - 108b′0 + 105) * f^2 + 6f * (3b′0 - 5) + 6)
 end
 function (eos::BulkModulusEOS{<:PoirierTarantola2nd})(v)
@@ -264,7 +284,7 @@ function (eos::BulkModulusEOS{<:PoirierTarantola4th})(v)
 end
 function (eos::BulkModulusEOS{<:Vinet})(v)
     @unpack v0, b0, b′0 = eos.param
-    x, ξ = (v / v0)^(1 / 3), 3 / 2 * (b′0 - 1)
+    x, ξ = (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return -b0 / (2 * x^2) * (3x * (x - 1) * (b′0 - 1) + 2 * (x - 2)) * exp(-ξ * (x - 1))
 end
 function (f::BulkModulusEOS{<:AntonSchmidt})(v)
@@ -286,20 +306,20 @@ struct LagrangianStrain <: FiniteStrain end
 struct NaturalStrain <: FiniteStrain end
 struct InfinitesimalStrain <: FiniteStrain end
 
-volume2strain(::EulerianStrain, v0) = v -> ((v0 / v)^(2 / 3) - 1) / 2
-volume2strain(::LagrangianStrain, v0) = v -> ((v / v0)^(2 / 3) - 1) / 2
+volume2strain(::EulerianStrain, v0) = v -> ((v0 / v)^_⅔ - 1) / 2
+volume2strain(::LagrangianStrain, v0) = v -> ((v / v0)^_⅔ - 1) / 2
 volume2strain(::NaturalStrain, v0) = v -> log(v / v0) / 3
-volume2strain(::InfinitesimalStrain, v0) = v -> 1 - (v0 / v)^(1 / 3)
+volume2strain(::InfinitesimalStrain, v0) = v -> 1 - (v0 / v)^_⅓
 
-strain2volume(::EulerianStrain, v0) = f -> v0 / (2f + 1)^(3 / 2)
-strain2volume(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^(3 / 2)
+strain2volume(::EulerianStrain, v0) = f -> v0 / (2f + 1)^_1½
+strain2volume(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^_1½
 strain2volume(::NaturalStrain, v0) = f -> v0 * exp(3f)
 strain2volume(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
 
 function Dⁿᵥf(s::EulerianStrain, deg, v0)
     function (v)
         if isone(deg)  # Stop recursion
-            return -(v0 / v)^(2 / 3) / 3 / v
+            return -(v0 / v)^_⅔ / 3 / v
         else  # Recursion
             return -(3deg - 1) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
         end
@@ -308,7 +328,7 @@ end
 function Dⁿᵥf(s::LagrangianStrain, deg, v0)
     function (v)
         if isone(deg)  # Stop recursion
-            return -(v / v0)^(2 / 3) / 3 / v
+            return -(v / v0)^_⅔ / 3 / v
         else  # Recursion
             return -(3deg - 5) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
         end
