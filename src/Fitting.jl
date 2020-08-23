@@ -144,7 +144,7 @@ function nonlinfit(
         result = constructorof(typeof(eos.param))(
             map(coef(fit), first.(p0), _mapfields(unit, eos.param)) do x, c, u
                 x / c * u
-            end,
+            end...,
         )
         _checkresult(result)
         return result
