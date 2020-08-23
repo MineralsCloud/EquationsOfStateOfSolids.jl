@@ -5,7 +5,7 @@ using LsqFit: curve_fit, coef
 using PolynomialRoots: roots
 using Polynomials: Polynomial, fit, derivative, coeffs, derivative
 using Serialization: serialize
-using Unitful: AbstractQuantity, ustrip, unit
+using Unitful: AbstractQuantity, ustrip, unit, uconvert
 
 using ..Collections:
     EquationOfStateOfSolids,
@@ -141,11 +141,8 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        result = constructorof(typeof(eos.param))(
-            map(coef(fit), first.(p0), _mapfields(unit, eos.param)) do x, c, u
-                x / c * u
-            end...,
-        )
+        T = constructorof(typeof(eos.param))
+        result = T((x * c for (x, c) in zip(coef(fit), first.(p0)))...)
         _checkresult(result)
         return result
     else
@@ -181,14 +178,17 @@ function _ustrip_all(eos, xs, ys)  # Do not export!
     punit = unit(eos.param.e0) / unit(eos.param.v0)
     return map(fieldnames(typeof(eos.param))) do f
         x = getfield(eos.param, f)
+        u = unit(x)
         if f == :b0
-            ustrip(punit, oneunit(x)) => ustrip(punit, float(x))
+            uconvert(u, 1 * punit) => ustrip(punit, float(x))
         elseif f == :b″0
-            ustrip(punit^(-1), oneunit(x)) => ustrip(punit^(-1), float(x))
+            r = punit^(-1)
+            uconvert(u, 1 * r) => ustrip(r, float(x))
         elseif f == :b‴0
-            ustrip(punit^(-2), oneunit(x)) => ustrip(punit^(-2), float(x))
+            r = punit^(-2)
+            uconvert(u, 1 * r) => ustrip(r, float(x))
         else
-            1 => ustrip(float(x))
+            oneunit(x) => ustrip(float(x))
         end
     end, xs, ys
 end
