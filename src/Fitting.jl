@@ -25,7 +25,11 @@ export linfit, nonlinfit
 
 # See https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
 struct ConvergenceFailed
-    msg::AbstractString
+    msg::String
+end
+
+struct NoRootFound
+    msg::String
 end
 
 # ================================== Linear fitting ==================================
@@ -36,7 +40,7 @@ function linfit(
     maxiter = 1000,
     conv_thr = eps(),
     root_thr = 1e-20,
-    silent = false,
+    verbose = false,
 )::FiniteStrainParameters
     deg = orderof(eos.param)
     s = straintype(eos.param)()
@@ -47,7 +51,7 @@ function linfit(
         f0, e0 = _absminimum(poly, root_thr)
         v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
-            if !silent
+            if verbose
                 @info "convergence reached after $i steps!"
             end
             fᵥ = map(deg -> Dⁿᵥf(s, deg, v0)(v0), 1:4)
@@ -66,11 +70,11 @@ function _localminima(y::Polynomial, root_thr = 1e-20)
     rawpool = roots(coeffs(y′); polish = true, epsilon = root_thr)
     pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
     if isempty(pool)
-        error("no real maxima/minima found! Consider changing `root_thr`!")  # For some polynomials, could be all complex
+        throw(NoRootFound("no real extrema found! Consider changing `root_thr`!"))  # For some polynomials, could be all complex
     else
         localminima = filter(x -> _islocalmin(x, y), pool)
         if isempty(localminima)
-            error("no local minima found!")
+            throw(NoRootFound("no local minima found!"))
         else
             return localminima
         end
@@ -120,8 +124,7 @@ function nonlinfit(
     maxiter = 1000,
     min_step_quality = 1e-3,
     good_step_quality = 0.75,
-    silent = true,
-    saveto = "",
+    verbose = false,
 )::Parameters
     model = createmodel(eos)
     p0, xs, ys = _prepare(eos, xs, ys)
@@ -135,7 +138,7 @@ function nonlinfit(
         maxIter = maxiter,
         min_step_quality = min_step_quality,
         good_step_quality = good_step_quality,
-        show_trace = !silent,
+        show_trace = verbose,
     )
     if fit.converged
         result = constructorof(typeof(eos.param))(
@@ -146,26 +149,13 @@ function nonlinfit(
         _checkresult(result)
         return result
     else
-        if !isinteractive() && isempty(saveto)
-            saveto = string(rand(UInt)) * ".jls"
-        end
         throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
-    end
-    if !isempty(saveto)
-        _savefit(saveto, fit)
     end
 end
 
 function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not export!
     constructor = constructorof(S) ∘ constructorof(T)
     return (x, p) -> map(constructor(p), x)
-end
-
-function _savefit(file, fit)  # Do not export!
-    open(file, "w") do io
-        @info "saving raw fitted data to '$file'..."
-        serialize(io, fit)
-    end
 end
 
 function _checkresult(param::Parameters)  # Do not export!
