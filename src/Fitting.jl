@@ -125,7 +125,6 @@ function nonlinfit(
     min_step_quality = 1e-3,
     good_step_quality = 0.75,
     verbose = false,
-    saveto = "",
 )::Parameters
     model = createmodel(eos)
     p0, xs, ys = _prepare(eos, xs, ys)
@@ -150,26 +149,13 @@ function nonlinfit(
         _checkresult(result)
         return result
     else
-        if !isinteractive() && isempty(saveto)
-            saveto = string(rand(UInt)) * ".jls"
-        end
         throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
-    end
-    if !isempty(saveto)
-        _savefit(saveto, fit)
     end
 end
 
 function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not export!
     constructor = constructorof(S) ∘ constructorof(T)
     return (x, p) -> map(constructor(p), x)
-end
-
-function _savefit(file, fit)  # Do not export!
-    open(file, "w") do io
-        @info "saving raw fitted data to '$file'..."
-        serialize(io, fit)
-    end
 end
 
 function _checkresult(param::Parameters)  # Do not export!
