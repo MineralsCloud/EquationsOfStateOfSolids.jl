@@ -123,14 +123,42 @@ end
     data = open("test/data/mp149.yml", "r") do io
         YAML.load(io)
     end
-    volumes, energies, known_energies_vinet =
-        data["volume"], data["energy"], data["known_energy_vinet"]
-    fitted_eos = nonlinfit(EnergyEOS(Vinet(20, 0.5, 4, -5)), volumes, energies)
-    @test _isapprox(
-        fitted_eos,
-        Vinet(20.446696754, 0.55166385214, 4.32437391, -5.42496338987),
-    )
-    @test isapprox(map(EnergyEOS(fitted_eos), volumes), known_energies_vinet; atol = 1e-5)
+    @testset "without unit" begin
+        volumes, energies, known_energies_vinet =
+            data["volume"], data["energy"], data["known_energy_vinet"]
+        fitted_eos = nonlinfit(EnergyEOS(Vinet(20, 0.5, 4)), volumes, energies)
+        @test _isapprox(
+            fitted_eos,
+            Vinet(20.446696754, 0.55166385214, 4.32437391, -5.42496338987),
+        )
+        @test isapprox(
+            map(EnergyEOS(fitted_eos), volumes),
+            known_energies_vinet;
+            atol = 1e-5,
+        )
+    end
+
+    @testset "with units" begin
+        volumes, energies, known_energies_vinet = data["volume"] * u"angstrom^3",
+        data["energy"] * u"eV",
+        data["known_energy_vinet"] * u"eV"
+        fitted_eos =
+            nonlinfit(EnergyEOS(Vinet(20u"angstrom^3", 88.39u"GPa", 4)), volumes, energies)
+        @test _isapprox(
+            fitted_eos,
+            Vinet(
+                20.446696754u"angstrom^3",
+                88.38629264585195u"GPa",  # https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L274
+                4.32437391,
+                -5.42496338987u"eV",
+            ),
+        )
+        @test isapprox(
+            map(EnergyEOS(fitted_eos), volumes),
+            known_energies_vinet;
+            atol = 1e-6u"eV",
+        )
+    end
 end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L278-L353
