@@ -36,7 +36,7 @@ function linfit(
     maxiter = 1000,
     conv_thr = eps(),
     root_thr = 1e-20,
-    silent = false,
+    verbose = false,
 )::FiniteStrainParameters
     deg = orderof(eos.param)
     s = straintype(eos.param)()
@@ -47,7 +47,7 @@ function linfit(
         f0, e0 = _absminimum(poly, root_thr)
         v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
-            if !silent
+            if verbose
                 @info "convergence reached after $i steps!"
             end
             fᵥ = map(deg -> Dⁿᵥf(s, deg, v0)(v0), 1:4)
@@ -120,7 +120,7 @@ function nonlinfit(
     maxiter = 1000,
     min_step_quality = 1e-3,
     good_step_quality = 0.75,
-    silent = true,
+    verbose = false,
     saveto = "",
 )::Parameters
     model = createmodel(eos)
@@ -135,7 +135,7 @@ function nonlinfit(
         maxIter = maxiter,
         min_step_quality = min_step_quality,
         good_step_quality = good_step_quality,
-        show_trace = !silent,
+        show_trace = verbose,
     )
     if fit.converged
         result = constructorof(typeof(eos.param))(
