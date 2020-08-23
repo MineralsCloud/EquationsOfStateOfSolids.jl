@@ -99,11 +99,8 @@ end
         volumes, energies, known_energies_vinet = data["volume"] * u"angstrom^3",
         data["energy"] * u"eV",
         data["known_energy_vinet"] * u"eV"
-        fitted_eos = nonlinfit(
-            EnergyEOS(Vinet(23u"angstrom^3", 36.16u"GPa", 4, -2u"eV")),
-            volumes,
-            energies,
-        )
+        fitted_eos =
+            nonlinfit(EnergyEOS(Vinet(23u"angstrom^3", 36.16u"GPa", 4)), volumes, energies)
         @test _isapprox(
             fitted_eos,
             Vinet(
@@ -113,7 +110,11 @@ end
                 -1.59442926062u"eV",
             ),
         )
-        @test isapprox(map(EnergyEOS(fitted_eos), volumes), known_energies_vinet)
+        @test isapprox(
+            map(EnergyEOS(fitted_eos), volumes),
+            known_energies_vinet;
+            atol = 1e-6u"eV",
+        )
     end
 end
 
