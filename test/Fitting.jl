@@ -104,6 +104,18 @@ end
     )
     @test isapprox(map(EnergyEOS(fitted_eos), volumes), known_energies_vinet; atol = 1e-5)
 end
+
+# Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L278-L353
+@testset "Test Ti dataset" begin
+    data = open("test/data/mp72.yml", "r") do io
+        YAML.load(io)
+    end
+    volumes, energies, known_energies_vinet =
+        data["volume"], data["energy"], data["known_energy_vinet"]
+    fitted_eos = nonlinfit(EnergyEOS(Vinet(17, 0.5, 4, -7)), volumes, energies)
+    @test _isapprox(
+        fitted_eos,
+        Vinet(17.1322302613, 0.70297662247, 3.638807756, -7.89741495912),
     )
     @test isapprox(map(EnergyEOS(fitted_eos), volumes), known_energies_vinet; atol = 1e-5)
 end
