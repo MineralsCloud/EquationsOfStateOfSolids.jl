@@ -18,16 +18,6 @@ using ..Collections:
 
 export findvolume
 
-function _allsubtypes(t::Type, types = Type[])
-    for s in subtypes(t)
-        types = _allsubtypes(s, push!(types, s))
-    end
-    return types
-end
-_nonabstract(t::Type) = filter(!isabstracttype, _allsubtypes(t))  # `Roots.FalsePosition` is not concrete!
-
-const ROOT_FINDING_ALGORITHMS = _nonabstract(AbstractUnivariateZeroMethod)
-
 function findvolume(eos::PressureEOS{<:Murnaghan}, p)
     @unpack v0, b0, b′0, e0 = eos.param
     return v0 * (1 + b′0 / b0 * p)^(-1 / b′0)
