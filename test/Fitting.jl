@@ -85,7 +85,10 @@ end
     fitted_eos = nonlinfit(EnergyEOS(Vinet(23, 0.5, 4, -2)), volumes, energies)
     @test _isapprox(
         fitted_eos,
-        Vinet(22.95764159, 0.2257091141420788, 4.590843262, -1.594429229),
+        Vinet(22.957645593, 0.22570911414, 4.06054339, -1.59442926062),
+    )
+    @test isapprox(map(EnergyEOS(fitted_eos), volumes), known_energies_vinet; atol = 1e-6)
+end
     )
     @test isapprox(map(EnergyEOS(fitted_eos), volumes), known_energies_vinet; atol = 1e-5)
 end
