@@ -170,7 +170,7 @@ end
 function (eos::EnergyEOS{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0, e0 = eos.param
     f = volume2strain(NaturalStrain(), v0)(v)
-    return e0 + 9b0 * v0 * f^2 / 2 * ((b′0 - 2) * f + 1)
+    return e0 + 9b0 * v0 * f^2 / 2 * ((2 - b′0) * f + 1)
 end
 function (eos::EnergyEOS{<:PoirierTarantola4th})(v)
     @unpack v0, b0, b′0, b″0, e0 = eos.param
