@@ -22,7 +22,7 @@ _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L17-L73
 @testset "Test data from Pymatgen" begin
-    data = open("test/data/si.yml", "r") do io
+    data = open("data/si.yml", "r") do io
         YAML.load(io)
     end
     volumes, energies = data["volume"], data["energy"]
@@ -84,7 +84,7 @@ end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L92-L167
 @testset "Test Mg dataset" begin
-    data = open("test/data/mp153.yml", "r") do io
+    data = open("data/mp153.yml", "r") do io
         YAML.load(io)
     end
     @testset "without unit" begin
@@ -127,7 +127,7 @@ end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L185-L260
 @testset "Test Si dataset" begin
-    data = open("test/data/mp149.yml", "r") do io
+    data = open("data/mp149.yml", "r") do io
         YAML.load(io)
     end
     @testset "without unit" begin
@@ -170,7 +170,7 @@ end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L278-L353
 @testset "Test Ti dataset" begin
-    data = open("test/data/mp72.yml", "r") do io
+    data = open("data/mp72.yml", "r") do io
         YAML.load(io)
     end
     @testset "without unit" begin
@@ -212,7 +212,7 @@ end
 end
 
 @testset "Test `w2k-lda-na.dat` from `Gibbs2`" begin
-    data = open("test/data/w2k-lda-na.yml", "r") do io
+    data = open("data/w2k-lda-na.yml", "r") do io
         YAML.load(io)
     end
     @testset "without unit" begin
@@ -395,6 +395,78 @@ end
                 -323.41773u"Ry",
             );
             atol = 1e-5,
+        )
+    end
+end
+
+@testset "Test `w2k-lda-k.dat` from `Gibbs2`" begin
+    data = open("data/w2k-lda-k.yml", "r") do io
+        YAML.load(io)
+    end
+    @testset "without unit" begin
+        volumes, energies = data["volume"], data["energy"]
+        @test _isapprox(
+            nonlinfit(EnergyEOS(Murnaghan(430, 3e-4, 4)), volumes, energies),
+            Murnaghan(
+                435.05782299050884,
+                2.8297159355249786e-4,
+                3.5705032675000785,
+                -1201.2082739321822,
+            ),
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEOS(BirchMurnaghan2nd(430, 3e-4)), volumes, energies),
+            BirchMurnaghan2nd(430.10027687726716, 3.02451215462375e-4, -1201.2083221436026),
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEOS(BirchMurnaghan3rd(430, 3e-4, 4)), volumes, energies),
+            BirchMurnaghan3rd(
+                432.67139080209046,
+                3.0508544859901674e-4,
+                3.7894868450211923,
+                -1201.2083959943404,
+            ),
+        )
+        @test _isapprox(
+            nonlinfit(
+                EnergyEOS(BirchMurnaghan4th(432, 3e-4, 3.8, -11773)),
+                volumes,
+                energies,
+            ),
+            BirchMurnaghan4th(
+                432.8012195854224,
+                3.041889904166284e-4,
+                3.774020919355492,
+                -11773.192574765615,
+                -1201.2083912308235,
+            );
+            rtol = 1e-4,
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEOS(Vinet(432, 3e-4, 3.8)), volumes, energies),
+            Vinet(
+                432.04609865398015,
+                3.137631070690569e-4,
+                3.837666939407128,
+                -1201.2084453225773,
+            ),
+        )
+    end
+
+    @testset "with units" begin
+        volumes, energies = data["volume"] * u"bohr^3", data["energy"] * u"Ry"
+        @test _isapprox(
+            nonlinfit(
+                EnergyEOS(BirchMurnaghan3rd(430u"bohr^3", 3e-4u"Ry/bohr^3", 4)),
+                volumes,
+                energies,
+            ),
+            BirchMurnaghan3rd(
+                432.6713907942206u"bohr^3",
+                3.0508544859901674e-4u"Ry/bohr^3",
+                3.789486849598267,
+                -1201.208395994332u"Ry",
+            ),
         )
     end
 end
