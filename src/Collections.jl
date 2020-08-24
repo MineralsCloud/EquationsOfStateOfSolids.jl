@@ -167,10 +167,19 @@ function (eos::EnergyEOS{<:PoirierTarantola2nd})(v)
     f = volume2strain(NaturalStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2
 end
+"""
+    (eos::EnergyEOS{<:PoirierTarantola3rd})(v)
+
+Evaluate a Poirier--Tarantola energy EOS on volume `v`.
+
+```math
+E(V) = E_0 + \\frac {B_0 V_0}{2}\\left[ \\ln \\left( \\frac{V_0}{V}\\right) \\right]^{2} + \\frac{B_0 V_0}{6} \\left[ \\ln \\left(\\frac{V_0}V{} \\right) \\right]^3 \\left(B_0^\\prime - 2 \\right)
+```
+"""
 function (eos::EnergyEOS{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0, e0 = eos.param
     f = volume2strain(NaturalStrain(), v0)(v)
-    return e0 + 9b0 * v0 * f^2 / 2 * ((b′0 - 2) * f + 1)
+    return e0 + 9b0 * v0 * f^2 / 2 * ((2 - b′0) * f + 1)
 end
 function (eos::EnergyEOS{<:PoirierTarantola4th})(v)
     @unpack v0, b0, b′0, b″0, e0 = eos.param
@@ -215,6 +224,15 @@ function (eos::PressureEOS{<:PoirierTarantola2nd})(v)
     f = volume2strain(NaturalStrain(), v0)(v)
     return -3b0 * f * exp(-3f)
 end
+"""
+    (eos::PressureEOS{<:PoirierTarantola3rd})(v)
+
+Evaluate a Poirier--Tarantola pressure EOS on volume `v`.
+
+```math
+P(V) = B_0 \\frac{V_0}{V} \\left[\\ln \\left( \\frac{V_0}{V} \\right) + \\frac{\\left( B_0^\\prime -2 \\right) }{2} \\left[ \\ln \\left( \\frac{V_0}{V} \\right) \\right]^2\\right]
+```
+"""
 function (eos::PressureEOS{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0 = eos.param
     f = volume2strain(NaturalStrain(), v0)(v)

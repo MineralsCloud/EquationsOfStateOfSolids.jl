@@ -5,7 +5,7 @@ using LsqFit: curve_fit, coef
 using PolynomialRoots: roots
 using Polynomials: Polynomial, fit, derivative, coeffs, derivative
 using Serialization: serialize
-using Unitful: AbstractQuantity, ustrip, unit
+using Unitful: AbstractQuantity, ustrip, unit, uconvert
 
 using ..Collections:
     EquationOfStateOfSolids,
@@ -56,8 +56,15 @@ function linfit(
             end
             fᵥ = map(deg -> Dⁿᵥf(s, deg, v0)(v0), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
-            b0, b′0, b″0 = _Dₚb(v0, fᵥ, e_f)
-            return _update(eos.param; v0 = v0, b0 = b0, b′0 = b′0, b″0 = b″0, e0 = e0)
+            b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
+            return _update(
+                eos.param;
+                v0 = v0,
+                b0 = b0(v0),
+                b′0 = b′0(v0),
+                b″0 = b″0(v0),
+                e0 = e0,
+            )
         end
     end
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
@@ -90,13 +97,13 @@ function _absminimum(y, root_thr = 1e-20)  # Find the minimal in the minima
 end
 
 # See Eq. (55) - (57) in Ref. 1.
-function _Dₚb(v0, fᵥ, e_f)  # Bulk modulus & its derivatives
+function _Dₚb(fᵥ, e_f)  # Bulk modulus & its derivatives
     e″ᵥ = _D²ᵥe(fᵥ, e_f)
     e‴ᵥ = _D³ᵥe(fᵥ, e_f)
-    b0 = v0 * e″ᵥ
-    b′0 = -v0 * e‴ᵥ / e″ᵥ - 1
-    b″0 = (v0 * (_D⁴ᵥe(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
-    return b0, b′0, b″0
+    b0 = v -> v * e″ᵥ
+    b′0 = v -> -v * e‴ᵥ / e″ᵥ - 1
+    b″0 = v -> (v * (_D⁴ᵥe(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
+    return b0, b′0, b″0  # 3 lazy functions
 end
 
 # Energy-volume derivatives, see Eq. (50) - (53) in Ref. 1.
@@ -119,10 +126,10 @@ function nonlinfit(
     eos::EquationOfStateOfSolids,
     xs,
     ys;
-    xtol = 1e-8,
-    gtol = 1e-2,
+    xtol = 1e-16,
+    gtol = 1e-16,
     maxiter = 1000,
-    min_step_quality = 1e-3,
+    min_step_quality = 1e-16,
     good_step_quality = 0.75,
     verbose = false,
 )::Parameters
@@ -141,11 +148,8 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        result = constructorof(typeof(eos.param))(
-            map(coef(fit), first.(p0), _mapfields(unit, eos.param)) do x, c, u
-                x / c * u
-            end,
-        )
+        T = constructorof(typeof(eos.param))
+        result = T((x * c for (x, c) in zip(coef(fit), first.(p0)))...)
         _checkresult(result)
         return result
     else
@@ -160,7 +164,7 @@ end
 
 function _checkresult(param::Parameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
-        @error "fitted `v0` or `b0` is negative!"
+        @error "either `v0 = $(param.v0)` or `b0 = $(param.b0)` is negative!"
     end
     # if PressureEoss(param)(minimum(v)) >= param.b0
     #     @warn "use higher order EOS!"
@@ -181,14 +185,17 @@ function _ustrip_all(eos, xs, ys)  # Do not export!
     punit = unit(eos.param.e0) / unit(eos.param.v0)
     return map(fieldnames(typeof(eos.param))) do f
         x = getfield(eos.param, f)
+        u = unit(x)
         if f == :b0
-            ustrip(punit, oneunit(x)) => ustrip(punit, float(x))
+            uconvert(u, 1 * punit) => ustrip(punit, float(x))
         elseif f == :b″0
-            ustrip(punit^(-1), oneunit(x)) => ustrip(punit^(-1), float(x))
+            r = punit^(-1)
+            uconvert(u, 1 * r) => ustrip(r, float(x))
         elseif f == :b‴0
-            ustrip(punit^(-2), oneunit(x)) => ustrip(punit^(-2), float(x))
+            r = punit^(-2)
+            uconvert(u, 1 * r) => ustrip(r, float(x))
         else
-            1 => ustrip(float(x))
+            oneunit(x) => ustrip(float(x))
         end
     end, xs, ys
 end
