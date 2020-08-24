@@ -41,13 +41,13 @@ const _2½ = FiveHalves()
 const _1½ = ThreeHalves()
 
 Base.:(^)(x, ::TwoThirds) = x^(2 // 3)
-Base.:(^)(x::Union{Real,AbstractQuantity}, ::TwoThirds) = x^(2 / 3)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::TwoThirds) = cbrt(x^2)
 Base.:(^)(x, ::OneThird) = x^(1 // 3)
-Base.:(^)(x::Union{Real,AbstractQuantity}, ::OneThird) = x^(1 / 3)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::OneThird) = cbrt(x)
 Base.:(^)(x, ::FiveHalves) = x^(5 // 2)
-Base.:(^)(x::Union{Real,AbstractQuantity}, ::FiveHalves) = x^(5 / 2)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::FiveHalves) = sqrt(x^5)
 Base.:(^)(x, ::ThreeHalves) = x^(3 // 2)
-Base.:(^)(x::Union{Real,AbstractQuantity}, ::ThreeHalves) = x^(3 / 2)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::ThreeHalves) = sqrt(x^3)
 
 abstract type Parameters{T} end
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
