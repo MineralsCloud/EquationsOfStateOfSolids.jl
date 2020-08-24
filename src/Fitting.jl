@@ -56,8 +56,15 @@ function linfit(
             end
             fᵥ = map(deg -> Dⁿᵥf(s, deg, v0)(v0), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
-            b0, b′0, b″0 = _Dₚb(v0, fᵥ, e_f)
-            return _update(eos.param; v0 = v0, b0 = b0, b′0 = b′0, b″0 = b″0, e0 = e0)
+            b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
+            return _update(
+                eos.param;
+                v0 = v0,
+                b0 = b0(v0),
+                b′0 = b′0(v0),
+                b″0 = b″0(v0),
+                e0 = e0,
+            )
         end
     end
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
@@ -90,13 +97,13 @@ function _absminimum(y, root_thr = 1e-20)  # Find the minimal in the minima
 end
 
 # See Eq. (55) - (57) in Ref. 1.
-function _Dₚb(v0, fᵥ, e_f)  # Bulk modulus & its derivatives
+function _Dₚb(fᵥ, e_f)  # Bulk modulus & its derivatives
     e″ᵥ = _D²ᵥe(fᵥ, e_f)
     e‴ᵥ = _D³ᵥe(fᵥ, e_f)
-    b0 = v0 * e″ᵥ
-    b′0 = -v0 * e‴ᵥ / e″ᵥ - 1
-    b″0 = (v0 * (_D⁴ᵥe(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
-    return b0, b′0, b″0
+    b0 = v -> v * e″ᵥ
+    b′0 = v -> -v * e‴ᵥ / e″ᵥ - 1
+    b″0 = v -> (v * (_D⁴ᵥe(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
+    return b0, b′0, b″0  # 3 lazy functions
 end
 
 # Energy-volume derivatives, see Eq. (50) - (53) in Ref. 1.
