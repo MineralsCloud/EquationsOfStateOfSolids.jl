@@ -126,10 +126,10 @@ function nonlinfit(
     eos::EquationOfStateOfSolids,
     xs,
     ys;
-    xtol = 1e-8,
-    gtol = 1e-2,
+    xtol = 1e-16,
+    gtol = 1e-16,
     maxiter = 1000,
-    min_step_quality = 1e-3,
+    min_step_quality = 1e-16,
     good_step_quality = 0.75,
     verbose = false,
 )::Parameters
@@ -164,7 +164,7 @@ end
 
 function _checkresult(param::Parameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
-        @error "fitted `v0` or `b0` is negative!"
+        @error "either `v0 = $(param.v0)` or `b0 = $(param.b0)` is negative!"
     end
     # if PressureEoss(param)(minimum(v)) >= param.b0
     #     @warn "use higher order EOS!"
