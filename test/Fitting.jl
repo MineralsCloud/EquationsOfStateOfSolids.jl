@@ -5,7 +5,14 @@ using Unitful, UnitfulAtomic
 using YAML
 
 using EquationsOfStateOfSolids.Collections:
-    Parameters, BirchMurnaghan3rd, Murnaghan, PoirierTarantola3rd, Vinet, EnergyEOS
+    Parameters,
+    Murnaghan,
+    BirchMurnaghan2nd,
+    BirchMurnaghan3rd,
+    BirchMurnaghan4th,
+    PoirierTarantola3rd,
+    Vinet,
+    EnergyEOS
 using EquationsOfStateOfSolids.Fitting: nonlinfit, linfit
 
 # Do not export! Only for internal use!
@@ -200,6 +207,194 @@ end
             map(EnergyEOS(fitted_eos), volumes),
             known_energies_vinet;
             atol = 1e-7u"eV",
+        )
+    end
+end
+
+@testset "Test `w2k-lda-na.dat` from `Gibbs2`" begin
+    data = open("test/data/w2k-lda-na.yml", "r") do io
+        YAML.load(io)
+    end
+    @testset "without unit" begin
+        volumes, energies = data["volume"], data["energy"]
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L117-L122
+        @test _isapprox(
+            nonlinfit(EnergyEOS(Murnaghan(224, 6e-4, 4)), volumes, energies),
+            Murnaghan(224.501825, 6.047952315268776e-4, 3.723835, -323.417686);
+            atol = 1e-5,
+        )
+        # No reference data, I run on my computer.
+        @test _isapprox(
+            nonlinfit(EnergyEOS(BirchMurnaghan2nd(224, 6e-4)), volumes, energies),
+            BirchMurnaghan2nd(223.7192539523166, 6.268341030294978e-4, -323.4177121144877);
+            atol = 1e-8,
+        )
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L15-L20
+        @test _isapprox(
+            nonlinfit(EnergyEOS(BirchMurnaghan3rd(224, 6e-4, 4)), volumes, energies),
+            BirchMurnaghan3rd(224.444565, 6.250619105057268e-4, 3.740369, -323.417714),
+        )
+        @test _isapprox(
+            linfit(EnergyEOS(BirchMurnaghan3rd(224, 6e-4, 4)), volumes, energies),
+            BirchMurnaghan3rd(224.444565, 6.250619105057268e-4, 3.740369, -323.417714),
+        )
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L30-L36
+        @test _isapprox(
+            nonlinfit(
+                EnergyEOS(BirchMurnaghan4th(224, 6e-4, 4, -5460)),  # bohr^3, Ry/bohr^3, 1, bohr^3/Ry, Ry
+                volumes,
+                energies,
+            ),
+            BirchMurnaghan4th(
+                224.457562,  # bohr^3
+                6.229381129795094e-4,  # Ry/bohr^3
+                3.730992,
+                -5322.7030547560435,  # bohr^3/Ry
+                -323.417712,  # Ry
+            );
+            rtol = 1e-5,
+        )
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L30-L36
+        # @test _isapprox(
+        #     linfit(
+        #         EnergyEOS(BirchMurnaghan4th(224, 6e-4, 4, -5460)),  # bohr^3, Ry/bohr^3, 1, bohr^3/Ry, Ry
+        #         volumes,
+        #         energies,
+        #     ),
+        #     BirchMurnaghan4th(
+        #         224.457562,  # bohr^3
+        #         6.229381129795094e-4,  # Ry/bohr^3
+        #         3.730992,
+        #         -5322.7030547560435,  # bohr^3/Ry
+        #         -323.417712,  # Ry
+        #     );
+        #     rtol = 1e-5,
+        # )
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L98-L105
+        # @test _isapprox(
+        #     nonlinfit(
+        # EnergyEOS(        #         BirchMurnaghan5th(224.445371, 0.0006, 4, -5500, 3.884535907971559e7, -323)),
+        #         volumes,
+        #         energies,
+        #     ),
+        #     BirchMurnaghan5th(
+        #         224.451813,
+        #         0.0006228893043314733,
+        #         3.736723,
+        #         -5292.414119096362,
+        #         6.3542116050611705e7,
+        #         -323.417712,
+        #     );
+        #     atol = 1,
+        # )  # FIXME: result is wrong
+        # # No reference data, I run on my computer.
+        @test _isapprox(
+            nonlinfit(EnergyEOS(Vinet(224, 6e-4, 4)), volumes, energies),
+            Vinet(
+                224.45278665796354,
+                6.313500637481759e-4,
+                3.7312381477678853,
+                -323.4177229576912,
+            ),
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEOS(PoirierTarantola3rd(224, 6e-4, 4)), volumes, energies),
+            PoirierTarantola3rd(224.509208, 6.3589226415983795e-4, 3.690448, -323.41773);
+            atol = 1e-5,
+        )
+        # # FIXME: This cannot go through
+        # @test _isapprox(
+        #     nonlinfit(
+        # EnergyEOS(        #         PoirierTarantola4th(220, 0.0006, 3.7, -5500, -323)),
+        #         volumes,
+        #         energies,
+        #     ),
+        #     PoirierTarantola4th(
+        #         224.430182,
+        #         0.0006232241765069493,
+        #         3.758360,
+        #         -5493.859729817176,
+        #         -323.417712,
+        #     ),
+        # )
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L98-L105
+        # @test _isapprox(
+        #     nonlinfit(
+        #         EnergyEOS(PoirierTarantola5th(
+        #             224.445371,
+        #             0.0006,
+        #             3.8,
+        #             -5500,
+        #             6e7,
+        #             -323,
+        #         )),
+        #         volumes,
+        #         energies,
+        #     ),
+        #     PoirierTarantola5th(
+        #         224.451250,
+        #         0.000622877204137392,
+        #         3.737484,
+        #         -5283.999708607125,
+        #         6.296000262990379e7,
+        #         -323.417712,
+        #     );
+        #     rtol = 0.05,
+        # )
+    end
+
+    @testset "with units" begin
+        volumes, energies = data["volume"] * u"bohr^3", data["energy"] * u"Ry"
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L117-L122
+        @test _isapprox(
+            nonlinfit(EnergyEOS(Murnaghan(224u"bohr^3", 9u"GPa", 4)), volumes, energies),
+            Murnaghan(224.501825u"bohr^3", 8.896845u"GPa", 3.723835, -323.417686u"Ry");
+            atol = 1e-5,
+        )
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L15-L20
+        @test _isapprox(
+            nonlinfit(
+                EnergyEOS(BirchMurnaghan3rd(224u"bohr^3", 9u"GPa", 4)),
+                volumes,
+                energies,
+            ),
+            BirchMurnaghan3rd(
+                224.444565u"bohr^3",
+                9.194978u"GPa",
+                3.740369,
+                -323.417714u"Ry",
+            ),
+        )
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L30-L36
+        @test _isapprox(
+            nonlinfit(
+                EnergyEOS(BirchMurnaghan4th(224u"bohr^3", 9u"GPa", 4, -0.3u"1/GPa")),
+                volumes,
+                energies,
+            ),
+            BirchMurnaghan4th(
+                224.457562u"bohr^3",
+                9.163736u"GPa",
+                3.730992,
+                -0.361830u"1/GPa",
+                -323.417712u"Ry",  # Ry
+            );
+            rtol = 1e-7,
+        )
+        # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L66-L71
+        @test _isapprox(
+            nonlinfit(
+                EnergyEOS(PoirierTarantola3rd(224u"bohr^3", 9u"GPa", 4)),
+                volumes,
+                energies,
+            ),
+            PoirierTarantola3rd(
+                224.509208u"bohr^3",
+                9.354298u"GPa",
+                3.690448,
+                -323.41773u"Ry",
+            );
+            atol = 1e-5,
         )
     end
 end
