@@ -22,7 +22,7 @@ _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L17-L73
 @testset "Test data from Pymatgen" begin
-    data = open("test/data/si.yml", "r") do io
+    data = open("data/si.yml", "r") do io
         YAML.load(io)
     end
     volumes, energies = data["volume"], data["energy"]
@@ -84,7 +84,7 @@ end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L92-L167
 @testset "Test Mg dataset" begin
-    data = open("test/data/mp153.yml", "r") do io
+    data = open("data/mp153.yml", "r") do io
         YAML.load(io)
     end
     @testset "without unit" begin
@@ -127,7 +127,7 @@ end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L185-L260
 @testset "Test Si dataset" begin
-    data = open("test/data/mp149.yml", "r") do io
+    data = open("data/mp149.yml", "r") do io
         YAML.load(io)
     end
     @testset "without unit" begin
@@ -170,7 +170,7 @@ end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L278-L353
 @testset "Test Ti dataset" begin
-    data = open("test/data/mp72.yml", "r") do io
+    data = open("data/mp72.yml", "r") do io
         YAML.load(io)
     end
     @testset "without unit" begin
@@ -212,7 +212,7 @@ end
 end
 
 @testset "Test `w2k-lda-na.dat` from `Gibbs2`" begin
-    data = open("test/data/w2k-lda-na.yml", "r") do io
+    data = open("data/w2k-lda-na.yml", "r") do io
         YAML.load(io)
     end
     @testset "without unit" begin
