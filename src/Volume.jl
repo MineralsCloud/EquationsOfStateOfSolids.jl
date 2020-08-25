@@ -69,15 +69,9 @@ function findvolume(
     maxiter = 40,
     verbose = false,
 )
-    v0 = eos.param.v0  # v0 can be negative
-    @assert _ispositive(volume_scale * v0)  # No negative volume
-    v = find_zero(
-        x -> eos(x) - y,
-        _volume_scale(volume_scale, method) .* v0,
-        method;
-        maxevals = maxiter,
-        verbose = verbose,
-    )
+    v0 = _volume_scale(volume_scale, method) .* eos.param.v0  # v0 can be negative
+    @assert _ispositive(minimum(v0))  # No negative volume
+    v = find_zero(x -> eos(x) - y, v0, method; maxevals = maxiter, verbose = verbose)
     if !_ispositive(v)
         @warn "the volume found is negative!"
     end
