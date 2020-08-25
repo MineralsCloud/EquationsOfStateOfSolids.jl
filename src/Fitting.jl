@@ -38,13 +38,18 @@ function linfit(
     volumes,
     energies;
     maxiter = 1000,
-    conv_thr = eps(),
+    conv_thr = 1e-12,
     root_thr = 1e-20,
     verbose = false,
 )::FiniteStrainParameters
     deg = orderof(eos.param)
     s = straintype(eos.param)()
     v0 = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0  # Initial v0
+    uv, ue = unit(v0), unit(energies[1])
+    uvrule = uconvert(unit(volumes[1]), 1 * uv)
+    v0 = ustrip(v0)
+    volumes = map(x -> ustrip(uv, x), volumes)
+    energies = map(x -> ustrip(ue, x), energies)
     for i in 1:maxiter  # Self consistent loop
         strains = map(volume2strain(s, v0), volumes)
         poly = fit(strains, energies, deg)
@@ -59,11 +64,11 @@ function linfit(
             b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
             return _update(
                 eos.param;
-                v0 = v0,
-                b0 = b0(v0),
+                v0 = v0 * uv,
+                b0 = b0(v0) * ue / uv,
                 b′0 = b′0(v0),
-                b″0 = b″0(v0),
-                e0 = e0,
+                b″0 = b″0(v0) * uv / ue,
+                e0 = e0 * ue,
             )
         end
     end
