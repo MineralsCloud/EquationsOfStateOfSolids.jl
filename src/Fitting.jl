@@ -38,7 +38,7 @@ function linfit(
     volumes,
     energies;
     maxiter = 1000,
-    conv_thr = eps(),
+    conv_thr = 1e-12,
     root_thr = 1e-20,
     verbose = false,
 )::FiniteStrainParameters
