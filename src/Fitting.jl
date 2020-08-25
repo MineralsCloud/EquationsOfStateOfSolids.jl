@@ -21,7 +21,7 @@ using ..Collections:
     Dⁿᵥf,
     straintype
 
-export linfit, nonlinfit
+export linfit, nonlinfit, eosfit
 
 # See https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
 struct ConvergenceFailed
@@ -31,6 +31,10 @@ end
 struct NoRootFound
     msg::String
 end
+
+eosfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
+    linfit(eos, volumes, energies; kwargs...)
+eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
 
 # ================================== Linear fitting ==================================
 function linfit(
