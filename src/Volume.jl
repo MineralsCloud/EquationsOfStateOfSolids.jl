@@ -2,7 +2,30 @@ module Volume
 
 using InteractiveUtils: subtypes
 using PolynomialRoots: roots
-using Roots: find_zero, AbstractBracketing, AbstractSecant
+using Roots:
+    find_zero,
+    AbstractBracketing,
+    AbstractSecant,
+    Bisection,
+    BisectionExact,
+    FalsePosition,
+    A42,
+    AlefeldPotraShi,
+    Brent,
+    Esser,
+    King,
+    KumarSinghAkanksha,
+    Order0,
+    Order16,
+    Order1B,
+    Order2,
+    Order2B,
+    Order5,
+    Order8,
+    Secant,
+    Steffensen,
+    Thukral16,
+    Thukral8
 using UnPack: @unpack
 
 using ..Collections:
@@ -16,7 +39,7 @@ using ..Collections:
     EulerianStrain,
     strain2volume
 
-export findvolume
+export findvolume, mustfindvolume
 
 function findvolume(eos::PressureEOS{<:Murnaghan}, p)
     @unpack v0, b0, b′0, e0 = eos.param
@@ -62,6 +85,44 @@ function findvolume(
 end
 _volume_scale(volume_scale, ::AbstractBracketing) = extrema(volume_scale)
 _volume_scale(volume_scale, ::AbstractSecant) = sum(extrema(volume_scale)) / 2
+
+function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs...)
+    for T in [
+        Bisection,
+        BisectionExact,
+        FalsePosition,
+        A42,
+        AlefeldPotraShi,
+        Brent,
+        Esser,
+        King,
+        KumarSinghAkanksha,
+        Order0,
+        Order16,
+        Order1B,
+        Order2,
+        Order2B,
+        Order5,
+        Order8,
+        Secant,
+        Steffensen,
+        Thukral16,
+        Thukral8,
+    ]
+        if verbose
+            @info "using method `$T`..."
+        end
+        try
+            # `maximum` and `minimum` also works with `AbstractQuantity`s.
+            return findvolume(eos, y, T(); verbose = verbose, kwargs...)
+        catch e
+            if verbose
+                @info "method `$T` failed because of `$e`."
+            end
+            continue
+        end
+    end
+end
 
 _ispositive(x) = x > zero(x)
 
