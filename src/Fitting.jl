@@ -52,8 +52,8 @@ function linfit(
     uv, ue = unit(v0), unit(energies[1])
     uvrule = uconvert(unit(volumes[1]), 1 * uv)
     v0 = ustrip(v0)
-    volumes = map(x -> ustrip(uv, x), volumes)
-    energies = map(x -> ustrip(ue, x), energies)
+    volumes = parent(map(x -> ustrip(uv, x), volumes))  # `parent` is needed to unwrap `DimArray`
+    energies = parent(map(x -> ustrip(ue, x), energies))
     for i in 1:maxiter  # Self consistent loop
         strains = map(volume2strain(s, v0), volumes)
         poly = fit(strains, energies, deg)
