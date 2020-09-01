@@ -1,4 +1,4 @@
-# How to use `EquationsOfState` in Python?
+# How to use `EquationsOfStateOfSolids` in Python?
 
 It may be attempting for [Pythonistas](https://en.wiktionary.org/wiki/Pythonista)
 to use this package in Python, without

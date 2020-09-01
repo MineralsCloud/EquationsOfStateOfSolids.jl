@@ -1,10 +1,10 @@
 # Collections
 
 ```@meta
-CurrentModule = EquationsOfState.Collections
+CurrentModule = EquationsOfStateOfSolids.Collections
 ```
 
-The current `EquationOfState`s contain
+The current `Parameters`s contain
 
 ```
 Parameters
@@ -23,9 +23,11 @@ Parameters
 └─ Vinet
 ```
 
+Here the leaves of the type tree are concrete types and can be constructed.
+
 ## Usage
 
-### Construct an `EquationOfState`
+### Construct a `Parameters` instance
 
 We will use `BirchMurnaghan3rd` as an example.
 
@@ -84,7 +86,7 @@ julia> eos.v0
 1.0
 ```
 
-### Calculate energy on an `EquationOfState`
+### Evaluate energy
 
 The $E(V)$ relation of equations of state are listed as below:
 
@@ -149,7 +151,7 @@ The $E(V)$ relation of equations of state are listed as below:
    E(V)=\frac{\beta V_{0}}{n+1}\left(\frac{V}{V_{0}}\right)^{n+1}\left[\ln \left(\frac{V}{V_{0}}\right)-\frac{1}{n+1}\right]+E_{\infty}.
    ```
 
-### Calculate pressure on an `EquationOfState`
+### Evaluate pressure
 
 The $P(V)$ relation of equations of state are listed as below:
 
@@ -207,7 +209,7 @@ The $P(V)$ relation of equations of state are listed as below:
    P(V) = -\beta\left(\frac{V}{V_{0}}\right)^{n} \ln \left(\frac{V}{V_{0}}\right).
    ```
 
-### Calculate bulk modulus on an `EquationOfState`
+### Evaluate bulk modulus
 
 The $B(V)$ relation of equations of state are listed as below:
 
