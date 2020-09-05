@@ -61,74 +61,49 @@ using EquationsOfStateOfSolids.Collections
     # @test BreenanStacey(1, 2, 3, 0) === BreenanStacey{Int}(1, 2, 3, 0)
     # @test BreenanStacey(1, 2, 3 // 1, 0) ===
     #       BreenanStacey{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 0 // 1)
-    @test typeof(Murnaghan(1 * u"angstrom^3", 2 * u"eV/angstrom^3", 3.0, 4 * u"eV")) ===
-          Murnaghan{Quantity{Float64}}
-    @test typeof(Murnaghan(1 * u"angstrom^3", 2 * u"eV/angstrom^3", 3 // 2, 4 * u"eV")) ===
-          Murnaghan{Quantity{Rational{Int}}}
-    @test typeof(BirchMurnaghan2nd(
-        1 * u"angstrom^3",
-        2 * u"eV/angstrom^3",
-        3.0 * u"eV",
-    )) === BirchMurnaghan2nd{Quantity{Float64}}
-    @test typeof(BirchMurnaghan2nd(
-        1 * u"angstrom^3",
-        2 * u"eV/angstrom^3",
-        3 // 1 * u"eV",
-    )) === BirchMurnaghan2nd{Quantity{Rational{Int}}}
-    @test typeof(BirchMurnaghan3rd(1 * u"angstrom^3", 2 * u"GPa", 4.0, 3 * u"eV")) ===
-          BirchMurnaghan3rd{Quantity{Float64}}
-    @test typeof(BirchMurnaghan3rd(1 * u"angstrom^3", 2 * u"GPa", 4 // 1, 3 * u"eV")) ===
-          BirchMurnaghan3rd{Quantity{Rational{Int}}}
-    @test typeof(BirchMurnaghan4th(
-        1 * u"nm^3",
-        2 * u"GPa",
-        3.0,
-        4 * u"1/GPa",
-        5 * u"eV",
-    )) === BirchMurnaghan4th{Quantity{Float64}}
-    @test typeof(BirchMurnaghan4th(
-        1 * u"nm^3",
-        2 * u"GPa",
-        3 // 1,
-        4 * u"1/GPa",
-        5 * u"eV",
-    )) === BirchMurnaghan4th{Quantity{Rational{Int}}}
-    @test typeof(PoirierTarantola2nd(1 * u"nm^3", 2 * u"GPa", 3.0 * u"eV")) ===
-          PoirierTarantola2nd{Quantity{Float64}}
-    @test typeof(PoirierTarantola2nd(1 * u"nm^3", 2 * u"GPa", 3 // 1 * u"eV")) ===
-          PoirierTarantola2nd{Quantity{Rational{Int}}}
-    @test typeof(PoirierTarantola3rd(1 * u"nm^3", 2 * u"GPa", 3, 4.0 * u"eV")) ===
-          PoirierTarantola3rd{Quantity{Float64}}
-    @test typeof(PoirierTarantola3rd(1 * u"nm^3", 2 * u"GPa", 3, 4 // 1 * u"eV")) ===
-          PoirierTarantola3rd{Quantity{Rational{Int}}}
-    @test typeof(PoirierTarantola4th(
-        1 * u"nm^3",
-        2 * u"GPa",
-        3,
-        4 * u"1/GPa",
-        5.0 * u"eV",
-    )) === PoirierTarantola4th{Quantity{Float64}}
-    @test typeof(PoirierTarantola4th(
-        1 * u"nm^3",
-        2 * u"GPa",
-        3,
-        4 * u"1/GPa",
-        5 // 1 * u"eV",
-    )) === PoirierTarantola4th{Quantity{Rational{Int}}}
-    @test typeof(Vinet(1 * u"nm^3", 2 * u"GPa", 3, 4.0 * u"eV")) ===
-          Vinet{Quantity{Float64}}
-    @test typeof(Vinet(1 * u"nm^3", 2 * u"GPa", 3, 4 // 1 * u"eV")) ===
-          Vinet{Quantity{Rational{Int}}}
-    @test typeof(AntonSchmidt(1 * u"nm^3", 2 * u"GPa", 3.0, 0 * u"eV")) ===
-          AntonSchmidt{Quantity{Float64}}
-    @test typeof(AntonSchmidt(1 * u"nm^3", 2 * u"GPa", 3 // 1, 0 * u"eV")) ===
-          AntonSchmidt{Quantity{Rational{Int}}}
-    # @test typeof(BreenanStacey(1 * u"nm^3", 2 * u"GPa", 3.0, 0 * u"eV")) ===
-    #       BreenanStacey{Quantity{Float64}}
-    # @test typeof(BreenanStacey(1 * u"nm^3", 2 * u"GPa", 3 // 1, 0 * u"eV")) ===
-    #   BreenanStacey{Quantity{Rational{Int}}}
-    @test BirchMurnaghan3rd(1 * u"angstrom^3", 2 * u"GPa", 4 // 1, 3 * u"eV").b′0 isa
-          DimensionlessQuantity
+    @testset "Promoting with units" begin
+        @test typeof(Murnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3.0, 4u"eV")) ===
+              Murnaghan{Quantity{Float64}}
+        @test typeof(Murnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3 // 2, 4u"eV")) ===
+              Murnaghan{Quantity{Rational{Int}}}
+        @test typeof(BirchMurnaghan2nd(1u"angstrom^3", 2u"eV/angstrom^3", 3.0u"eV")) ===
+              BirchMurnaghan2nd{Quantity{Float64}}
+        @test typeof(BirchMurnaghan2nd(1u"angstrom^3", 2u"eV/angstrom^3", 3 // 1u"eV")) ===
+              BirchMurnaghan2nd{Quantity{Rational{Int}}}
+        @test typeof(BirchMurnaghan3rd(1u"angstrom^3", 2u"GPa", 4.0, 3u"eV")) ===
+              BirchMurnaghan3rd{Quantity{Float64}}
+        @test typeof(BirchMurnaghan3rd(1u"angstrom^3", 2u"GPa", 4 // 1, 3u"eV")) ===
+              BirchMurnaghan3rd{Quantity{Rational{Int}}}
+        @test typeof(BirchMurnaghan4th(1u"nm^3", 2u"GPa", 3.0, 4u"1/GPa", 5u"eV")) ===
+              BirchMurnaghan4th{Quantity{Float64}}
+        @test typeof(BirchMurnaghan4th(1u"nm^3", 2u"GPa", 3 // 1, 4u"1/GPa", 5u"eV")) ===
+              BirchMurnaghan4th{Quantity{Rational{Int}}}
+        @test typeof(PoirierTarantola2nd(1u"nm^3", 2u"GPa", 3.0u"eV")) ===
+              PoirierTarantola2nd{Quantity{Float64}}
+        @test typeof(PoirierTarantola2nd(1u"nm^3", 2u"GPa", 3 // 1u"eV")) ===
+              PoirierTarantola2nd{Quantity{Rational{Int}}}
+        @test typeof(PoirierTarantola3rd(1u"nm^3", 2u"GPa", 3, 4.0u"eV")) ===
+              PoirierTarantola3rd{Quantity{Float64}}
+        @test typeof(PoirierTarantola3rd(1u"nm^3", 2u"GPa", 3, 4 // 1u"eV")) ===
+              PoirierTarantola3rd{Quantity{Rational{Int}}}
+        @test typeof(PoirierTarantola4th(1u"nm^3", 2u"GPa", 3, 4u"1/GPa", 5.0u"eV")) ===
+              PoirierTarantola4th{Quantity{Float64}}
+        @test typeof(PoirierTarantola4th(1u"nm^3", 2u"GPa", 3, 4u"1/GPa", 5 // 1u"eV")) ===
+              PoirierTarantola4th{Quantity{Rational{Int}}}
+        @test typeof(Vinet(1u"nm^3", 2u"GPa", 3, 4.0u"eV")) === Vinet{Quantity{Float64}}
+        @test typeof(Vinet(1u"nm^3", 2u"GPa", 3, 4 // 1u"eV")) ===
+              Vinet{Quantity{Rational{Int}}}
+        @test typeof(AntonSchmidt(1u"nm^3", 2u"GPa", 3.0, 0u"eV")) ===
+              AntonSchmidt{Quantity{Float64}}
+        @test typeof(AntonSchmidt(1u"nm^3", 2u"GPa", 3 // 1, 0u"eV")) ===
+              AntonSchmidt{Quantity{Rational{Int}}}
+        # @test typeof(BreenanStacey(1u"nm^3", 2u"GPa", 3.0, 0u"eV")) ===
+        #       BreenanStacey{Quantity{Float64}}
+        # @test typeof(BreenanStacey(1u"nm^3", 2u"GPa", 3 // 1, 0u"eV")) ===
+        #   BreenanStacey{Quantity{Rational{Int}}}
+        @test BirchMurnaghan3rd(1u"angstrom^3", 2u"GPa", 4 // 1, 3u"eV").b′0 isa
+              DimensionlessQuantity
+    end
 end
 
 @testset "Test default EOS parameter `e0` and promotion" begin
@@ -142,36 +117,35 @@ end
     @test PoirierTarantola4th(1, 2, 3, 4) === PoirierTarantola4th(1, 2, 3, 4, 0)
     @test AntonSchmidt(1, 2, 3.0) === AntonSchmidt(1.0, 2.0, 3.0, 0.0)
     # @test BreenanStacey(1, 2, 3.0) === BreenanStacey(1.0, 2.0, 3.0, 0.0)
-    @test typeof(Murnaghan(1 * u"angstrom^3", 2 * u"eV/angstrom^3", 3)) ===
+    @test typeof(Murnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3)) ===
           Murnaghan{Quantity{Int}}
-    @test typeof(Murnaghan(1 * u"angstrom^3", 2 * u"eV/angstrom^3", 3.0)) ===
+    @test typeof(Murnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3.0)) ===
           Murnaghan{Quantity{Float64}}
-    @test typeof(BirchMurnaghan2nd(1 * u"nm^3", 2 * u"GPa")) ===
-          BirchMurnaghan2nd{Quantity{Int}}
-    @test typeof(BirchMurnaghan2nd(1 * u"nm^3", 2.0 * u"GPa")) ===
+    @test typeof(BirchMurnaghan2nd(1u"nm^3", 2u"GPa")) === BirchMurnaghan2nd{Quantity{Int}}
+    @test typeof(BirchMurnaghan2nd(1u"nm^3", 2.0u"GPa")) ===
           BirchMurnaghan2nd{Quantity{Float64}}
-    @test typeof(BirchMurnaghan3rd(1 * u"nm^3", 2 * u"GPa", 4)) ===
+    @test typeof(BirchMurnaghan3rd(1u"nm^3", 2u"GPa", 4)) ===
           BirchMurnaghan3rd{Quantity{Int}}
-    @test typeof(BirchMurnaghan3rd(1 * u"nm^3", 2 * u"GPa", 4.0)) ===
+    @test typeof(BirchMurnaghan3rd(1u"nm^3", 2u"GPa", 4.0)) ===
           BirchMurnaghan3rd{Quantity{Float64}}
-    @test typeof(BirchMurnaghan4th(1 * u"nm^3", 2 * u"GPa", 3, 4 * u"1/GPa")) ===
+    @test typeof(BirchMurnaghan4th(1u"nm^3", 2u"GPa", 3, 4u"1/GPa")) ===
           BirchMurnaghan4th{Quantity{Int}}
-    @test typeof(BirchMurnaghan4th(1 * u"nm^3", 2 * u"GPa", 3, 4.0 * u"1/GPa")) ===
+    @test typeof(BirchMurnaghan4th(1u"nm^3", 2u"GPa", 3, 4.0u"1/GPa")) ===
           BirchMurnaghan4th{Quantity{Float64}}
-    @test typeof(PoirierTarantola2nd(1 * u"nm^3", 2 * u"GPa")) ===
+    @test typeof(PoirierTarantola2nd(1u"nm^3", 2u"GPa")) ===
           PoirierTarantola2nd{Quantity{Int}}
-    @test typeof(PoirierTarantola2nd(1 * u"nm^3", 2.0 * u"GPa")) ===
+    @test typeof(PoirierTarantola2nd(1u"nm^3", 2.0u"GPa")) ===
           PoirierTarantola2nd{Quantity{Float64}}
-    @test typeof(PoirierTarantola3rd(1 * u"nm^3", 2 * u"GPa", 3)) ===
+    @test typeof(PoirierTarantola3rd(1u"nm^3", 2u"GPa", 3)) ===
           PoirierTarantola3rd{Quantity{Int}}
-    @test typeof(PoirierTarantola3rd(1 * u"nm^3", 2 * u"GPa", 3.0)) ===
+    @test typeof(PoirierTarantola3rd(1u"nm^3", 2u"GPa", 3.0)) ===
           PoirierTarantola3rd{Quantity{Float64}}
-    @test typeof(PoirierTarantola4th(1 * u"nm^3", 2 * u"GPa", 3, 4 * u"1/GPa")) ===
+    @test typeof(PoirierTarantola4th(1u"nm^3", 2u"GPa", 3, 4u"1/GPa")) ===
           PoirierTarantola4th{Quantity{Int}}
-    @test typeof(PoirierTarantola4th(1 * u"nm^3", 2 * u"GPa", 3, 4.0 * u"1/GPa")) ===
+    @test typeof(PoirierTarantola4th(1u"nm^3", 2u"GPa", 3, 4.0u"1/GPa")) ===
           PoirierTarantola4th{Quantity{Float64}}
-    @test typeof(Vinet(1 * u"nm^3", 2 * u"GPa", 3)) === Vinet{Quantity{Int}}
-    @test typeof(Vinet(1 * u"nm^3", 2 * u"GPa", 3.0)) === Vinet{Quantity{Float64}}
+    @test typeof(Vinet(1u"nm^3", 2u"GPa", 3)) === Vinet{Quantity{Int}}
+    @test typeof(Vinet(1u"nm^3", 2u"GPa", 3.0)) === Vinet{Quantity{Float64}}
     @test typeof(AntonSchmidt(1u"nm^3", 2u"GPa", 3)) === AntonSchmidt{Quantity{Int}}
     @test typeof(AntonSchmidt(1u"nm^3", 2u"GPa", 3.0)) === AntonSchmidt{Quantity{Float64}}
     #@test typeof(BreenanStacey(1u"nm^3", 2u"GPa", 3))
@@ -180,25 +154,25 @@ end
     # @test typeof(PolynomialEOS(1, [1.0, 2, 3, 4], 4)) === PolynomialEOS{4,Float64}
     # @test typeof(PolynomialEOS(1.0, [1, 2, 3, 4])) === PolynomialEOS{4,Float64}
     # @test typeof(PolynomialEOS(
-    #     1 * u"nm^3",
-    #     [1 * u"eV/nm^3", 2, 3 * u"nm^3/eV"],
-    #     4 * u"eV",
+    #     1u"nm^3",
+    #     [1u"eV/nm^3", 2, 3u"nm^3/eV"],
+    #     4u"eV",
     # )) === PolynomialEOS{3,Quantity{Int}}
     # @test typeof(PolynomialEOS(
-    #     1 * u"nm^3",
-    #     [1 * u"eV/nm^3", 2, 3 * u"nm^3/eV"],
-    #     4.0 * u"eV",
+    #     1u"nm^3",
+    #     [1u"eV/nm^3", 2, 3u"nm^3/eV"],
+    #     4.0u"eV",
     # )) === PolynomialEOS{3,Quantity{Float64}}
 end
 
 @testset "`float` on an EOS" begin
     @test float(Vinet(1, 2, 3)) == Vinet(1.0, 2.0, 3.0, 0.0)
-    @test float(Vinet(1 * u"nm^3", 2 * u"GPa", 3)) ==
-          Vinet(1.0 * u"nm^3", 2.0 * u"GPa", 3.0)
     # @test float(PolynomialEOS(1, [1, 2, 3])) == PolynomialEOS(1.0, [1.0, 2.0, 3.0])
     # @test float(PolynomialEOS(1 * u"nm^3", [1 * u"eV/nm^3", 2, 3 * u"nm^3/eV"])) ==
     #       PolynomialEOS(1.0 * u"nm^3", [1.0 * u"eV/nm^3", 2.0, 3.0 * u"nm^3/eV"])
 end # testset
+    @test float(Vinet(1u"nm^3", 2u"GPa", 3)) == Vinet(1.0u"nm^3", 2.0u"GPa", 3.0)
+end
 
 @testset "Test counstruction" begin
     @test typeof(BirchMurnaghan3rd(1u"angstrom^3", 3u"GPa", 4.0)) ==
