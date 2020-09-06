@@ -85,9 +85,9 @@ _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
     end
 
     @testset "`linfit` for `BigFloat` parameters" begin
-        volumes, energies = big.(data["volume"]), big.(data["energy"])
+        volumes, energies = data["volume"], data["energy"]
         @test _isapprox(
-            linfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
+            linfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4)), big.(volumes), big.(energies)),
             BirchMurnaghan3rd{BigFloat}(
                 40.98926572528106,
                 0.5369258245417454,
@@ -97,7 +97,35 @@ _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
             atol = 1e-8,
         )
         @test _isapprox(
-            linfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
+            linfit(EnergyEOS(BirchMurnaghan3rd{BigInt}(40, 1, 4)), volumes, energies),
+            BirchMurnaghan3rd{BigFloat}(
+                40.98926572528106,
+                0.5369258245417454,
+                4.178644235500821,
+                -10.842803908240892,
+            );
+            atol = 1e-8,
+        )
+        @test _isapprox(
+            linfit(
+                EnergyEOS(PoirierTarantola3rd(41, 0.5, 4)),
+                big.(volumes),
+                big.(energies),
+            ),
+            PoirierTarantola3rd{BigFloat}(
+                40.86770643373908,
+                0.5667729960804602,
+                4.331688936974368,
+                -10.851486685041658,
+            );
+            atol = 1e-8,
+        )
+        @test _isapprox(
+            linfit(
+                EnergyEOS(PoirierTarantola3rd{BigFloat}(41, 1 // 2, 4)),
+                volumes,
+                energies,
+            ),
             PoirierTarantola3rd{BigFloat}(
                 40.86770643373908,
                 0.5667729960804602,
