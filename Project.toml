@@ -28,8 +28,10 @@ julia = "1"
 
 [extras]
 Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
+SymPy = "24249f21-da20-56a4-8eb1-6a02cf4ae2e6"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 UnitfulAtomic = "a7773ee8-282e-5fa2-be4e-bd808c38a91a"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [targets]
+test = ["Test", "Measurements", "SymPy", "YAML", "UnitfulAtomic"]
