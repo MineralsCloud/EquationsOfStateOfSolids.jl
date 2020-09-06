@@ -1,7 +1,7 @@
 module Collections
 
-using IntervalArithmetic
 using Measurements: Measurement, measurement
+using SymPy: Sym, symbols
 using Test: @test, @testset
 using Unitful: Quantity, DimensionlessQuantity, @u_str
 
@@ -168,16 +168,15 @@ end
     @test float(Vinet(1u"nm^3", 2u"GPa", 3)) == Vinet(1.0u"nm^3", 2.0u"GPa", 3.0)
 end
 
-@testset "Test counstruction" begin
-    @test eltype(BirchMurnaghan3rd(1u"angstrom^3", 3u"GPa", 4.0)) ==
-          BirchMurnaghan3rd{Quantity{Float64}}
+@testset "Other element types" begin
     @test eltype(BirchMurnaghan4th(
         measurement("1 +- 0.1"),
         3 // 1,
         2,
         measurement("-123.4(56)"),
-    )) == BirchMurnaghan4th{Measurement{Float64}}
-    @test eltype(BirchMurnaghan3rd(1..3, 2, 2..4)) == BirchMurnaghan3rd{Interval{Float64}}
+    )) === Measurement{Float64}
+    v0, b0, b′0, b″0, e0 = symbols("v0, b0, b′0, b″0, e0")
+    @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0, e0)) === Sym
 end
 
 end
