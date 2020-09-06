@@ -1,5 +1,6 @@
 module Fitting
 
+using GenericSVD
 using Test
 using Unitful, UnitfulAtomic
 using YAML

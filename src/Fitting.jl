@@ -38,6 +38,14 @@ eosfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
 eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
 
 # ================================== Linear fitting ==================================
+"""
+    linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; maxiter = 1000, conv_thr = 1e-12, root_thr = 1e-20, verbose = false)
+
+!!! note "How to fit with `BigFloat`"
+    If you want to fit with `BigFloat` data, you need to install
+    [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using
+    GenericSVD` before fittting!
+"""
 function linfit(
     eos::EnergyEOS{<:FiniteStrainParameters},
     volumes,
