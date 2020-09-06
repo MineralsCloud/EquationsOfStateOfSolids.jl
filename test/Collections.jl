@@ -27,42 +27,28 @@ using EquationsOfStateOfSolids.Collections
     end
 
     @testset "Promoting to rationals" begin
-        @test eltype(PoirierTarantola4th(1, 2, 3, 4, 0)) === PoirierTarantola4th{Int}
-        @test Murnaghan(Int32(1), Int16(2), Int8(3), 0) === Murnaghan{Int}(1, 2, 3, 0)
-        @test Murnaghan(1, 2 // 1, Int8(3), 0) ===
-              Murnaghan{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 0 // 1)
-        @test BirchMurnaghan2nd(1, Int8(2), 0) === BirchMurnaghan2nd{Int}(1, 2, 0)
-        @test BirchMurnaghan2nd(1 // 1, Int32(2)) ===
-              BirchMurnaghan2nd{Rational{Int}}(1 // 1, 2 // 1, 0 // 1)
-        @test BirchMurnaghan3rd(Int8(1), 2, 4, 0) === BirchMurnaghan3rd{Int}(1, 2, 4, 0)
-        @test BirchMurnaghan3rd(Int8(1), 2 // 1, 4, 0) ===
-              BirchMurnaghan3rd{Rational{Int}}(1 // 1, 2 // 1, 4 // 1, 0 // 1)
-        @test BirchMurnaghan4th(Int8(1), 2, 4, Int16(5), 6) ===
-              BirchMurnaghan4th{Int}(1, 2, 4, 5, 6)
-        @test BirchMurnaghan4th(Int8(1), 2 // 1, 4, Int16(5), 6) ===
-              BirchMurnaghan4th{Rational{Int}}(1 // 1, 2 // 1, 4 // 1, 5 // 1, 6 // 1)
-        @test BirchMurnaghan4th(Int8(1), 2 // 1, big(4), Int16(5), 6) ==
-              BirchMurnaghan4th{Rational{BigInt}}(1 // 1, 2 // 1, 4 // 1, 5 // 1, 6 // 1)
-        @test PoirierTarantola2nd(Int8(1), 2, 3) === PoirierTarantola2nd{Int}(1, 2, 3)
-        @test PoirierTarantola2nd(Int8(1), 2 // 1, 3) ===
-              PoirierTarantola2nd{Rational{Int}}(1 // 1, 2 // 1, 3 // 1)
-        @test PoirierTarantola3rd(Int8(1), 2, 3, Int16(4)) ===
-              PoirierTarantola3rd{Int}(1, 2, 3, 4)
-        @test PoirierTarantola3rd(Int8(1), 2 // 1, 3 // 1, Int16(4)) ===
-              PoirierTarantola3rd{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 4 // 1)
-        @test PoirierTarantola4th(Int8(1), 2, 3, Int16(4), 5) ===
-              PoirierTarantola4th{Int}(1, 2, 3, 4, 5)
-        @test PoirierTarantola4th(Int8(1), 2 // 1, 3, Int16(4), 5) ===
-              PoirierTarantola4th{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 4 // 1, 5 // 1)
-        @test Vinet(Int8(1), 2, 3, Int16(4)) === Vinet{Int}(1, 2, 3, 4)
-        @test Vinet(Int8(1), 2 // 1, 3, Int16(4)) ===
-              Vinet{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 4 // 1)
-        @test AntonSchmidt(Int8(1), 2, 3, 0) === AntonSchmidt{Int}(1, 2, 3, 0)
-        @test AntonSchmidt(Int8(1), 2 // 1, 3, 0) ===
-              AntonSchmidt{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 0 // 1)
-        #   @test BreenanStacey(1, 2, 3, 0) === BreenanStacey{Int}(1, 2, 3, 0)
-        #   @test BreenanStacey(1, 2, 3 // 1, 0) ===
-        #         BreenanStacey{Rational{Int}}(1 // 1, 2 // 1, 3 // 1, 0 // 1)
+        @test eltype(PoirierTarantola4th(1, 2, 3, 4, 0)) === Int
+        @test eltype(Murnaghan(Int32(1), Int16(2), Int8(3), 0)) === Int
+        @test eltype(Murnaghan(1, 2 // 1, Int8(3), 0)) === Rational{Int}
+        @test eltype(BirchMurnaghan2nd(1, Int8(2), 0)) === Int
+        @test eltype(BirchMurnaghan2nd(1 // 1, Int32(2))) === Rational{Int}
+        @test eltype(BirchMurnaghan3rd(Int8(1), 2, 4, 0)) === Int
+        @test eltype(BirchMurnaghan3rd(Int8(1), 2 // 1, 4, 0)) === Rational{Int}
+        @test eltype(BirchMurnaghan4th(Int8(1), 2, 4, Int16(5), 6)) === Int
+        @test eltype(BirchMurnaghan4th(Int8(1), 2 // 1, 4, Int16(5), 6)) === Rational{Int}
+        @test eltype(BirchMurnaghan4th(Int8(1), 2 // 1, big(4), Int16(5), 6)) ===
+              Rational{BigInt}
+        @test eltype(PoirierTarantola2nd(Int8(1), 2, 3)) === Int
+        @test eltype(PoirierTarantola2nd(Int8(1), 2 // 1, 3)) === Rational{Int}
+        @test eltype(PoirierTarantola3rd(Int8(1), 2, 3, Int16(4))) === Int
+        @test eltype(PoirierTarantola3rd(Int8(1), 2 // 1, 3 // 1, Int16(4))) ===
+              Rational{Int}
+        @test eltype(PoirierTarantola4th(Int8(1), 2, 3, Int16(4), 5)) === Int
+        @test eltype(PoirierTarantola4th(Int8(1), 2 // 1, 3, Int16(4), 5)) === Rational{Int}
+        @test eltype(Vinet(Int8(1), 2, 3, Int16(4))) === Int
+        @test eltype(Vinet(Int8(1), 2 // 1, 3, Int16(4))) === Rational{Int}
+        @test eltype(AntonSchmidt(Int8(1), 2, 3, 0)) === Int
+        @test eltype(AntonSchmidt(Int8(1), 2 // 1, 3, 0)) === Rational{Int}
     end
 
     @testset "Promoting with units" begin
@@ -164,8 +150,9 @@ end
 end
 
 @testset "`float` on an EOS" begin
-    @test float(Vinet(1, 2, 3)) == Vinet(1.0, 2.0, 3.0, 0.0)
-    @test float(Vinet(1u"nm^3", 2u"GPa", 3)) == Vinet(1.0u"nm^3", 2.0u"GPa", 3.0)
+    @test eltype(float(Vinet(1, 2, 3))) === Float64
+    @test eltype(float(Vinet(1u"nm^3", 2u"GPa", 3))) === Quantity{Float64}
+    @test eltype(float(Murnaghan(big(2), 3, 4, 5))) === BigFloat
 end
 
 @testset "Other element types" begin
