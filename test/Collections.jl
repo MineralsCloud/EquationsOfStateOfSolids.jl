@@ -24,6 +24,7 @@ using EquationsOfStateOfSolids.Collections
               Float16
         @test eltype(BirchMurnaghan4th(Int8(1), 2 // 1, big(4.0), Int16(5), 6)) === BigFloat
         @test eltype(BirchMurnaghan4th(Int8(1), 2 // 1, big(4), Int16(5), 6.0)) === BigFloat
+        @test_throws InexactError Vinet{Float64}(41 + 0.1im, 1.2, 4)
     end
 
     @testset "Promoting to rationals" begin
@@ -49,6 +50,8 @@ using EquationsOfStateOfSolids.Collections
         @test eltype(Vinet(Int8(1), 2 // 1, 3, Int16(4))) === Rational{Int}
         @test eltype(AntonSchmidt(Int8(1), 2, 3, 0)) === Int
         @test eltype(AntonSchmidt(Int8(1), 2 // 1, 3, 0)) === Rational{Int}
+        @test_throws InexactError PoirierTarantola3rd{BigInt}(41, 1 // 2, 4)
+        @test_throws InexactError PoirierTarantola3rd{BigInt}(41, 1, 2.2)
     end
 
     @testset "Promoting with units" begin
