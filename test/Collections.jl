@@ -162,8 +162,12 @@ end
         2,
         measurement("-123.4(56)"),
     )) === Measurement{Float64}
-    v0, b0, b′0, b″0, e0 = symbols("v0, b0, b′0, b″0, e0")
-    @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0, e0)) === Sym
+    @testset "`SymPy.Sym`" begin
+        v0, b0, b′0, b″0, e0 = symbols("v0, b0, b′0, b″0, e0")
+        @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0, e0)) === Sym
+        @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0)) === Sym
+        @test iszero(BirchMurnaghan4th(v0, b0, b′0, b″0).e0)
+    end
 end
 
 end
