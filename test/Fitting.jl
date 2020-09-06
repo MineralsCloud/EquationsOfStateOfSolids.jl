@@ -25,61 +25,87 @@ _isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
     data = open("data/si.yml", "r") do io
         YAML.load(io)
     end
-    volumes, energies = data["volume"], data["energy"]
-    @test _isapprox(
-        nonlinfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
-        BirchMurnaghan3rd(
-            40.98926572528106,
-            0.5369258245417454,
-            4.178644235500821,
-            -10.842803908240892,
-        ),
-    )
-    @test _isapprox(
-        linfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
-        BirchMurnaghan3rd(
-            40.98926572528106,
-            0.5369258245417454,
-            4.178644235500821,
-            -10.842803908240892,
-        ),
-    )
-    @test _isapprox(
-        nonlinfit(EnergyEOS(Murnaghan(41, 0.5, 4)), volumes, energies),
-        Murnaghan(
-            41.13757930387086,
-            0.5144967693786603,
-            3.9123862262572264,
-            -10.836794514626673,
-        ),
-    )
-    @test _isapprox(
-        nonlinfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
-        PoirierTarantola3rd(
-            40.86770643373908,
-            0.5667729960804602,
-            4.331688936974368,
-            -10.851486685041658,
-        ),
-    )
-    @test _isapprox(
-        linfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
-        PoirierTarantola3rd(
-            40.86770643373908,
-            0.5667729960804602,
-            4.331688936974368,
-            -10.851486685041658,
-        ),
-    )
-    @test _isapprox(
-        nonlinfit(EnergyEOS(Vinet(41, 0.5, 4)), volumes, energies),
-        Vinet(
-            40.916875663779784,
-            0.5493839425156859,
-            4.3051929654936885,
-            -10.846160810560756,
-        ),
-    )
+    @testset "With `Float64`" begin
+        volumes, energies = data["volume"], data["energy"]
+        @test _isapprox(
+            nonlinfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
+            BirchMurnaghan3rd(
+                40.98926572528106,
+                0.5369258245417454,
+                4.178644235500821,
+                -10.842803908240892,
+            ),
+        )
+        @test _isapprox(
+            linfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
+            BirchMurnaghan3rd(
+                40.98926572528106,
+                0.5369258245417454,
+                4.178644235500821,
+                -10.842803908240892,
+            ),
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEOS(Murnaghan(41, 0.5, 4)), volumes, energies),
+            Murnaghan(
+                41.13757930387086,
+                0.5144967693786603,
+                3.9123862262572264,
+                -10.836794514626673,
+            ),
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
+            PoirierTarantola3rd(
+                40.86770643373908,
+                0.5667729960804602,
+                4.331688936974368,
+                -10.851486685041658,
+            ),
+        )
+        @test _isapprox(
+            linfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
+            PoirierTarantola3rd(
+                40.86770643373908,
+                0.5667729960804602,
+                4.331688936974368,
+                -10.851486685041658,
+            ),
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEOS(Vinet(41, 0.5, 4)), volumes, energies),
+            Vinet(
+                40.916875663779784,
+                0.5493839425156859,
+                4.3051929654936885,
+                -10.846160810560756,
+            ),
+        )
+    end
+
+    @testset "`linfit` for `BigFloat` parameters" begin
+        volumes, energies = big.(data["volume"]), big.(data["energy"])
+        @test _isapprox(
+            linfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
+            BirchMurnaghan3rd{BigFloat}(
+                40.98926572528106,
+                0.5369258245417454,
+                4.178644235500821,
+                -10.842803908240892,
+            );
+            atol = 1e-8,
+        )
+        @test _isapprox(
+            linfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
+            PoirierTarantola3rd{BigFloat}(
+                40.86770643373908,
+                0.5667729960804602,
+                4.331688936974368,
+                -10.851486685041658,
+            );
+            atol = 1e-8,
+        )
+    end
 end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L92-L167
