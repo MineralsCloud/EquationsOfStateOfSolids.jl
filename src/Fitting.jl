@@ -7,6 +7,7 @@ using Polynomials: Polynomial, fit, derivative, coeffs, derivative
 using Serialization: serialize
 using Unitful: AbstractQuantity, ustrip, unit, uconvert
 
+using EquationsOfStateOfSolids: ispositive
 using ..Collections:
     EquationOfStateOfSolids,
     FiniteStrainParameters,
@@ -79,7 +80,14 @@ function linfit(
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
 end
 
-_islocalmin(x, y) = derivative(y, 2)(x) > 0  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
+function _islocalmin(x, y)
+    y″ₓ = derivative(y, 2)(x)
+    if isreal(y″ₓ)
+        return ispositive(real(y″ₓ))  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
+    else
+        throw(DomainError("the 2nd derivative of the polynomial is a complex!"))
+    end
+end
 
 function _localminima(y::Polynomial, root_thr = 1e-20)
     y′ = derivative(y, 1)
@@ -100,7 +108,7 @@ end
 # https://stackoverflow.com/a/21367608/3260253
 function _absminimum(y, root_thr = 1e-20)  # Find the minimal in the minima
     localminima = _localminima(y, root_thr)
-    y0, i = findmin(map(y, localminima))
+    y0, i = findmin(map(y, localminima))  # `y0` must be real, or `findmap` will error
     x0 = localminima[i]
     return x0, y0
 end

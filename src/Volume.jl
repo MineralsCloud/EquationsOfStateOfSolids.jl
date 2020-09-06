@@ -28,6 +28,7 @@ using Roots:
     Thukral8
 using UnPack: @unpack
 
+using EquationsOfStateOfSolids: ispositive
 using ..Collections:
     PressureEOS,
     EnergyEOS,
@@ -70,9 +71,9 @@ function findvolume(
     verbose = false,
 )
     v0 = _volume_scale(volume_scale, method) .* eos.param.v0  # v0 can be negative
-    @assert _ispositive(minimum(v0))  # No negative volume
+    @assert ispositive(minimum(v0))  # No negative volume
     v = find_zero(x -> eos(x) - y, v0, method; maxevals = maxiter, verbose = verbose)
-    if !_ispositive(v)
+    if !ispositive(v)
         @warn "the volume found is negative!"
     end
     return v
@@ -117,7 +118,5 @@ function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs
         end
     end
 end
-
-_ispositive(x) = x > zero(x)
 
 end
