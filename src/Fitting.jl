@@ -3,7 +3,7 @@ module Fitting
 using ConstructionBase: constructorof, setproperties
 using LsqFit: curve_fit, coef
 using PolynomialRoots: roots
-using Polynomials: Polynomial, fit, derivative, coeffs, derivative
+using Polynomials: fit, derivative, coeffs, derivative
 using Serialization: serialize
 using Unitful: AbstractQuantity, ustrip, unit, uconvert
 
@@ -66,7 +66,11 @@ function linfit(
     for i in 1:maxiter  # Self consistent loop
         strains = map(volume2strain(s, v0), volumes)
         poly = fit(strains, energies, deg)
-        f0, e0 = _absminimum(poly, root_thr)
+        if _iscomplex(poly)
+            throw(DomainError("the poly has complex coeffs! This should never happen!"))
+        end
+        poly = _real(poly)  # See https://github.com/JuliaMath/Polynomials.jl/issues/258
+        f0, e0 = _minofmin(poly, root_thr)
         v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
             if verbose
@@ -88,13 +92,13 @@ function linfit(
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
 end
 
-function _islocalmin(x, y)
-    y″ₓ = derivative(y, 2)(x)
-    if isreal(y″ₓ)  # `x` is real but `y` can have `Complex` eltype
-        return _ispositive(real(y″ₓ))  # If 2nd derivative at x > 0, (x, y(x)) is a local minimum
-    else
-        throw(DomainError("the 2nd derivative of the polynomial is a complex!"))
-    end
+_iscomplex(poly) = any(!isreal.(coeffs(poly)))
+
+_real(poly) = constructorof(poly)(real.(coeffs(poly)))
+
+function _islocalmin(x, y)  # `x` & `y` are both real
+    y″ₓ = derivative(y, 2)(x)  # Must be real
+    return _ispositive(real(y″ₓ))  # If 2nd derivative at x > 0, (x, y(x)) is a local minimum
 end
 
 function _localmin(y, root_thr = 1e-20)  # `y` is a polynomial (could be complex)
