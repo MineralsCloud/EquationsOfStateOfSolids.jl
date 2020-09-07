@@ -1,7 +1,7 @@
 # Nonlinear fitting
 
 ```@meta
-CurrentModule = EquationsOfState.Fitting
+CurrentModule = EquationsOfStateOfSolids.Fitting
 ```
 
 From Ref. 1,
@@ -111,9 +111,9 @@ Then 4 different equations of state will be fitted.
 
 ## Public interfaces
 
-```@autodocs
-Modules = [Fitting]
-Order   = [:type, :function]
+```@docs
+linfit
+nonlinfit
 ```
 
 ## References
