@@ -98,9 +98,9 @@ function linfit(
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
 end
 
-_iscomplex(poly) = any(!isreal.(coeffs(poly)))
+_iscomplex(poly) = any(!isreal(c) for c in coeffs(poly))
 
-_real(poly) = constructorof(poly)(real.(coeffs(poly)))
+_real(poly) = constructorof(typeof(poly))(real.(coeffs(poly)))
 
 function _islocalmin(x, y)  # `x` & `y` are both real
     y″ₓ = derivative(y, 2)(x)  # Must be real
