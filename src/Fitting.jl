@@ -39,9 +39,15 @@ eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
 
 # ================================== Linear fitting ==================================
 """
-    linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; maxiter = 1000, conv_thr = 1e-12, root_thr = 1e-20, verbose = false)
+    linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; kwargs...)
 
-!!! note "How to fit with `BigFloat`"
+# Keyword Arguments
+- `maxiter::Integer=1000`: .
+- `conv_thr::AbstractFloat=1e-12`: .
+- `root_thr::AbstractFloat=1e-20`: .
+- `verbose::Bool=false`: .
+
+!!! note
     If you want to fit with `BigFloat` data, you need to install
     [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using
     GenericSVD` before fittting!
@@ -151,6 +157,17 @@ function _update(x::FiniteStrainParameters; kwargs...)
 end
 
 # ================================== Nonlinear fitting ==================================
+"""
+    nonlinfit(eos::EquationOfStateOfSolids, xs, ys; kwargs...)
+
+# Keyword Arguments
+- `xtol::AbstractFloat=1e-16`: .
+- `gtol::AbstractFloat=1e-16`: .
+- `maxiter::Integer=1000`: .
+- `min_step_quality::AbstractFloat=1e-16`: .
+- `good_step_quality::AbstractFloat=0.75`: .
+- `verbose::Bool=false`: .
+"""
 function nonlinfit(
     eos::EquationOfStateOfSolids,
     xdata,
