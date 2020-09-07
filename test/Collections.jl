@@ -2,7 +2,7 @@ module Collections
 
 using Measurements: Measurement, measurement
 using SymPy: Sym, symbols
-using Test: @test, @testset
+using Test: @test, @testset, @test_throws
 using Unitful: Quantity, DimensionlessQuantity, @u_str
 
 using EquationsOfStateOfSolids.Collections
