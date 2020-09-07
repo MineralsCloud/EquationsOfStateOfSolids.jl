@@ -424,6 +424,17 @@ function (f::BulkModulusEOS{<:AntonSchmidt})(v)
 end
 
 # Ref: https://github.com/JuliaLang/julia/blob/4a2830a/base/array.jl#L125
+"""
+    orderof(x::FiniteStrainParameters)
+
+Return the order of a `FiniteStrainParameters`.
+
+# Examples
+```jldoctest
+julia> orderof(BirchMurnaghan3rd(40, 0.5, 4, 0)) == 3
+true
+```
+"""
 orderof(::Type{<:FiniteStrainParameters{N}}) where {N} = N
 orderof(x::FiniteStrainParameters) = orderof(typeof(x))
 
@@ -436,16 +447,49 @@ struct LagrangianStrain <: FiniteStrain end
 struct NaturalStrain <: FiniteStrain end
 struct InfinitesimalStrain <: FiniteStrain end
 
+"""
+    volume2strain(::EulerianStrain, v0)
+    volume2strain(::LagrangianStrain, v0)
+    volume2strain(::NaturalStrain, v0)
+    volume2strain(::InfinitesimalStrain, v0)
+
+Return a function of `v` that calculates the `FiniteStrain` from `v0`.
+
+!!! info
+    See the formulae on Ref. 1 Table 3.
+"""
 volume2strain(::EulerianStrain, v0) = v -> ((v0 / v)^_⅔ - 1) / 2
 volume2strain(::LagrangianStrain, v0) = v -> ((v / v0)^_⅔ - 1) / 2
 volume2strain(::NaturalStrain, v0) = v -> log(v / v0) / 3
 volume2strain(::InfinitesimalStrain, v0) = v -> 1 - (v0 / v)^_⅓
 
+"""
+    strain2volume(::EulerianStrain, v0)
+    strain2volume(::LagrangianStrain, v0)
+    strain2volume(::NaturalStrain, v0)
+    strain2volume(::InfinitesimalStrain, v0)
+
+Return a function of `f` that calculates the corresponding volume from `v0`.
+
+!!! info
+    See the formulae on Ref. 1 Table 3.
+"""
 strain2volume(::EulerianStrain, v0) = f -> v0 / (2f + 1)^_1½
 strain2volume(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^_1½
 strain2volume(::NaturalStrain, v0) = f -> v0 * exp(3f)
 strain2volume(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
 
+"""
+    Dⁿᵥf(s::EulerianStrain, deg, v0)
+    Dⁿᵥf(s::LagrangianStrain, deg, v0)
+    Dⁿᵥf(s::NaturalStrain, deg, v0)
+    Dⁿᵥf(s::InfinitesimalStrain, deg, v0)
+
+Return a function of `v` that calculates the `deg`th order derivative of strain wrt volume from `v0`.
+
+!!! info
+    See the formulae on Ref. 1 Table 3.
+"""
 function Dⁿᵥf(s::EulerianStrain, deg, v0)
     function (v)
         if isone(deg)  # Stop recursion
