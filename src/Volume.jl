@@ -28,6 +28,7 @@ using Roots:
     Thukral8
 using UnPack: @unpack
 
+using EquationsOfStateOfSolids: _ispositive
 using ..Collections:
     PressureEOS,
     EnergyEOS,
@@ -117,7 +118,5 @@ function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs
         end
     end
 end
-
-_ispositive(x) = x > zero(x)
 
 end
