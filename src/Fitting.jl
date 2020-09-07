@@ -7,7 +7,7 @@ using Polynomials: Polynomial, fit, derivative, coeffs, derivative
 using Serialization: serialize
 using Unitful: AbstractQuantity, ustrip, unit, uconvert
 
-using EquationsOfStateOfSolids: ispositive
+using EquationsOfStateOfSolids: _ispositive
 using ..Collections:
     EquationOfStateOfSolids,
     FiniteStrainParameters,
@@ -29,7 +29,7 @@ struct ConvergenceFailed
     msg::String
 end
 
-struct NoRootFound
+struct CriterionNotMet
     msg::String
 end
 
@@ -90,23 +90,23 @@ end
 
 function _islocalmin(x, y)
     y″ₓ = derivative(y, 2)(x)
-    if isreal(y″ₓ)
-        return ispositive(real(y″ₓ))  # If 2nd derivative at `x > 0`, `(x, y)` is a local minimum.
+    if isreal(y″ₓ)  # `x` is real but `y` can have `Complex` eltype
+        return _ispositive(real(y″ₓ))  # If 2nd derivative at x > 0, (x, y(x)) is a local minimum
     else
         throw(DomainError("the 2nd derivative of the polynomial is a complex!"))
     end
 end
 
-function _localminima(y::Polynomial, root_thr = 1e-20)
+function _localmin(y, root_thr = 1e-20)  # `y` is a polynomial (could be complex)
     y′ = derivative(y, 1)
-    rawpool = roots(coeffs(y′); polish = true, epsilon = root_thr)
-    pool = real(filter(isreal, rawpool))  # Complex volumes are meaningless
-    if isempty(pool)
-        throw(NoRootFound("no real extrema found! Consider changing `root_thr`!"))  # For some polynomials, could be all complex
+    pool = roots(coeffs(y′); polish = true, epsilon = root_thr)
+    real_roots = real(filter(isreal, pool))  # Complex volumes are meaningless
+    if isempty(real_roots)
+        throw(CriterionNotMet("no real extrema found! Consider changing `root_thr`!"))  # For some polynomials, could be all complex
     else
-        localminima = filter(x -> _islocalmin(x, y), pool)
+        localminima = filter(x -> _islocalmin(x, y), real_roots)
         if isempty(localminima)
-            throw(NoRootFound("no local minima found!"))
+            throw(CriterionNotMet("no local minima found!"))
         else
             return localminima
         end
@@ -114,8 +114,8 @@ function _localminima(y::Polynomial, root_thr = 1e-20)
 end
 
 # https://stackoverflow.com/a/21367608/3260253
-function _absminimum(y, root_thr = 1e-20)  # Find the minimal in the minima
-    localminima = _localminima(y, root_thr)
+function _minofmin(y, root_thr = 1e-20)  # Find the minimum of the local minima
+    localminima = _localmin(y, root_thr)
     y0, i = findmin(map(y, localminima))  # `y0` must be real, or `findmap` will error
     x0 = localminima[i]
     return x0, y0
@@ -149,8 +149,8 @@ end
 # ================================== Nonlinear fitting ==================================
 function nonlinfit(
     eos::EquationOfStateOfSolids,
-    xs,
-    ys;
+    xdata,
+    ydata;
     xtol = 1e-16,
     gtol = 1e-16,
     maxiter = 1000,
@@ -159,11 +159,11 @@ function nonlinfit(
     verbose = false,
 )::Parameters
     model = createmodel(eos)
-    p0, xs, ys = _prepare(eos, xs, ys)
+    p0, xdata, ydata = _prepare(eos, xdata, ydata)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
-        xs,
-        ys,
+        xdata,
+        ydata,
         collect(last.(p0));
         x_tol = xtol,
         g_tol = gtol,
@@ -196,17 +196,17 @@ function _checkresult(param::Parameters)  # Do not export!
     # end
 end
 
-function _prepare(eos, xs, ys)  # Do not export!
-    xs, ys = _collect_float(xs), _collect_float(ys)  # `xs` & `ys` may not be arrays
+function _prepare(eos, xdata, ydata)  # Do not export!
+    xdata, ydata = _collect_float(xdata), _collect_float(ydata)  # `xs` & `ys` may not be arrays
     if eos isa EnergyEOS && iszero(eos.param.e0)
-        eos = EnergyEOS(setproperties(eos.param; e0 = minimum(ys)))  # Energy minimum as e0
+        eos = EnergyEOS(setproperties(eos.param; e0 = minimum(ydata)))  # Energy minimum as e0
     end
-    return _ustrip_all(eos, xs, ys)
+    return _ustrip_all(eos, xdata, ydata)
 end
 
 # No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
-function _ustrip_all(eos, xs, ys)  # Do not export!
-    xs, ys = ustrip.(unit(eos.param.v0), xs), ustrip.(_yunit(eos), ys)
+function _ustrip_all(eos, xdata, ydata)  # Do not export!
+    xdata, ydata = ustrip.(unit(eos.param.v0), xdata), ustrip.(_yunit(eos), ydata)
     punit = unit(eos.param.e0) / unit(eos.param.v0)
     return map(fieldnames(typeof(eos.param))) do f
         x = getfield(eos.param, f)
@@ -222,7 +222,7 @@ function _ustrip_all(eos, xs, ys)  # Do not export!
         else
             oneunit(x) => ustrip(float(x))
         end
-    end, xs, ys
+    end, xdata, ydata
 end
 _yunit(eos::EnergyEOS) = unit(eos.param.e0)
 _yunit(eos::Union{PressureEOS,BulkModulusEOS}) = unit(eos.param.e0) / unit(eos.param.v0)
