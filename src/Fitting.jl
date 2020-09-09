@@ -204,10 +204,9 @@ function nonlinfit(
     end
 end
 
-function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not export!
-    constructor = constructorof(S) ∘ constructorof(T)
-    return (x, p) -> map(constructor(p), x)
-end
+# Do not export!
+createmodel(eos::EquationOfStateOfSolids{T}) where {T} =
+    (x, p) -> map(setproperties(eos; param = constructorof(T)(p)), x)
 
 function _checkresult(param::Parameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
