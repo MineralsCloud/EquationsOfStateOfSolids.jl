@@ -23,7 +23,7 @@ using ..Collections:
     straintype,
     parameters
 
-export linfit, nonlinfit, eosfit
+export linfit, nonlinfit, eosfit, v2p
 
 # See https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
 struct ConvergenceFailed
@@ -32,6 +32,11 @@ end
 
 struct CriterionNotMet
     msg::String
+end
+
+function v2p(eos::EnergyEOS, volumes, energies)
+    para = eosfit(eos, volumes, energies)
+    return map(PressureEOS(para), volumes)
 end
 
 eosfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
