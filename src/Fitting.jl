@@ -20,7 +20,8 @@ using ..Collections:
     volume2strain,
     strain2volume,
     Dⁿᵥf,
-    straintype
+    straintype,
+    parameters
 
 export linfit, nonlinfit, eosfit
 
@@ -61,9 +62,9 @@ function linfit(
     root_thr = 1e-20,
     verbose = false,
 )::FiniteStrainParameters
-    deg = orderof(eos.param)
-    s = straintype(eos.param)()
-    v0 = iszero(eos.param.v0) ? volumes[findmin(energies)[2]] : eos.param.v0  # Initial v0
+    deg = orderof(parameters(eos))
+    s = straintype(parameters(eos))()
+    v0 = iszero(parameters(eos).v0) ? volumes[findmin(energies)[2]] : parameters(eos).v0  # Initial v0
     uv, ue = unit(v0), unit(energies[1])
     uvrule = uconvert(unit(volumes[1]), 1 * uv)
     v0 = ustrip(v0)
@@ -86,7 +87,7 @@ function linfit(
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
             b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
             return _update(
-                eos.param;
+                parameters(eos);
                 v0 = v0 * uv,
                 b0 = b0(v0) * ue / uv,
                 b′0 = b′0(v0),
@@ -194,7 +195,7 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        T = constructorof(typeof(eos.param))
+        T = constructorof(typeof(parameters(eos)))
         result = T((x * c for (x, c) in zip(coef(fit), first.(p0)))...)
         _checkresult(result)
         return result
@@ -203,10 +204,9 @@ function nonlinfit(
     end
 end
 
-function createmodel(::S) where {T,S<:EquationOfStateOfSolids{T}}  # Do not export!
-    constructor = constructorof(S) ∘ constructorof(T)
-    return (x, p) -> map(constructor(p), x)
-end
+# Do not export!
+createmodel(eos::EquationOfStateOfSolids{T}) where {T} =
+    (x, p) -> map(setproperties(eos; param = constructorof(T)(p)), x)
 
 function _checkresult(param::Parameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
@@ -219,18 +219,18 @@ end
 
 function _prepare(eos, xdata, ydata)  # Do not export!
     xdata, ydata = _collect_float(xdata), _collect_float(ydata)  # `xs` & `ys` may not be arrays
-    if eos isa EnergyEOS && iszero(eos.param.e0)
-        eos = EnergyEOS(setproperties(eos.param; e0 = minimum(ydata)))  # Energy minimum as e0
+    if eos isa EnergyEOS && iszero(parameters(eos).e0)
+        eos = EnergyEOS(setproperties(parameters(eos); e0 = minimum(ydata)))  # Energy minimum as e0
     end
     return _ustrip_all(eos, xdata, ydata)
 end
 
 # No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
 function _ustrip_all(eos, xdata, ydata)  # Do not export!
-    xdata, ydata = ustrip.(unit(eos.param.v0), xdata), ustrip.(_yunit(eos), ydata)
-    punit = unit(eos.param.e0) / unit(eos.param.v0)
-    return map(fieldnames(typeof(eos.param))) do f
-        x = getfield(eos.param, f)
+    xdata, ydata = ustrip.(unit(parameters(eos).v0), xdata), ustrip.(_yunit(eos), ydata)
+    punit = unit(parameters(eos).e0) / unit(parameters(eos).v0)
+    return map(fieldnames(typeof(parameters(eos)))) do f
+        x = getfield(parameters(eos), f)
         u = unit(x)
         if f == :b0
             uconvert(u, 1 * punit) => ustrip(punit, float(x))
@@ -245,8 +245,9 @@ function _ustrip_all(eos, xdata, ydata)  # Do not export!
         end
     end, xdata, ydata
 end
-_yunit(eos::EnergyEOS) = unit(eos.param.e0)
-_yunit(eos::Union{PressureEOS,BulkModulusEOS}) = unit(eos.param.e0) / unit(eos.param.v0)
+_yunit(eos::EnergyEOS) = unit(parameters(eos).e0)
+_yunit(eos::Union{PressureEOS,BulkModulusEOS}) =
+    unit(parameters(eos).e0) / unit(parameters(eos).v0)
 
 _collect_float(x) = collect(float.(x))  # Do not export!
 

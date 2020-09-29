@@ -25,7 +25,8 @@ export Murnaghan,
     atomic_number,
     volume2strain,
     strain2volume,
-    straintype
+    straintype,
+    parameters
 
 const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
 
@@ -570,6 +571,13 @@ function PoirierTarantola(args...)
         throw(ArgumentError("unknown number of arguments $N."))
     end
 end
+
+"""
+    parameters(eos::EquationOfStateOfSolids)
+
+Get the `Parameters` from an `EquationOfStateOfSolids`.
+"""
+parameters(eos::EquationOfStateOfSolids) = eos.param
 
 Base.eltype(::Type{<:Parameters{T}}) where {T} = T
 
