@@ -77,11 +77,10 @@ function linfit(
     energies = parent(map(x -> ustrip(ue, x), energies))
     for i in 1:maxiter  # Self consistent loop
         strains = map(volume2strain(s, v0), volumes)
-        poly = fit(strains, energies, deg)
-        if _iscomplex(poly)
-            throw(DomainError("the poly has complex coeffs! This should never happen!"))
+        if !(isreal(strains) && isreal(energies))
+            throw(DomainError("the strains or the energies are complex!"))
         end
-        poly = _real(poly)  # See https://github.com/JuliaMath/Polynomials.jl/issues/258
+        poly = fit(real(strains), real(energies), deg)
         f0, e0 = _minofmin(poly, root_thr)
         v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
@@ -103,10 +102,6 @@ function linfit(
     end
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
 end
-
-_iscomplex(poly) = any(!isreal(c) for c in coeffs(poly))
-
-_real(poly) = constructorof(typeof(poly))(real.(coeffs(poly)))
 
 function _islocalmin(x, y)  # `x` & `y` are both real
     y″ₓ = derivative(y, 2)(x)  # Must be real
