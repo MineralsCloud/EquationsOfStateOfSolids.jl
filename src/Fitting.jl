@@ -180,7 +180,7 @@ function nonlinfit(
     good_step_quality = 0.75,
     verbose = false,
 )::Parameters
-    model = createmodel(eos)
+    model = buildmodel(eos)
     p0, xdata, ydata = _prepare(eos, xdata, ydata)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
@@ -205,7 +205,7 @@ function nonlinfit(
 end
 
 # Do not export!
-createmodel(eos::EquationOfStateOfSolids{T}) where {T} =
+buildmodel(eos::EquationOfStateOfSolids{T}) where {T} =
     (x, p) -> map(setproperties(eos; param = constructorof(T)(p)), x)
 
 function _checkresult(param::Parameters)  # Do not export!
