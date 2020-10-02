@@ -251,8 +251,7 @@ _yunit(eos::Union{PressureEOS,BulkModulusEOS}) = u"eV/angstrom"
 
 float_collect(x) = collect(float.(x))  # Do not export!
 
-mapfields(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))  # Do not export!
-
-Base.float(p::Parameters) = constructorof(typeof(p))(mapfields(float, p)...)  # Not used here but may be useful
+Base.float(p::Parameters) =
+    constructorof(typeof(p))((float(getfield(p, i)) for i in 1:nfields(p))...)  # Not used here but may be useful
 
 end
