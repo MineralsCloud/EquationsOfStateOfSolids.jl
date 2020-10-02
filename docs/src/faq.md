@@ -1,6 +1,6 @@
 # FAQ
 
-## How to make a `Vector` from an `Parameters`?
+## How to make a `Vector` from a `Parameters`?
 
 A suggested way is to use the
 [`IterTools.fieldvalues` function](https://juliacollections.github.io/IterTools.jl/latest/index.html#IterTools.fieldvalues):
@@ -38,3 +38,9 @@ julia> fieldvalues(eos)
 ```
 
 It is slower than `IterTools.fieldvalues`. Use it with care.
+
+## `linfit` does not work with `BigFloat`?
+
+`LinearAlgebra` by default does not support SVD for matrices with `BigFloat` elements.
+You need to install [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl)
+first then `using GenericSVD`. And then it should work.
