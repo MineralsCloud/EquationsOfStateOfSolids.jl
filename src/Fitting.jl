@@ -181,7 +181,7 @@ function nonlinfit(
     verbose = false,
 )::Parameters
     model = buildmodel(eos)
-    p0, xdata, ydata = _prepare(eos, xdata, ydata)
+    p0, xdata, ydata = prepare(eos, xdata, ydata)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         xdata,
@@ -197,7 +197,7 @@ function nonlinfit(
     if fit.converged
         T = constructorof(typeof(parameters(eos)))
         result = T((x * c for (x, c) in zip(coef(fit), first.(p0)))...)
-        _checkresult(result)
+        checkresult(result)
         return result
     else
         throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
@@ -208,7 +208,7 @@ end
 buildmodel(eos::EquationOfStateOfSolids{T}) where {T} =
     (x, p) -> map(setproperties(eos; param = constructorof(T)(p)), x)
 
-function _checkresult(param::Parameters)  # Do not export!
+function checkresult(param::Parameters)  # Do not export!
     if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
         @error "either `v0 = $(param.v0)` or `b0 = $(param.b0)` is negative!"
     end
@@ -217,20 +217,21 @@ function _checkresult(param::Parameters)  # Do not export!
     # end
 end
 
-function _prepare(eos, xdata, ydata)  # Do not export!
-    xdata, ydata = _collect_float(xdata), _collect_float(ydata)  # `xs` & `ys` may not be arrays
+function prepare(eos, xdata, ydata)  # Do not export!
+    xdata, ydata = float_collect(xdata), float_collect(ydata)  # `xs` & `ys` may not be arrays
     if eos isa EnergyEOS && iszero(parameters(eos).e0)
         eos = EnergyEOS(setproperties(parameters(eos); e0 = minimum(ydata)))  # Energy minimum as e0
     end
-    return _ustrip_all(eos, xdata, ydata)
+    return _ualign(eltype(parameters(eos)), eos, xdata, ydata)
 end
 
 # No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
-function _ustrip_all(eos, xdata, ydata)  # Do not export!
-    xdata, ydata = ustrip.(unit(parameters(eos).v0), xdata), ustrip.(_yunit(eos), ydata)
-    punit = unit(parameters(eos).e0) / unit(parameters(eos).v0)
-    return map(fieldnames(typeof(parameters(eos)))) do f
-        x = getfield(parameters(eos), f)
+function _ualign(::Type{<:Real}, eos, xdata, ydata)  # Do not export!
+    return map(propertynames(parameters(eos))) do f
+        1 => getproperty(parameters(eos), f)
+    end, xdata, ydata
+end
+function _ualign(::Type{<:AbstractQuantity}, eos, xdata, ydata)  # Do not export!
         u = unit(x)
         if f == :b0
             uconvert(u, 1 * punit) => ustrip(punit, float(x))
@@ -245,14 +246,13 @@ function _ustrip_all(eos, xdata, ydata)  # Do not export!
         end
     end, xdata, ydata
 end
-_yunit(eos::EnergyEOS) = unit(parameters(eos).e0)
-_yunit(eos::Union{PressureEOS,BulkModulusEOS}) =
-    unit(parameters(eos).e0) / unit(parameters(eos).v0)
+_yunit(eos::EnergyEOS) = u"eV"
+_yunit(eos::Union{PressureEOS,BulkModulusEOS}) = u"eV/angstrom"
 
-_collect_float(x) = collect(float.(x))  # Do not export!
+float_collect(x) = collect(float.(x))  # Do not export!
 
-_mapfields(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))  # Do not export!
+mapfields(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))  # Do not export!
 
-Base.float(p::Parameters) = constructorof(typeof(p))(_mapfields(float, p)...)  # Not used here but may be useful
+Base.float(p::Parameters) = constructorof(typeof(p))(mapfields(float, p)...)  # Not used here but may be useful
 
 end
