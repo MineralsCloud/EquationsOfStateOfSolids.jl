@@ -39,22 +39,22 @@ using ..Collections:
     PoirierTarantola3rd,
     EulerianStrain,
     strain2volume,
-    parameters
+    getparam
 
 export findvolume, mustfindvolume
 
 function findvolume(eos::PressureEOS{<:Murnaghan}, p)
-    @unpack v0, b0, b′0, e0 = parameters(eos)
+    @unpack v0, b0, b′0, e0 = getparam(eos)
     return v0 * (1 + b′0 / b0 * p)^(-1 / b′0)
 end
 function findvolume(eos::EnergyEOS{<:BirchMurnaghan2nd}, e)
-    @unpack v0, b0, b′0, e0 = parameters(eos)
+    @unpack v0, b0, b′0, e0 = getparam(eos)
     f = sqrt(2 / 9 * (e - e0) / b0 / v0)
     vs = map(strain2volume(EulerianStrain(), v0), [f, -f])
     return map(real, filter(isreal, vs))
 end
 function findvolume(eos::EnergyEOS{<:BirchMurnaghan3rd}, e; root_thr = 1e-20)
-    @unpack v0, b0, b′0, e0 = parameters(eos)
+    @unpack v0, b0, b′0, e0 = getparam(eos)
     # Constrcut ax^3 + bx^2 + d = 0
     b, d = 9 / 2 * b0 * v0, e0 - e
     a = b * (b′0 - 4)
@@ -71,7 +71,7 @@ function findvolume(
     maxiter = 40,
     verbose = false,
 )
-    v0 = _volume_scale(volume_scale, method) .* parameters(eos).v0  # v0 can be negative
+    v0 = _volume_scale(volume_scale, method) .* getparam(eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(x -> eos(x) - y, v0, method; maxevals = maxiter, verbose = verbose)
     if !_ispositive(v)

@@ -21,7 +21,7 @@ using ..Collections:
     strain2volume,
     Dⁿᵥf,
     straintype,
-    parameters
+    getparam
 
 export linfit, nonlinfit, eosfit, v2p
 
@@ -67,9 +67,9 @@ function linfit(
     root_thr = 1e-20,
     verbose = false,
 )::FiniteStrainParameters
-    deg = orderof(parameters(eos))
-    s = straintype(parameters(eos))()
-    v0 = iszero(parameters(eos).v0) ? volumes[findmin(energies)[2]] : parameters(eos).v0  # Initial v0
+    deg = orderof(getparam(eos))
+    s = straintype(getparam(eos))()
+    v0 = iszero(getparam(eos).v0) ? volumes[findmin(energies)[2]] : getparam(eos).v0  # Initial v0
     uv, ue = unit(v0), unit(energies[1])
     uvrule = uconvert(unit(volumes[1]), 1 * uv)
     v0 = ustrip(v0)
@@ -91,7 +91,7 @@ function linfit(
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
             b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
             return _update(
-                parameters(eos);
+                getparam(eos);
                 v0 = v0 * uv,
                 b0 = b0(v0) * ue / uv,
                 b′0 = b′0(v0),
@@ -195,7 +195,7 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        T = constructorof(typeof(parameters(eos)))
+        T = constructorof(typeof(getparam(eos)))
         result = T((x * c for (x, c) in zip(coef(fit), first.(p0)))...)
         checkresult(result)
         return result
@@ -219,16 +219,16 @@ end
 
 function prepare(eos, xdata, ydata)  # Do not export!
     xdata, ydata = float_collect(xdata), float_collect(ydata)  # `xs` & `ys` may not be arrays
-    if eos isa EnergyEOS && iszero(parameters(eos).e0)
-        eos = EnergyEOS(setproperties(parameters(eos); e0 = minimum(ydata)))  # Energy minimum as e0
+    if eos isa EnergyEOS && iszero(getparam(eos).e0)
+        eos = EnergyEOS(setproperties(param; e0 = minimum(ydata)))  # Energy minimum as e0
     end
     return _ualign(eltype(parameters(eos)), eos, xdata, ydata)
 end
 
 # No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
 function _ualign(::Type{<:Real}, eos, xdata, ydata)  # Do not export!
-    return map(propertynames(parameters(eos))) do f
-        1 => getproperty(parameters(eos), f)
+    return map(propertynames(getparam(eos))) do f
+        1 => getproperty(getparam(eos), f)
     end, xdata, ydata
 end
 function _ualign(::Type{<:AbstractQuantity}, eos, xdata, ydata)  # Do not export!
