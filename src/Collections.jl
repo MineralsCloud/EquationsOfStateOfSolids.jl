@@ -543,10 +543,17 @@ function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/
             println(io, " ", f, " = ", getproperty(param, f))
         end
     end
-end # function Base.show
+end
 
 (::Type{T})(arr::AbstractVector) where {T<:Parameters} = T{eltype(arr)}(arr...)
 (::Type{T})(args...) where {T<:Parameters} = T([args...])
+"""
+    BirchMurnaghan(args...)
+
+Construct a `BirchMurnaghan` based on the length of arguments, where `e0` must be provided.
+
+See also: [`BirchMurnaghan2nd`](@ref), [`BirchMurnaghan3rd`](@ref), [`BirchMurnaghan4th`](@ref)
+"""
 function BirchMurnaghan(args...)
     N = length(args)
     if N == 3
@@ -559,6 +566,13 @@ function BirchMurnaghan(args...)
         throw(ArgumentError("unknown number of arguments $N."))
     end
 end
+"""
+    PoirierTarantola(args...)
+
+Construct a `PoirierTarantola` based on the length of arguments, where `e0` must be provided.
+
+See also: [`PoirierTarantola2nd`](@ref), [`PoirierTarantola3rd`](@ref), [`PoirierTarantola4th`](@ref)
+"""
 function PoirierTarantola(args...)
     N = length(args)
     if N == 3
