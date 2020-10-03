@@ -5,7 +5,7 @@ using LsqFit: curve_fit, coef
 using PolynomialRoots: roots
 using Polynomials: fit, derivative, coeffs, derivative
 using Serialization: serialize
-using Unitful: AbstractQuantity, ustrip, unit, uconvert
+using Unitful: AbstractQuantity, NoUnits, ustrip, unit, uconvert
 
 using EquationsOfStateOfSolids: _ispositive
 using ..Collections:
@@ -21,7 +21,9 @@ using ..Collections:
     strain2volume,
     Dⁿᵥf,
     straintype,
-    parameters
+    getparam
+
+import Unitful
 
 export linfit, nonlinfit, eosfit, v2p
 
@@ -67,9 +69,9 @@ function linfit(
     root_thr = 1e-20,
     verbose = false,
 )::FiniteStrainParameters
-    deg = orderof(parameters(eos))
-    s = straintype(parameters(eos))()
-    v0 = iszero(parameters(eos).v0) ? volumes[findmin(energies)[2]] : parameters(eos).v0  # Initial v0
+    deg = orderof(getparam(eos))
+    s = straintype(getparam(eos))()
+    v0 = iszero(getparam(eos).v0) ? volumes[findmin(energies)[2]] : getparam(eos).v0  # Initial v0
     uv, ue = unit(v0), unit(energies[1])
     uvrule = uconvert(unit(volumes[1]), 1 * uv)
     v0 = ustrip(v0)
@@ -91,7 +93,7 @@ function linfit(
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
             b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
             return _update(
-                parameters(eos);
+                getparam(eos);
                 v0 = v0 * uv,
                 b0 = b0(v0) * ue / uv,
                 b′0 = b′0(v0),
@@ -180,13 +182,13 @@ function nonlinfit(
     good_step_quality = 0.75,
     verbose = false,
 )::Parameters
-    model = createmodel(eos)
-    p0, xdata, ydata = _prepare(eos, xdata, ydata)
+    model = buildmodel(eos)
+    p0, xdata, ydata = _preprocess(eos, xdata, ydata)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         xdata,
         ydata,
-        collect(last.(p0));
+        p0;
         x_tol = xtol,
         g_tol = gtol,
         maxIter = maxiter,
@@ -195,9 +197,8 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        T = constructorof(typeof(parameters(eos)))
-        result = T((x * c for (x, c) in zip(coef(fit), first.(p0)))...)
-        _checkresult(result)
+        result = _postprocess(coef(fit), getparam(eos))
+        checkresult(result)
         return result
     else
         throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
@@ -205,54 +206,91 @@ function nonlinfit(
 end
 
 # Do not export!
-createmodel(eos::EquationOfStateOfSolids{T}) where {T} =
+buildmodel(eos::EquationOfStateOfSolids{T}) where {T} =
     (x, p) -> map(setproperties(eos; param = constructorof(T)(p)), x)
 
-function _checkresult(param::Parameters)  # Do not export!
-    if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
-        @error "either `v0 = $(param.v0)` or `b0 = $(param.b0)` is negative!"
+function checkresult(p::Parameters)  # Do not export!
+    if p.v0 <= zero(p.v0) || p.b0 <= zero(p.b0)
+        @error "either `v0 = $(p.v0)` or `b0 = $(p.b0)` is negative!"
     end
     # if PressureEoss(param)(minimum(v)) >= param.b0
     #     @warn "use higher order EOS!"
     # end
 end
 
-function _prepare(eos, xdata, ydata)  # Do not export!
-    xdata, ydata = _collect_float(xdata), _collect_float(ydata)  # `xs` & `ys` may not be arrays
-    if eos isa EnergyEOS && iszero(parameters(eos).e0)
-        eos = EnergyEOS(setproperties(parameters(eos); e0 = minimum(ydata)))  # Energy minimum as e0
+function _preprocess(eos, xdata, ydata)  # Do not export!
+    p = getparam(eos)
+    if eos isa EnergyEOS && iszero(p.e0)
+        eos = EnergyEOS(setproperties(p; e0 = uconvert(unit(p.e0), minimum(ydata))))  # Energy minimum as e0, `uconvert` is important to keep the unit right!
     end
-    return _ustrip_all(eos, xdata, ydata)
+    return map(_float_collect, _unify(eos, xdata, ydata))  # `xs` & `ys` may not be arrays
 end
 
-# No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
-function _ustrip_all(eos, xdata, ydata)  # Do not export!
-    xdata, ydata = ustrip.(unit(parameters(eos).v0), xdata), ustrip.(_yunit(eos), ydata)
-    punit = unit(parameters(eos).e0) / unit(parameters(eos).v0)
-    return map(fieldnames(typeof(parameters(eos)))) do f
-        x = getfield(parameters(eos), f)
-        u = unit(x)
+function _unify(eos, xdata, ydata)  # Unify units of data
+    p = getparam(eos)
+    uy(eos::EnergyEOS) = unit(p.e0)
+    uy(eos::Union{PressureEOS,BulkModulusEOS}) = unit(p.e0) / unit(p.v0)
+    return ustrip.(_unormal(p)), ustrip.(unit(p.v0), xdata), ustrip.(uy(eos), ydata)
+end
+
+_unormal(p::Parameters) = collect(getfield(p, i) for i in 1:nfields(p))
+function _unormal(p::Parameters{<:AbstractQuantity})  # Normalize units of `p`
+    up = unit(p.e0) / unit(p.v0)  # Pressure/bulk modulus unit
+    return map(fieldnames(typeof(p))) do f
+        x = getfield(p, f)
         if f == :b0
-            uconvert(u, 1 * punit) => ustrip(punit, float(x))
+            x |> up
         elseif f == :b″0
-            r = punit^(-1)
-            uconvert(u, 1 * r) => ustrip(r, float(x))
+            x |> up^(-1)
         elseif f == :b‴0
-            r = punit^(-2)
-            uconvert(u, 1 * r) => ustrip(r, float(x))
+            x |> up^(-2)
+        elseif f in (:v0, :b′0, :e0)
+            x
         else
-            oneunit(x) => ustrip(float(x))
+            error("unknown field `$f`!")
         end
-    end, xdata, ydata
+    end
 end
-_yunit(eos::EnergyEOS) = unit(parameters(eos).e0)
-_yunit(eos::Union{PressureEOS,BulkModulusEOS}) =
-    unit(parameters(eos).e0) / unit(parameters(eos).v0)
 
-_collect_float(x) = collect(float.(x))  # Do not export!
+_postprocess(p, p0::Parameters) = constructorof(typeof(p0))(p...)
+function _postprocess(p, p0::Parameters{<:AbstractQuantity})
+    up = unit(p0.e0) / unit(p0.v0)  # Pressure/bulk modulus unit
+    param = map(enumerate(fieldnames(typeof(p0)))) do (i, f)
+        x = p[i]
+        u = unit(getfield(p0, f))
+        if f == :b0
+            x * up |> u
+        elseif f == :b″0
+            x * up^(-1) |> u
+        elseif f == :b‴0
+            x * up^(-2) |> u
+        elseif f in (:v0, :b′0, :e0)
+            x * u
+        else
+            error("unknown field `$f`!")
+        end
+    end
+    return constructorof(typeof(p0))(param...)
+end
 
-_mapfields(f, x) = (f(getfield(x, i)) for i in 1:nfields(x))  # Do not export!
+_float_collect(x) = collect(float.(x))  # Do not export!
 
-Base.float(p::Parameters) = constructorof(typeof(p))(_mapfields(float, p)...)  # Not used here but may be useful
+_fmap(f, x) = constructorof(typeof(x))((f(getfield(x, i)) for i in 1:nfields(x))...)  # Do not export!
+
+"Convert all elements of a `Parameters` to floating point data types."
+Base.float(p::Parameters) = _fmap(float, p)  # Not used here but may be useful
+
+"Test whether all `p`'s elements are numerically equal to some real number."
+Base.isreal(p::Parameters) = all(isreal(getfield(p, i)) for i in 1:nfields(p))  # Not used here but may be useful
+
+"Construct a real `Parameters` from the real parts of the elements of p."
+Base.real(p::Parameters) = _fmap(real, p)  # Not used here but may be useful
+
+"""
+    ustrip(p::Parameters)
+
+Strip units from a `Parameters`.
+"""
+Unitful.ustrip(p::Parameters) = _fmap(ustrip, p)
 
 end

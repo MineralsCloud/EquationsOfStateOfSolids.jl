@@ -2,7 +2,8 @@ module Fitting
 
 using GenericSVD
 using Test
-using Unitful, UnitfulAtomic
+using Unitful: EnergyUnits, PressureUnits, ustrip, @u_str
+using UnitfulAtomic
 using YAML
 
 using EquationsOfStateOfSolids.Collections:
@@ -16,10 +17,21 @@ using EquationsOfStateOfSolids.Collections:
     EnergyEOS
 using EquationsOfStateOfSolids.Fitting: nonlinfit, linfit
 
+import Unitful
+
+Unitful.promote_unit(::S, ::T) where {S<:EnergyUnits,T<:EnergyUnits} = u"eV"
+Unitful.promote_unit(::S, ::T) where {S<:PressureUnits,T<:PressureUnits} = u"GPa"
+
 # Do not export! Only for internal use!
-_getfields(x) = (getfield(x, i) for i in 1:nfields(x))
-_isapprox(a::T, b::T; kwargs...) where {T<:Parameters} =
-    isapprox(ustrip.(_getfields(a)), ustrip.(_getfields(b)); kwargs...)
+function _isapprox(a::T, b::T; kwargs...) where {T<:Parameters}
+    x, y = [], []
+    for f in fieldnames(T)
+        pa, pb = map(ustrip, promote(getfield(a, f), getfield(b, f)))
+        push!(x, pa)
+        push!(y, pb)
+    end
+    return isapprox(x, y; kwargs...)
+end
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L17-L73
 @testset "Test data from Pymatgen" begin
@@ -474,8 +486,7 @@ end
                 9.354298u"GPa",
                 3.690448,
                 -323.41773u"Ry",
-            );
-            atol = 1e-5,
+            ),
         )
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L66-L71
         @test _isapprox(
