@@ -248,6 +248,7 @@ function _ualign(::Type{<:AbstractQuantity}, eos, xdata, ydata)  # Do not export
 end
 _yunit(eos::EnergyEOS) = u"eV"
 _yunit(eos::Union{PressureEOS,BulkModulusEOS}) = u"eV/angstrom"
+_fmap(f, x) = constructorof(typeof(x))((f(getfield(x, i)) for i in 1:nfields(x))...)  # Do not export!
 
 float_collect(x) = collect(float.(x))  # Do not export!
 
