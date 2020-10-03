@@ -183,7 +183,7 @@ function nonlinfit(
     verbose = false,
 )::Parameters
     model = buildmodel(eos)
-    p0, xdata, ydata = _prepare(eos, xdata, ydata)
+    p0, xdata, ydata = _preprocess(eos, xdata, ydata)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         xdata,
@@ -197,7 +197,7 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        result = recover(coef(fit), getparam(eos))
+        result = _postprocess(coef(fit), getparam(eos))
         checkresult(result)
         return result
     else
@@ -218,7 +218,7 @@ function checkresult(p::Parameters)  # Do not export!
     # end
 end
 
-function _prepare(eos, xdata, ydata)  # Do not export!
+function _preprocess(eos, xdata, ydata)  # Do not export!
     p = getparam(eos)
     if eos isa EnergyEOS && iszero(p.e0)
         eos = EnergyEOS(setproperties(p; e0 = uconvert(unit(p.e0), minimum(ydata))))  # Energy minimum as e0, `uconvert` is important to keep the unit right!
@@ -252,8 +252,8 @@ function _unormal(p::Parameters{<:AbstractQuantity})  # Normalize units of `p`
     end
 end
 
-recover(p, p0::Parameters) = constructorof(typeof(p0))(p...)
-function recover(p, p0::Parameters{<:AbstractQuantity})
+_postprocess(p, p0::Parameters) = constructorof(typeof(p0))(p...)
+function _postprocess(p, p0::Parameters{<:AbstractQuantity})
     up = unit(p0.e0) / unit(p0.v0)  # Pressure/bulk modulus unit
     param = map(enumerate(fieldnames(typeof(p0)))) do (i, f)
         x = p[i]
