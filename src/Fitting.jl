@@ -23,6 +23,8 @@ using ..Collections:
     straintype,
     getparam
 
+import Unitful
+
 export linfit, nonlinfit, eosfit, v2p
 
 # See https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
@@ -248,11 +250,13 @@ function _ualign(::Type{<:AbstractQuantity}, eos, xdata, ydata)  # Do not export
 end
 _yunit(eos::EnergyEOS) = u"eV"
 _yunit(eos::Union{PressureEOS,BulkModulusEOS}) = u"eV/angstrom"
+
+_float_collect(x) = collect(float.(x))  # Do not export!
+
 _fmap(f, x) = constructorof(typeof(x))((f(getfield(x, i)) for i in 1:nfields(x))...)  # Do not export!
 
-float_collect(x) = collect(float.(x))  # Do not export!
+Base.float(p::Parameters) = _fmap(float, p)  # Not used here but may be useful
 
-Base.float(p::Parameters) =
-    constructorof(typeof(p))((float(getfield(p, i)) for i in 1:nfields(p))...)  # Not used here but may be useful
+Unitful.ustrip(p::Parameters) = _fmap(ustrip, p)
 
 end
