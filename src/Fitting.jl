@@ -220,9 +220,9 @@ end
 
 function _prepare(eos, xdata, ydata)  # Do not export!
     p = getparam(eos)
-    # if eos isa EnergyEOS && iszero(p.e0)  # TODO: This will cause a bug in unit conversion
-    #     eos = EnergyEOS(setproperties(p; e0 = minimum(ydata)))  # Energy minimum as e0
-    # end
+    if eos isa EnergyEOS && iszero(p.e0)
+        eos = EnergyEOS(setproperties(p; e0 = uconvert(unit(p.e0), minimum(ydata))))  # Energy minimum as e0, `uconvert` is important to keep the unit right!
+    end
     return map(_float_collect, _unify(eos, xdata, ydata))  # `xs` & `ys` may not be arrays
 end
 
