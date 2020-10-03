@@ -233,7 +233,7 @@ function _unify(eos, xdata, ydata)  # Unify units of data
     return ustrip.(_unormal(p)), ustrip.(unit(p.v0), xdata), ustrip.(uy(eos), ydata)
 end
 
-_unormal(p::Parameters) = p
+_unormal(p::Parameters) = collect(getfield(p, i) for i in 1:nfields(p))
 function _unormal(p::Parameters{<:AbstractQuantity})  # Normalize units of `p`
     up = unit(p.e0) / unit(p.v0)  # Pressure/bulk modulus unit
     return map(fieldnames(typeof(p))) do f
@@ -252,7 +252,7 @@ function _unormal(p::Parameters{<:AbstractQuantity})  # Normalize units of `p`
     end
 end
 
-recover(p, ::Parameters) = p
+recover(p, p0::Parameters) = constructorof(typeof(p0))(p...)
 function recover(p, p0::Parameters{<:AbstractQuantity})
     up = unit(p0.e0) / unit(p0.v0)  # Pressure/bulk modulus unit
     param = map(enumerate(fieldnames(typeof(p0)))) do (i, f)
