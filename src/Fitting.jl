@@ -5,7 +5,7 @@ using LsqFit: curve_fit, coef
 using PolynomialRoots: roots
 using Polynomials: fit, derivative, coeffs, derivative
 using Serialization: serialize
-using Unitful: AbstractQuantity, ustrip, unit, uconvert
+using Unitful: AbstractQuantity, NoUnits, ustrip, unit, uconvert
 
 using EquationsOfStateOfSolids: _ispositive
 using ..Collections:
@@ -183,12 +183,12 @@ function nonlinfit(
     verbose = false,
 )::Parameters
     model = buildmodel(eos)
-    p0, xdata, ydata = prepare(eos, xdata, ydata)
+    p0, xdata, ydata = _prepare(eos, xdata, ydata)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         xdata,
         ydata,
-        collect(last.(p0));
+        p0;
         x_tol = xtol,
         g_tol = gtol,
         maxIter = maxiter,
@@ -197,8 +197,7 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        T = constructorof(typeof(getparam(eos)))
-        result = T((x * c for (x, c) in zip(coef(fit), first.(p0)))...)
+        result = recover(coef(fit), getparam(eos))
         checkresult(result)
         return result
     else
@@ -219,37 +218,60 @@ function checkresult(param::Parameters)  # Do not export!
     # end
 end
 
-function prepare(eos, xdata, ydata)  # Do not export!
-    xdata, ydata = float_collect(xdata), float_collect(ydata)  # `xs` & `ys` may not be arrays
-    if eos isa EnergyEOS && iszero(getparam(eos).e0)
-        eos = EnergyEOS(setproperties(param; e0 = minimum(ydata)))  # Energy minimum as e0
-    end
-    return _ualign(eltype(parameters(eos)), eos, xdata, ydata)
+function _prepare(eos, xdata, ydata)  # Do not export!
+    p = getparam(eos)
+    # if eos isa EnergyEOS && iszero(p.e0)  # TODO: This will cause a bug in unit conversion
+    #     eos = EnergyEOS(setproperties(p; e0 = minimum(ydata)))  # Energy minimum as e0
+    # end
+    return map(_float_collect, _unify(eos, xdata, ydata))  # `xs` & `ys` may not be arrays
 end
 
-# No need to constrain `eltype`, `ustrip` will error if `Real` and `AbstractQuantity` are met.
-function _ualign(::Type{<:Real}, eos, xdata, ydata)  # Do not export!
-    return map(propertynames(getparam(eos))) do f
-        1 => getproperty(getparam(eos), f)
-    end, xdata, ydata
+function _unify(eos, xdata, ydata)  # Unify units of data
+    p = getparam(eos)
+    uy(eos::EnergyEOS) = unit(p.e0)
+    uy(eos::Union{PressureEOS,BulkModulusEOS}) = unit(p.e0) / unit(p.v0)
+    return ustrip.(_unormal(p)), ustrip.(unit(p.v0), xdata), ustrip.(uy(eos), ydata)
 end
-function _ualign(::Type{<:AbstractQuantity}, eos, xdata, ydata)  # Do not export!
-        u = unit(x)
+
+_unormal(p::Parameters) = p
+function _unormal(p::Parameters{<:AbstractQuantity})  # Normalize units of `p`
+    up = unit(p.e0) / unit(p.v0)  # Pressure/bulk modulus unit
+    return map(fieldnames(typeof(p))) do f
+        x = getfield(p, f)
         if f == :b0
-            uconvert(u, 1 * punit) => ustrip(punit, float(x))
+            x |> up
         elseif f == :b″0
-            r = punit^(-1)
-            uconvert(u, 1 * r) => ustrip(r, float(x))
+            x |> up^(-1)
         elseif f == :b‴0
-            r = punit^(-2)
-            uconvert(u, 1 * r) => ustrip(r, float(x))
+            x |> up^(-2)
+        elseif f in (:v0, :b′0, :e0)
+            x
         else
-            oneunit(x) => ustrip(float(x))
+            error("unknown field `$f`!")
         end
-    end, xdata, ydata
+    end
 end
-_yunit(eos::EnergyEOS) = u"eV"
-_yunit(eos::Union{PressureEOS,BulkModulusEOS}) = u"eV/angstrom"
+
+recover(p, ::Parameters) = p
+function recover(p, p0::Parameters{<:AbstractQuantity})
+    up = unit(p0.e0) / unit(p0.v0)  # Pressure/bulk modulus unit
+    param = map(enumerate(fieldnames(typeof(p0)))) do (i, f)
+        x = p[i]
+        u = unit(getfield(p0, f))
+        if f == :b0
+            x * up |> u
+        elseif f == :b″0
+            x * up^(-1) |> u
+        elseif f == :b‴0
+            x * up^(-2) |> u
+        elseif f in (:v0, :b′0, :e0)
+            x * u
+        else
+            error("unknown field `$f`!")
+        end
+    end
+    return constructorof(typeof(p0))(param...)
+end
 
 _float_collect(x) = collect(float.(x))  # Do not export!
 
