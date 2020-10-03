@@ -209,9 +209,9 @@ end
 buildmodel(eos::EquationOfStateOfSolids{T}) where {T} =
     (x, p) -> map(setproperties(eos; param = constructorof(T)(p)), x)
 
-function checkresult(param::Parameters)  # Do not export!
-    if param.v0 <= zero(param.v0) || param.b0 <= zero(param.b0)
-        @error "either `v0 = $(param.v0)` or `b0 = $(param.b0)` is negative!"
+function checkresult(p::Parameters)  # Do not export!
+    if p.v0 <= zero(p.v0) || p.b0 <= zero(p.b0)
+        @error "either `v0 = $(p.v0)` or `b0 = $(p.b0)` is negative!"
     end
     # if PressureEoss(param)(minimum(v)) >= param.b0
     #     @warn "use higher order EOS!"
