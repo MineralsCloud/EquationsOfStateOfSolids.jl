@@ -1,7 +1,7 @@
 module Collections
 
 using Measurements: Measurement, measurement
-using SymPy: Sym, symbols
+using SymEngine: Basic, symbols
 using Test: @test, @testset, @test_throws
 using Unitful: Quantity, DimensionlessQuantity, @u_str
 
@@ -165,10 +165,10 @@ end
         2,
         measurement("-123.4(56)"),
     )) === Measurement{Float64}
-    @testset "`SymPy.Sym`" begin
+    @testset "`SymEngine.Basic`" begin
         v0, b0, b′0, b″0, e0 = symbols("v0, b0, b′0, b″0, e0")
-        @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0, e0)) === Sym
-        @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0)) === Sym
+        @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0, e0)) === Basic
+        @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0)) === Basic
         @test iszero(BirchMurnaghan4th(v0, b0, b′0, b″0).e0)
     end
 end
