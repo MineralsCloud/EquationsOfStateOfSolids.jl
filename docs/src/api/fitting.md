@@ -94,16 +94,16 @@ energies = [
     -9.73155247952,
 ];
 
-julia> nonlinfit(EnergyEOS(BirchMurnaghan3rd(40, 0.5, 4, 0)), volumes, energies)
+julia> nonlinfit(EnergyEos(BirchMurnaghan3rd(40, 0.5, 4, 0)), volumes, energies)
 BirchMurnaghan3rd{Float64}(40.989265727925826, 0.5369258245608038, 4.1786442319302015, -10.842803908298968)
 
-julia> nonlinfit(EnergyEOS(Murnaghan(41, 0.5, 4, 0)), volumes, energies)
+julia> nonlinfit(EnergyEos(Murnaghan(41, 0.5, 4, 0)), volumes, energies)
 Murnaghan{Float64}(41.13757924894751, 0.5144967655882123, 3.912386317519504, -10.836794511015869)
 
-julia> nonlinfit(EnergyEOS(PoirierTarantola3rd(41, 0.5, 4, 0)), volumes, energies)
+julia> nonlinfit(EnergyEos(PoirierTarantola3rd(41, 0.5, 4, 0)), volumes, energies)
 PoirierTarantola3rd{Float64}(40.86770643567383, 0.5667729960008705, 4.331688934942696, -10.851486685029547)
 
-julia> nonlinfit(EnergyEOS(Vinet(41, 0.5, 4, 0)), volumes, energies)
+julia> nonlinfit(EnergyEos(Vinet(41, 0.5, 4, 0)), volumes, energies)
 Vinet{Float64}(40.91687567368755, 0.5493839427734198, 4.30519294991197, -10.846160810968053)
 ```
 

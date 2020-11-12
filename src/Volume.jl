@@ -30,8 +30,8 @@ using UnPack: @unpack
 
 using EquationsOfStateOfSolids: _ispositive
 using ..Collections:
-    PressureEOS,
-    EnergyEOS,
+    PressureEos,
+    EnergyEos,
     EquationOfStateOfSolids,
     Murnaghan,
     BirchMurnaghan2nd,
@@ -43,17 +43,17 @@ using ..Collections:
 
 export findvolume, mustfindvolume
 
-function findvolume(eos::PressureEOS{<:Murnaghan}, p)
+function findvolume(eos::PressureEos{<:Murnaghan}, p)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     return v0 * (1 + b′0 / b0 * p)^(-1 / b′0)
 end
-function findvolume(eos::EnergyEOS{<:BirchMurnaghan2nd}, e)
+function findvolume(eos::EnergyEos{<:BirchMurnaghan2nd}, e)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     f = sqrt(2 / 9 * (e - e0) / b0 / v0)
     vs = map(strain2volume(EulerianStrain(), v0), [f, -f])
     return map(real, filter(isreal, vs))
 end
-function findvolume(eos::EnergyEOS{<:BirchMurnaghan3rd}, e; root_thr = 1e-20)
+function findvolume(eos::EnergyEos{<:BirchMurnaghan3rd}, e; root_thr = 1e-20)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     # Constrcut ax^3 + bx^2 + d = 0
     b, d = 9 / 2 * b0 * v0, e0 - e
