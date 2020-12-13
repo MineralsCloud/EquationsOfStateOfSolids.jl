@@ -67,11 +67,11 @@ function findvolume(
     eos::EquationOfStateOfSolids,
     y,
     method::Union{AbstractBracketing,AbstractSecant};
-    volume_scale = (0.5, 1.5),
+    vscale = (0.5, 1.5),
     maxiter = 40,
     verbose = false,
 )
-    v0 = _volume_scale(volume_scale, method) .* getparam(eos).v0  # v0 can be negative
+    v0 = _vscale(vscale, method) .* getparam(eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(x -> eos(x) - y, v0, method; maxevals = maxiter, verbose = verbose)
     if !_ispositive(v)
@@ -79,8 +79,8 @@ function findvolume(
     end
     return v
 end
-_volume_scale(volume_scale, ::AbstractBracketing) = extrema(volume_scale)
-_volume_scale(volume_scale, ::AbstractSecant) = sum(extrema(volume_scale)) / 2
+_vscale(vscale, ::AbstractBracketing) = extrema(vscale)
+_vscale(vscale, ::AbstractSecant) = sum(extrema(vscale)) / 2
 
 function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs...)
     for T in [
