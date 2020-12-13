@@ -118,6 +118,7 @@ function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs
             continue
         end
     end
+    error("no volume found!")
 end
 
 end
