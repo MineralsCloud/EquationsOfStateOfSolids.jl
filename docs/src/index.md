@@ -25,6 +25,7 @@ Pages = [
     "installation.md",
     "portability.md",
     "interoperability.md",
+    "plotting.md",
     "faq.md",
     "api/collections.md",
     "api/fitting.md",

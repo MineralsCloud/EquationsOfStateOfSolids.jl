@@ -19,6 +19,7 @@ makedocs(;
             "Fitting" => "api/fitting.md",
             "Portability" => "portability.md",
             "Interoperability" => "interoperability.md",
+            "Plotting" => "plotting.md",
         ],
         "FAQ" => "faq.md",
     ],
