@@ -1,10 +1,14 @@
 # How to use `EquationsOfStateOfSolids` in Python?
 
-It may be attempting for [Pythonistas](https://en.wiktionary.org/wiki/Pythonista)
-to use this package in Python, without
-writing too much code. Luckily, Julia provides such a feature.
+It may be attempting for
+[Pythonistas](https://en.wiktionary.org/wiki/Pythonista) to use this package in
+Python, without writing too much code. Luckily, Julia provides such a feature.
 
-1. First, install [`PyCall.jl`](https://github.com/JuliaPy/PyCall.jl), following their [instructions](https://github.com/JuliaPy/PyCall.jl/blob/master/README.md). Notice on macOS, that if you want to install Python from [`pyenv`](https://github.com/pyenv/pyenv), you may need to run
+1. First, install [`PyCall.jl`](https://github.com/JuliaPy/PyCall.jl), following
+   their
+   [instructions](https://github.com/JuliaPy/PyCall.jl/blob/master/README.md).
+   Notice on macOS, that if you want to install Python from
+   [`pyenv`](https://github.com/pyenv/pyenv), you may need to run
 
    ```shell
    env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.9
@@ -16,9 +20,13 @@ writing too much code. Luckily, Julia provides such a feature.
    ImportError: No module named site
    ```
 
-   See [this issue](https://github.com/JuliaPy/PyCall.jl/issues/122) and [another issue](https://github.com/JuliaPy/PyCall.jl/issues/597) for details.
+   See [this issue](https://github.com/JuliaPy/PyCall.jl/issues/122) and
+   [another issue](https://github.com/JuliaPy/PyCall.jl/issues/597) for details.
 
-2. Install [`PyJulia`](https://pyjulia.readthedocs.io/en/stable/index.html) in Python. Please see [its official tutorial](https://pyjulia.readthedocs.io/en/stable/installation.html#step-2-install-pyjulia) for instructions.
+2. Install [`PyJulia`](https://pyjulia.readthedocs.io/en/stable/index.html) in
+   Python. Please see
+   [its official tutorial](https://pyjulia.readthedocs.io/en/stable/installation.html#step-2-install-pyjulia)
+   for instructions.
 
 3. Open a (an) Python (IPython) session, start playing!
 
