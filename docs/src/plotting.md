@@ -26,7 +26,7 @@ Finally, load `EquationsOfStateOfSolids.jl` and build your own `EquationOfStateO
 ```julia
 julia> using EquationsOfStateOfSolids.Collections
 
-julia> eos = EnergyEOS(Murnaghan(224.501825u"bohr^3", 8.896845u"GPa", 3.723835, -323.417686u"Ry"));
+julia> eos = EnergyEos(Murnaghan(224.501825u"bohr^3", 8.896845u"GPa", 3.723835, -323.417686u"Ry"));
 
 julia> plot(eos)
 

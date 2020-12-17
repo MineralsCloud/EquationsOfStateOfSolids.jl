@@ -12,9 +12,9 @@ using ..Collections:
     EquationOfStateOfSolids,
     FiniteStrainParameters,
     Parameters,
-    PressureEOS,
-    EnergyEOS,
-    BulkModulusEOS,
+    PressureEos,
+    EnergyEos,
+    BulkModulusEos,
     FiniteStrain,
     orderof,
     volume2strain,
@@ -36,18 +36,18 @@ struct CriterionNotMet
     msg::String
 end
 
-function v2p(eos::EnergyEOS, volumes, energies)
+function v2p(eos::EnergyEos, volumes, energies)
     para = eosfit(eos, volumes, energies)
-    return map(PressureEOS(para), volumes)
+    return map(PressureEos(para), volumes)
 end
 
-eosfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
+eosfit(eos::EnergyEos{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
     linfit(eos, volumes, energies; kwargs...)
 eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
 
 # ================================== Linear fitting ==================================
 """
-    linfit(eos::EnergyEOS{<:FiniteStrainParameters}, volumes, energies; kwargs...)
+    linfit(eos::EnergyEos{<:FiniteStrainParameters}, volumes, energies; kwargs...)
 
 # Keyword Arguments
 - `maxiter::Integer=1000`: .
@@ -61,7 +61,7 @@ eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
     GenericSVD` before fittting!
 """
 function linfit(
-    eos::EnergyEOS{<:FiniteStrainParameters},
+    eos::EnergyEos{<:FiniteStrainParameters},
     volumes,
     energies;
     maxiter = 1000,
@@ -220,16 +220,16 @@ end
 
 function _preprocess(eos, xdata, ydata)  # Do not export!
     p = getparam(eos)
-    if eos isa EnergyEOS && iszero(p.e0)
-        eos = EnergyEOS(setproperties(p; e0 = uconvert(unit(p.e0), minimum(ydata))))  # Energy minimum as e0, `uconvert` is important to keep the unit right!
+    if eos isa EnergyEos && iszero(p.e0)
+        eos = EnergyEos(setproperties(p; e0 = uconvert(unit(p.e0), minimum(ydata))))  # Energy minimum as e0, `uconvert` is important to keep the unit right!
     end
     return map(_float_collect, _unify(eos, xdata, ydata))  # `xs` & `ys` may not be arrays
 end
 
 function _unify(eos, xdata, ydata)  # Unify units of data
     p = getparam(eos)
-    uy(eos::EnergyEOS) = unit(p.e0)
-    uy(eos::Union{PressureEOS,BulkModulusEOS}) = unit(p.e0) / unit(p.v0)
+    uy(eos::EnergyEos) = unit(p.e0)
+    uy(eos::Union{PressureEos,BulkModulusEos}) = unit(p.e0) / unit(p.v0)
     return ustrip.(_unormal(p)), ustrip.(unit(p.v0), xdata), ustrip.(uy(eos), ydata)
 end
 

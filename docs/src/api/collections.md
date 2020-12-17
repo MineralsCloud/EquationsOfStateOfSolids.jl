@@ -276,9 +276,9 @@ PoirierTarantola4th
 Vinet
 AntonSchmidt
 Holzapfel
-EnergyEOS
-PressureEOS
-BulkModulusEOS
+EnergyEos
+PressureEos
+BulkModulusEos
 EulerianStrain
 LagrangianStrain
 NaturalStrain

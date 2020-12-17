@@ -18,9 +18,9 @@ export Murnaghan,
     LagrangianStrain,
     NaturalStrain,
     InfinitesimalStrain,
-    EnergyEOS,
-    PressureEOS,
-    BulkModulusEOS,
+    EnergyEos,
+    PressureEos,
+    BulkModulusEos,
     orderof,
     atomic_number,
     volume2strain,
@@ -244,44 +244,44 @@ end
 
 abstract type EquationOfState{T<:Parameters} end
 abstract type EquationOfStateOfSolids{T} <: EquationOfState{T} end
-struct EnergyEOS{T} <: EquationOfStateOfSolids{T}
+struct EnergyEos{T} <: EquationOfStateOfSolids{T}
     param::T
 end
-struct PressureEOS{T} <: EquationOfStateOfSolids{T}
+struct PressureEos{T} <: EquationOfStateOfSolids{T}
     param::T
 end
-struct BulkModulusEOS{T} <: EquationOfStateOfSolids{T}
+struct BulkModulusEos{T} <: EquationOfStateOfSolids{T}
     param::T
 end
 
-function (eos::EnergyEOS{<:Murnaghan})(v)
+function (eos::EnergyEos{<:Murnaghan})(v)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     x, y = b′0 - 1, (v0 / v)^b′0
     return e0 + b0 / b′0 * v * (y / x + 1) - v0 * b0 / x
 end
-function (eos::EnergyEOS{<:BirchMurnaghan2nd})(v)
+function (eos::EnergyEos{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0, e0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2
 end
-function (eos::EnergyEOS{<:BirchMurnaghan3rd})(v)
+function (eos::EnergyEos{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2 * (1 + f * (b′0 - 4))
 end
-function (eos::EnergyEOS{<:BirchMurnaghan4th})(v)
+function (eos::EnergyEos{<:BirchMurnaghan4th})(v)
     @unpack v0, b0, b′0, b″0, e0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     h = b″0 * b0 + b′0^2
     return e0 + 3b0 * v0 / 8 * f^2 * ((9h - 63b′0 + 143) * f^2 + 12f * (b′0 - 4) + 12)
 end
-function (eos::EnergyEOS{<:PoirierTarantola2nd})(v)
+function (eos::EnergyEos{<:PoirierTarantola2nd})(v)
     @unpack v0, b0, e0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2
 end
 """
-    (eos::EnergyEOS{<:PoirierTarantola3rd})(v)
+    (eos::EnergyEos{<:PoirierTarantola3rd})(v)
 
 Evaluate a Poirier--Tarantola energy EOS on volume `v`.
 
@@ -289,56 +289,56 @@ Evaluate a Poirier--Tarantola energy EOS on volume `v`.
 E(V) = E_0 + \\frac {B_0 V_0}{2}\\left[ \\ln \\left( \\frac{V_0}{V}\\right) \\right]^{2} + \\frac{B_0 V_0}{6} \\left[ \\ln \\left(\\frac{V_0}V{} \\right) \\right]^3 \\left(B_0^\\prime - 2 \\right)
 ```
 """
-function (eos::EnergyEOS{<:PoirierTarantola3rd})(v)
+function (eos::EnergyEos{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2 * ((2 - b′0) * f + 1)
 end
-function (eos::EnergyEOS{<:PoirierTarantola4th})(v)
+function (eos::EnergyEos{<:PoirierTarantola4th})(v)
     @unpack v0, b0, b′0, b″0, e0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     h = b″0 * b0 + b′0^2
     return e0 + 9b0 * v0 * f^2 * (3f^2 * (h + 3b′0 + 3) + 4f * (b′0 + 2) + 4)
 end
-function (eos::EnergyEOS{<:Vinet})(v)
+function (eos::EnergyEos{<:Vinet})(v)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     x, y = 1 - (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return e0 + 9b0 * v0 / y^2 * (1 + (x * y - 1) * exp(x * y))
 end
-function (f::EnergyEOS{<:AntonSchmidt})(v)
+function (f::EnergyEos{<:AntonSchmidt})(v)
     @unpack v0, b0, b′0, e∞ = getparam(eos)
     n₊₁ = -b′0 / 2 + 1
     x = v / v0
     return e∞ + b0 * v0 / n₊₁ * x^n₊₁ * (log(x) - 1 / n₊₁)
 end
 
-function (eos::PressureEOS{<:Murnaghan})(v)
+function (eos::PressureEos{<:Murnaghan})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     return b0 / b′0 * ((v0 / v)^b′0 - 1)
 end
-function (eos::PressureEOS{<:BirchMurnaghan2nd})(v)
+function (eos::PressureEos{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     return 3b0 * f * (2f + 1)^_2½
 end
-function (eos::PressureEOS{<:BirchMurnaghan3rd})(v)
+function (eos::PressureEos{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     return 3f / 2 * b0 * (2f + 1)^_2½ * (2 + 3f * (b′0 - 4))
 end
-function (eos::PressureEOS{<:BirchMurnaghan4th})(v)
+function (eos::PressureEos{<:BirchMurnaghan4th})(v)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     h = b″0 * b0 + b′0^2
     return b0 / 2 * (2f + 1)^_2½ * ((9h - 63b′0 + 143) * f^2 + 9f * (b′0 - 4) + 6)
 end
-function (eos::PressureEOS{<:PoirierTarantola2nd})(v)
+function (eos::PressureEos{<:PoirierTarantola2nd})(v)
     @unpack v0, b0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     return -3b0 * f * exp(-3f)
 end
 """
-    (eos::PressureEOS{<:PoirierTarantola3rd})(v)
+    (eos::PressureEos{<:PoirierTarantola3rd})(v)
 
 Evaluate a Poirier--Tarantola pressure EOS on volume `v`.
 
@@ -346,28 +346,28 @@ Evaluate a Poirier--Tarantola pressure EOS on volume `v`.
 P(V) = B_0 \\frac{V_0}{V} \\left[\\ln \\left( \\frac{V_0}{V} \\right) + \\frac{\\left( B_0^\\prime -2 \\right) }{2} \\left[ \\ln \\left( \\frac{V_0}{V} \\right) \\right]^2\\right]
 ```
 """
-function (eos::PressureEOS{<:PoirierTarantola3rd})(v)
+function (eos::PressureEos{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     return -3b0 / 2 * f * exp(-3f) * (3f * (b′0 - 2) + 1)
 end
-function (eos::PressureEOS{<:PoirierTarantola4th})(v)
+function (eos::PressureEos{<:PoirierTarantola4th})(v)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     h = b″0 * b0 + b′0^2
     return -3b0 / 2 * f * exp(-3f) * (3f^2 * (h + 3b′0 + 3) + 3f * (b′0 - 2) + 2)
 end
-function (eos::PressureEOS{<:Vinet})(v)
+function (eos::PressureEos{<:Vinet})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     x, y = (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return 3b0 / x^2 * (1 - x) * exp(y * (1 - x))
 end
-function (f::PressureEOS{<:AntonSchmidt})(v)
+function (f::PressureEos{<:AntonSchmidt})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     x, n = v / v0, -b′0 / 2
     return -b0 * x^n * log(x)
 end
-function (eos::PressureEOS{<:Holzapfel{Z}})(v) where {Z}
+function (eos::PressureEos{<:Holzapfel{Z}})(v) where {Z}
     @unpack v0, b0, b′0 = getparam(eos)
     η = (v / v0)^_⅓
     p0 = FERMI_GAS_CONSTANT * (Z / v0)^(5 / 3)
@@ -376,18 +376,18 @@ function (eos::PressureEOS{<:Holzapfel{Z}})(v) where {Z}
     return 3b0 * (1 - η) / η^5 * exp(c0 * (1 - η)) * (1 + c2 * η * (1 - η))
 end
 
-(eos::BulkModulusEOS{<:Murnaghan})(v) = getparam(eos).b0 + PressureEOS(getparam(eos))(v)
-function (eos::BulkModulusEOS{<:BirchMurnaghan2nd})(v)
+(eos::BulkModulusEos{<:Murnaghan})(v) = getparam(eos).b0 + PressureEos(getparam(eos))(v)
+function (eos::BulkModulusEos{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     return b0 * (7f + 1) * (2f + 1)^_2½
 end
-function (eos::BulkModulusEOS{<:BirchMurnaghan3rd})(v)
+function (eos::BulkModulusEos{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     return b0 / 2 * (2f + 1)^_2½ * ((27f^2 + 6f) * (b′0 - 4) - 4f + 2)
 end
-function (eos::BulkModulusEOS{<:BirchMurnaghan4th})(v)
+function (eos::BulkModulusEos{<:BirchMurnaghan4th})(v)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
     h = b″0 * b0 + b′0^2
@@ -395,17 +395,17 @@ function (eos::BulkModulusEOS{<:BirchMurnaghan4th})(v)
            (2f + 1)^_2½ *
            ((99h - 693b′0 + 1573) * f^3 + (27h - 108b′0 + 105) * f^2 + 6f * (3b′0 - 5) + 6)
 end
-function (eos::BulkModulusEOS{<:PoirierTarantola2nd})(v)
+function (eos::BulkModulusEos{<:PoirierTarantola2nd})(v)
     @unpack v0, b0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     return b0 * (1 - 3f) * exp(-3f)
 end
-function (eos::BulkModulusEOS{<:PoirierTarantola3rd})(v)
+function (eos::BulkModulusEos{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     return -b0 / 2 * exp(-3f) * (9f^2 * (b′0 - 2) - 6f * (b′0 + 1) - 2)
 end
-function (eos::BulkModulusEOS{<:PoirierTarantola4th})(v)
+function (eos::BulkModulusEos{<:PoirierTarantola4th})(v)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     f = volume2strain(NaturalStrain(), v0)(v)
     h = b″0 * b0 + b′0^2
@@ -413,12 +413,12 @@ function (eos::BulkModulusEOS{<:PoirierTarantola4th})(v)
            exp(-3f) *
            (9f^3 * (h + 3b′0 + 3) - 9f^2 * (h + 2b′0 + 1) - 6f * (b′0 + 1) - 2)
 end
-function (eos::BulkModulusEOS{<:Vinet})(v)
+function (eos::BulkModulusEos{<:Vinet})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     x, ξ = (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return -b0 / (2 * x^2) * (3x * (x - 1) * (b′0 - 1) + 2 * (x - 2)) * exp(-ξ * (x - 1))
 end
-function (f::BulkModulusEOS{<:AntonSchmidt})(v)
+function (f::BulkModulusEos{<:AntonSchmidt})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     x, n = v / v0, -b′0 / 2
     return b0 * x^n * (1 + n * log(x))
