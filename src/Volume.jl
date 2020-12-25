@@ -1,5 +1,6 @@
 module Volume
 
+using Compat: filter
 using InteractiveUtils: subtypes
 using PolynomialRoots: roots
 using Roots:
