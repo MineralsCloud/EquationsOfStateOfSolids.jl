@@ -50,7 +50,7 @@ end
 function findvolume(eos::EnergyEos{<:BirchMurnaghan2nd}, e)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     f = sqrt(2 / 9 * (e - e0) / b0 / v0)
-    vs = map(strain2volume(EulerianStrain(), v0), [f, -f])
+    vs = map(strain2volume(EulerianStrain(), v0), (f, -f))
     return map(real, filter(isreal, vs))
 end
 function findvolume(eos::EnergyEos{<:BirchMurnaghan3rd}, e; root_thr = 1e-20)
