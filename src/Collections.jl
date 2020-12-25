@@ -480,12 +480,12 @@ function strain2volume(::EulerianStrain, v0)
         if isreal(f)
             f = real(f)
         else
-            throw(DomainError("strain cannot be complex!"))
+            throw(DomainError("strain $f is complex!"))
         end
         if f < -1 / 2
-            v0 / Complex(2f + 1)^(3 / 2)
+            throw(DomainError("strain $f < -0.5! Volume will be complex!"))
         else
-            v0 / (2f + 1)^_1½
+            return v0 / (2f + 1)^_1½
         end
     end
 end
@@ -494,12 +494,12 @@ function strain2volume(::LagrangianStrain, v0)
         if isreal(f)
             f = real(f)
         else
-            throw(DomainError("strain cannot be complex!"))
+            throw(DomainError("strain $f is complex!"))
         end
         if f < -1 / 2
-            v0 * Complex(2f + 1)^(3 / 2)
+            throw(DomainError("strain $f < -0.5! Volume will be complex!"))
         else
-            v0 * (2f + 1)^_1½
+            return v0 * (2f + 1)^_1½
         end
     end
 end
