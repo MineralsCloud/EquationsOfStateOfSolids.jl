@@ -50,9 +50,13 @@ function findvolume(eos::PressureEos{<:Murnaghan}, p)
 end
 function findvolume(eos::EnergyEos{<:BirchMurnaghan2nd}, e)
     @unpack v0, b0, b′0, e0 = getparam(eos)
-    f = sqrt(2 / 9 * (e - e0) / b0 / v0)
-    vs = map(strain2volume(EulerianStrain(), v0), (f, -f))
-    return map(real, filter(isreal, vs))
+    Δ = (e - e0) / v0 / b0
+    if Δ >= 0
+        f = sqrt(2 / 9 * Δ)
+        return map(strain2volume(EulerianStrain(), v0), (f, -f))
+    else
+        return ()
+    end
 end
 function findvolume(eos::EnergyEos{<:BirchMurnaghan3rd}, e)
     @unpack v0, b0, b′0, e0 = getparam(eos)
