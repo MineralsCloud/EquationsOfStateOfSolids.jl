@@ -46,7 +46,7 @@ export findvolume, mustfindvolume
 
 function findvolume(eos::PressureEos{<:Murnaghan}, p)
     @unpack v0, b0, b′0, e0 = getparam(eos)
-    return v0 * (1 + b′0 / b0 * p)^(-1 / b′0)
+    return (v0 * (1 + b′0 / b0 * p)^(-1 / b′0),)
 end
 function findvolume(eos::EnergyEos{<:BirchMurnaghan2nd}, e)
     @unpack v0, b0, b′0, e0 = getparam(eos)
