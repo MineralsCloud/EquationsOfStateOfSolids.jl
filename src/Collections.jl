@@ -475,8 +475,34 @@ Return a function of `f` that calculates the corresponding volume from `v0`.
 !!! info
     See the formulae on Ref. 1 Table 3.
 """
-strain2volume(::EulerianStrain, v0) = f -> v0 / (2f + 1)^_1½
-strain2volume(::LagrangianStrain, v0) = f -> v0 * (2f + 1)^_1½
+function strain2volume(::EulerianStrain, v0)
+    return function (f)
+        if isreal(f)
+            f = real(f)
+        else
+            throw(DomainError("strain cannot be complex!"))
+        end
+        if f < -1 / 2
+            v0 / Complex(2f + 1)^(3 / 2)
+        else
+            v0 / (2f + 1)^_1½
+        end
+    end
+end
+function strain2volume(::LagrangianStrain, v0)
+    return function (f)
+        if isreal(f)
+            f = real(f)
+        else
+            throw(DomainError("strain cannot be complex!"))
+        end
+        if f < -1 / 2
+            v0 * Complex(2f + 1)^(3 / 2)
+        else
+            v0 * (2f + 1)^_1½
+        end
+    end
+end
 strain2volume(::NaturalStrain, v0) = f -> v0 * exp(3f)
 strain2volume(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
 
