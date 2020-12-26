@@ -1,4 +1,4 @@
-module Volume
+module Inverse
 
 using Compat: filter
 using InteractiveUtils: subtypes
