@@ -20,10 +20,11 @@ Base.:(^)(x::Union{Real,AbstractQuantity}, ::FiveHalves) = sqrt(x^5)
 Base.:(^)(x, ::ThreeHalves) = x^(3 // 2)
 Base.:(^)(x::Union{Real,AbstractQuantity}, ::ThreeHalves) = sqrt(x^3)
 
-abstract type Parameters{T} end
-abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
+abstract type EquationOfStateOfSolidsParameters{T} end
+abstract type FiniteStrainParameters{N,T} <: EquationOfStateOfSolidsParameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
 abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
+const Parameters = EquationOfStateOfSolidsParameters
 """
     Murnaghan(v0, b0, b′0, e0=zero(v0 * b0))
 
