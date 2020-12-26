@@ -33,7 +33,7 @@ writing too much code. Luckily, Julia provides such a feature.
    Out[4]: <PyCall.jlwrap EquationsOfStateOfSolids.Collections.Murnaghan{Float64}(1.0, 2.0, 3.0, 4.0)>
 
    In [5]: result = nonlinfit(
-      ...:     PressureEos(BirchMurnaghan3rd(1, 2, 3.0, 0)),
+      ...:     PressureEquation(BirchMurnaghan3rd(1, 2, 3.0, 0)),
       ...:     [1, 2, 3, 4, 5],
       ...:     [5, 6, 9, 8, 7],
       ...: )
