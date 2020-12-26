@@ -2,8 +2,9 @@
 
 Package
 [`EquationOfStateRecipes.jl`](https://github.com/MineralsCloud/EquationOfStateRecipes.jl)
-provides some default themes for plotting an `EquationOfStateOfSolids`.
-First, try to install the [`Plots.jl`](https://github.com/JuliaPlots/Plots.jl) package by
+provides some default themes for plotting an `EquationOfStateOfSolids`. First,
+try to install the [`Plots.jl`](https://github.com/JuliaPlots/Plots.jl) package
+by
 
 ```julia
 julia> using Pkg
@@ -21,7 +22,8 @@ julia> pkg"add https://github.com/MineralsCloud/EquationOfStateRecipes.jl.git"
 julia> using EquationOfStateRecipes
 ```
 
-Finally, load `EquationsOfStateOfSolids.jl` and build your own `EquationOfStateOfSolids`:
+Finally, load `EquationsOfStateOfSolids.jl` and build your own
+`EquationOfStateOfSolids`:
 
 ```julia
 julia> using EquationsOfStateOfSolids.Collections

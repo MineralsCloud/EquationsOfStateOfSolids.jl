@@ -17,7 +17,8 @@ From Ref. 1,
 > physically justified by the information contained in the experimental data, is
 > a serious aspect that deserves consideration.
 
-In [`EquationsOfStateOfSolids`](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
+In
+[`EquationsOfStateOfSolids`](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
 the nonlinear fitting is currently implemented by
 [`LsqFit`](https://github.com/JuliaNLSolvers/LsqFit.jl), a small library that
 provides basic least-squares fitting in pure Julia. It only utilizes the
