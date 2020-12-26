@@ -1,5 +1,3 @@
-module Collections
-
 using AutoHashEquals: @auto_hash_equals
 using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
@@ -229,5 +227,3 @@ Get the `Parameters` from an `EquationOfStateOfSolids`.
 getparam(eos::EquationOfStateOfSolids) = eos.param
 
 Base.eltype(::Type{<:Parameters{T}}) where {T} = T
-
-end
