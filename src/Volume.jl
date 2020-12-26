@@ -37,8 +37,10 @@ using ..Collections:
     Murnaghan,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
+    PoirierTarantola2nd,
     PoirierTarantola3rd,
     EulerianStrain,
+    NaturalStrain,
     strain2volume,
     getparam
 
@@ -55,7 +57,7 @@ function findvolume(eos::EnergyEos{<:BirchMurnaghan2nd}, e)
         f = sqrt(2 / 9 * Δ)
         return map(strain2volume(EulerianStrain(), v0), (f, -f))
     else
-        return ()
+        return ()  # Complex strains
     end
 end
 function findvolume(eos::EnergyEos{<:BirchMurnaghan3rd}, e)
@@ -80,6 +82,16 @@ function findvolume(eos::EnergyEos{<:BirchMurnaghan3rd}, e)
     end  # solutions are strains
     vs = map(strain2volume(EulerianStrain(), v0), fs)
     return filter(_ispositive, map(real, filter(isreal, vs)))
+end
+function findvolume(eos::EnergyEos{<:PoirierTarantola2nd}, e)
+    @unpack v0, b0, b′0, e0 = getparam(eos)
+    Δ = (e - e0) / v0 / b0
+    if Δ >= 0
+        f = sqrt(2 / 9 * Δ)
+        return map(strain2volume(NaturalStrain(), v0), (f, -f))
+    else
+        return ()  # Complex strains
+    end
 end
 function findvolume(
     eos::EquationOfStateOfSolids,
