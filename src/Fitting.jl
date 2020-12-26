@@ -14,14 +14,10 @@ using ..EquationsOfStateOfSolids:
     PressureEquation,
     EnergyEquation,
     BulkModulusEquation,
-    FiniteStrain,
     orderof,
-    volume2strain,
-    strain2volume,
-    Dⁿᵥf,
     _ispositive,
-    straintype,
     getparam
+using ..FiniteStrains: FiniteStrain, volume2strain, strain2volume, Dⁿᵥf, straintype
 
 import Unitful
 

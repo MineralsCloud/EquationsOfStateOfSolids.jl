@@ -39,10 +39,8 @@ using ..EquationsOfStateOfSolids:
     BirchMurnaghan3rd,
     PoirierTarantola2nd,
     PoirierTarantola3rd,
-    EulerianStrain,
-    NaturalStrain,
-    strain2volume,
     getparam
+using ..FiniteStrains: EulerianStrain, NaturalStrain, strain2volume
 
 export findvolume, mustfindvolume
 
