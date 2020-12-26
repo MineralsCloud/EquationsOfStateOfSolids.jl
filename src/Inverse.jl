@@ -42,14 +42,18 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: EulerianStrain, NaturalStrain, strain2volume
 
-export findvolume, mustfindvolume
+export mustfindvolume, inverse
 
-function findvolume(eos::PressureEquation{<:Murnaghan}, p)
-    @unpack v0, b0, b′0, e0 = getparam(eos)
+struct Inverted{T<:EquationOfStateOfSolids}
+    eos::T
+end
+
+function (x::Inverted{PressureEquation{<:Murnaghan}})(p)
+    @unpack v0, b0, b′0, e0 = getparam(x.eos)
     return (v0 * (1 + b′0 / b0 * p)^(-1 / b′0),)
 end
-function findvolume(eos::EnergyEquation{<:BirchMurnaghan2nd}, e)
-    @unpack v0, b0, b′0, e0 = getparam(eos)
+function (x::Inverted{EnergyEquation{<:BirchMurnaghan2nd}})(e)
+    @unpack v0, b0, b′0, e0 = getparam(x.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -58,8 +62,8 @@ function findvolume(eos::EnergyEquation{<:BirchMurnaghan2nd}, e)
         return ()  # Complex strains
     end
 end
-function findvolume(eos::EnergyEquation{<:BirchMurnaghan3rd}, e)
-    @unpack v0, b0, b′0, e0 = getparam(eos)
+function (x::Inverted{EnergyEquation{<:BirchMurnaghan3rd}})(e)
+    @unpack v0, b0, b′0, e0 = getparam(x.eos)
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     a = b′0 - 4
     r = 1 / 3a  # b = 1
@@ -81,8 +85,8 @@ function findvolume(eos::EnergyEquation{<:BirchMurnaghan3rd}, e)
     vs = map(strain2volume(EulerianStrain(), v0), fs)
     return filter(_ispositive, map(real, filter(isreal, vs)))
 end
-function findvolume(eos::EnergyEquation{<:PoirierTarantola2nd}, e)
-    @unpack v0, b0, b′0, e0 = getparam(eos)
+function (x::Inverted{EnergyEquation{<:PoirierTarantola2nd}})(e)
+    @unpack v0, b0, b′0, e0 = getparam(x.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -91,17 +95,16 @@ function findvolume(eos::EnergyEquation{<:PoirierTarantola2nd}, e)
         return ()  # Complex strains
     end
 end
-function findvolume(
-    eos::EquationOfStateOfSolids,
+function (x::Inverted{<:EquationOfStateOfSolids})(
     y,
     method::Union{AbstractBracketing,AbstractSecant};
     vscale = (0.5, 1.5),
     maxiter = 40,
     verbose = false,
 )
-    v0 = _vscale(vscale, method) .* getparam(eos).v0  # v0 can be negative
+    v0 = _vscale(vscale, method) .* getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
-    v = find_zero(x -> eos(x) - y, v0, method; maxevals = maxiter, verbose = verbose)
+    v = find_zero(x -> x.eos(x) - y, v0, method; maxevals = maxiter, verbose = verbose)
     if !_ispositive(v)
         @warn "the volume found is negative!"
     end
@@ -138,7 +141,7 @@ function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs
         end
         try
             # `maximum` and `minimum` also works with `AbstractQuantity`s.
-            return findvolume(eos, y, T(); verbose = verbose, kwargs...)
+            return Inverted(eos)(y, T(); verbose = verbose, kwargs...)
         catch e
             if verbose
                 @info "method `$T` failed because of `$e`."
@@ -148,5 +151,7 @@ function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs
     end
     error("no volume found!")
 end
+
+inverse(eos::EquationOfStateOfSolids) = Inverted(eos)
 
 end
