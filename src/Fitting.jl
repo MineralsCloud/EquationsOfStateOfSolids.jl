@@ -12,9 +12,9 @@ using ..Collections:
     EquationOfStateOfSolids,
     FiniteStrainParameters,
     Parameters,
-    PressureEos,
-    EnergyEos,
-    BulkModulusEos,
+    PressureEquation,
+    EnergyEquation,
+    BulkModulusEquation,
     FiniteStrain,
     orderof,
     volume2strain,
@@ -36,18 +36,18 @@ struct CriterionNotMet
     msg::String
 end
 
-function v2p(eos::EnergyEos, volumes, energies)
+function v2p(eos::EnergyEquation, volumes, energies)
     para = eosfit(eos, volumes, energies)
-    return map(PressureEos(para), volumes)
+    return map(PressureEquation(para), volumes)
 end
 
-eosfit(eos::EnergyEos{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
+eosfit(eos::EnergyEquation{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
     linfit(eos, volumes, energies; kwargs...)
 eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
 
 # ================================== Linear fitting ==================================
 """
-    linfit(eos::EnergyEos{<:FiniteStrainParameters}, volumes, energies; kwargs...)
+    linfit(eos::EnergyEquation{<:FiniteStrainParameters}, volumes, energies; kwargs...)
 
 # Keyword Arguments
 - `maxiter::Integer=1000`: .
@@ -61,7 +61,7 @@ eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
     GenericSVD` before fittting!
 """
 function linfit(
-    eos::EnergyEos{<:FiniteStrainParameters},
+    eos::EnergyEquation{<:FiniteStrainParameters},
     volumes,
     energies;
     maxiter = 1000,
@@ -213,23 +213,23 @@ function checkresult(p::Parameters)  # Do not export!
     if p.v0 <= zero(p.v0) || p.b0 <= zero(p.b0)
         @error "either `v0 = $(p.v0)` or `b0 = $(p.b0)` is negative!"
     end
-    # if PressureEoss(param)(minimum(v)) >= param.b0
+    # if PressureEquations(param)(minimum(v)) >= param.b0
     #     @warn "use higher order EOS!"
     # end
 end
 
 function _preprocess(eos, xdata, ydata)  # Do not export!
     p = getparam(eos)
-    if eos isa EnergyEos && iszero(p.e0)
-        eos = EnergyEos(setproperties(p; e0 = uconvert(unit(p.e0), minimum(ydata))))  # Energy minimum as e0, `uconvert` is important to keep the unit right!
+    if eos isa EnergyEquation && iszero(p.e0)
+        eos = EnergyEquation(setproperties(p; e0 = uconvert(unit(p.e0), minimum(ydata))))  # Energy minimum as e0, `uconvert` is important to keep the unit right!
     end
     return map(_float_collect, _unify(eos, xdata, ydata))  # `xs` & `ys` may not be arrays
 end
 
 function _unify(eos, xdata, ydata)  # Unify units of data
     p = getparam(eos)
-    uy(eos::EnergyEos) = unit(p.e0)
-    uy(eos::Union{PressureEos,BulkModulusEos}) = unit(p.e0) / unit(p.v0)
+    uy(eos::EnergyEquation) = unit(p.e0)
+    uy(eos::Union{PressureEquation,BulkModulusEquation}) = unit(p.e0) / unit(p.v0)
     return ustrip.(_unormal(p)), ustrip.(unit(p.v0), xdata), ustrip.(uy(eos), ydata)
 end
 

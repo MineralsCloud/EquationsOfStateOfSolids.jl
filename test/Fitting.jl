@@ -14,7 +14,7 @@ using EquationsOfStateOfSolids.Collections:
     BirchMurnaghan4th,
     PoirierTarantola3rd,
     Vinet,
-    EnergyEos
+    EnergyEquation
 using EquationsOfStateOfSolids.Fitting: nonlinfit, linfit
 
 import Unitful
@@ -41,7 +41,7 @@ end
     @testset "With `Float64`" begin
         volumes, energies = data["volume"], data["energy"]
         @test _isapprox(
-            nonlinfit(EnergyEos(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
             BirchMurnaghan3rd(
                 40.98926572528106,
                 0.5369258245417454,
@@ -50,7 +50,7 @@ end
             ),
         )
         @test _isapprox(
-            linfit(EnergyEos(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
+            linfit(EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies),
             BirchMurnaghan3rd(
                 40.98926572528106,
                 0.5369258245417454,
@@ -59,7 +59,7 @@ end
             ),
         )
         @test _isapprox(
-            nonlinfit(EnergyEos(Murnaghan(41, 0.5, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(Murnaghan(41, 0.5, 4)), volumes, energies),
             Murnaghan(
                 41.13757930387086,
                 0.5144967693786603,
@@ -68,7 +68,7 @@ end
             ),
         )
         @test _isapprox(
-            nonlinfit(EnergyEos(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
             PoirierTarantola3rd(
                 40.86770643373908,
                 0.5667729960804602,
@@ -77,7 +77,7 @@ end
             ),
         )
         @test _isapprox(
-            linfit(EnergyEos(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
+            linfit(EnergyEquation(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies),
             PoirierTarantola3rd(
                 40.86770643373908,
                 0.5667729960804602,
@@ -86,7 +86,7 @@ end
             ),
         )
         @test _isapprox(
-            nonlinfit(EnergyEos(Vinet(41, 0.5, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(Vinet(41, 0.5, 4)), volumes, energies),
             Vinet(
                 40.916875663779784,
                 0.5493839425156859,
@@ -99,7 +99,11 @@ end
     @testset "`linfit` for `BigFloat` parameters" begin
         volumes, energies = data["volume"], data["energy"]
         @test _isapprox(
-            linfit(EnergyEos(BirchMurnaghan3rd(40, 0.5, 4)), big.(volumes), big.(energies)),
+            linfit(
+                EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4)),
+                big.(volumes),
+                big.(energies),
+            ),
             BirchMurnaghan3rd{BigFloat}(
                 40.98926572528106,
                 0.5369258245417454,
@@ -109,7 +113,7 @@ end
             atol = 1e-8,
         )
         @test _isapprox(
-            linfit(EnergyEos(BirchMurnaghan3rd{BigInt}(40, 1, 4)), volumes, energies),
+            linfit(EnergyEquation(BirchMurnaghan3rd{BigInt}(40, 1, 4)), volumes, energies),
             BirchMurnaghan3rd{BigFloat}(
                 40.98926572528106,
                 0.5369258245417454,
@@ -120,7 +124,7 @@ end
         )
         @test _isapprox(
             linfit(
-                EnergyEos(PoirierTarantola3rd(41, 0.5, 4)),
+                EnergyEquation(PoirierTarantola3rd(41, 0.5, 4)),
                 big.(volumes),
                 big.(energies),
             ),
@@ -134,7 +138,7 @@ end
         )
         @test _isapprox(
             linfit(
-                EnergyEos(PoirierTarantola3rd{BigFloat}(41, 1 // 2, 4)),
+                EnergyEquation(PoirierTarantola3rd{BigFloat}(41, 1 // 2, 4)),
                 volumes,
                 energies,
             ),
@@ -157,13 +161,13 @@ end
     @testset "without unit" begin
         volumes, energies, known_energies_vinet =
             data["volume"], data["energy"], data["known_energy_vinet"]
-        fitted_eos = nonlinfit(EnergyEos(Vinet(23, 0.5, 4)), volumes, energies)
+        fitted_eos = nonlinfit(EnergyEquation(Vinet(23, 0.5, 4)), volumes, energies)
         @test _isapprox(
             fitted_eos,
             Vinet(22.957645593, 0.22570911414, 4.06054339, -1.59442926062),
         )
         @test isapprox(
-            map(EnergyEos(fitted_eos), volumes),
+            map(EnergyEquation(fitted_eos), volumes),
             known_energies_vinet;
             atol = 1e-6,
         )
@@ -173,8 +177,11 @@ end
         volumes, energies, known_energies_vinet = data["volume"] * u"angstrom^3",
         data["energy"] * u"eV",
         data["known_energy_vinet"] * u"eV"
-        fitted_eos =
-            nonlinfit(EnergyEos(Vinet(23u"angstrom^3", 36.16u"GPa", 4)), volumes, energies)
+        fitted_eos = nonlinfit(
+            EnergyEquation(Vinet(23u"angstrom^3", 36.16u"GPa", 4)),
+            volumes,
+            energies,
+        )
         @test _isapprox(
             fitted_eos,
             Vinet(
@@ -185,7 +192,7 @@ end
             ),
         )
         @test isapprox(
-            map(EnergyEos(fitted_eos), volumes),
+            map(EnergyEquation(fitted_eos), volumes),
             known_energies_vinet;
             atol = 1e-6u"eV",
         )
@@ -200,13 +207,13 @@ end
     @testset "without unit" begin
         volumes, energies, known_energies_vinet =
             data["volume"], data["energy"], data["known_energy_vinet"]
-        fitted_eos = nonlinfit(EnergyEos(Vinet(20, 0.5, 4)), volumes, energies)
+        fitted_eos = nonlinfit(EnergyEquation(Vinet(20, 0.5, 4)), volumes, energies)
         @test _isapprox(
             fitted_eos,
             Vinet(20.446696754, 0.55166385214, 4.32437391, -5.42496338987),
         )
         @test isapprox(
-            map(EnergyEos(fitted_eos), volumes),
+            map(EnergyEquation(fitted_eos), volumes),
             known_energies_vinet;
             atol = 1e-5,
         )
@@ -216,8 +223,11 @@ end
         volumes, energies, known_energies_vinet = data["volume"] * u"angstrom^3",
         data["energy"] * u"eV",
         data["known_energy_vinet"] * u"eV"
-        fitted_eos =
-            nonlinfit(EnergyEos(Vinet(20u"angstrom^3", 88.39u"GPa", 4)), volumes, energies)
+        fitted_eos = nonlinfit(
+            EnergyEquation(Vinet(20u"angstrom^3", 88.39u"GPa", 4)),
+            volumes,
+            energies,
+        )
         @test _isapprox(
             fitted_eos,
             Vinet(
@@ -228,7 +238,7 @@ end
             ),
         )
         @test isapprox(
-            map(EnergyEos(fitted_eos), volumes),
+            map(EnergyEquation(fitted_eos), volumes),
             known_energies_vinet;
             atol = 1e-6u"eV",
         )
@@ -243,13 +253,13 @@ end
     @testset "without unit" begin
         volumes, energies, known_energies_vinet =
             data["volume"], data["energy"], data["known_energy_vinet"]
-        fitted_eos = nonlinfit(EnergyEos(Vinet(17, 0.5, 4)), volumes, energies)
+        fitted_eos = nonlinfit(EnergyEquation(Vinet(17, 0.5, 4)), volumes, energies)
         @test _isapprox(
             fitted_eos,
             Vinet(17.1322302613, 0.70297662247, 3.638807756, -7.89741495912),
         )
         @test isapprox(
-            map(EnergyEos(fitted_eos), volumes),
+            map(EnergyEquation(fitted_eos), volumes),
             known_energies_vinet;
             atol = 1e-5,
         )
@@ -259,8 +269,11 @@ end
         volumes, energies, known_energies_vinet = data["volume"] * u"angstrom^3",
         data["energy"] * u"eV",
         data["known_energy_vinet"] * u"eV"
-        fitted_eos =
-            nonlinfit(EnergyEos(Vinet(17u"angstrom^3", 112.63u"GPa", 4)), volumes, energies)
+        fitted_eos = nonlinfit(
+            EnergyEquation(Vinet(17u"angstrom^3", 112.63u"GPa", 4)),
+            volumes,
+            energies,
+        )
         @test _isapprox(
             fitted_eos,
             Vinet(
@@ -271,7 +284,7 @@ end
             ),
         )
         @test isapprox(
-            map(EnergyEos(fitted_eos), volumes),
+            map(EnergyEquation(fitted_eos), volumes),
             known_energies_vinet;
             atol = 1e-7u"eV",
         )
@@ -286,34 +299,34 @@ end
         volumes, energies = data["volume"], data["energy"]
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L117-L122
         @test _isapprox(
-            nonlinfit(EnergyEos(Murnaghan(224, 6e-4, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(Murnaghan(224, 6e-4, 4)), volumes, energies),
             Murnaghan(224.501825, 6.047952315268776e-4, 3.723835, -323.417686);
             atol = 1e-5,
         )
         # No reference data, I run on my computer.
         @test _isapprox(
-            nonlinfit(EnergyEos(BirchMurnaghan2nd(224, 6e-4)), volumes, energies),
+            nonlinfit(EnergyEquation(BirchMurnaghan2nd(224, 6e-4)), volumes, energies),
             BirchMurnaghan2nd(223.7192539523166, 6.268341030294978e-4, -323.4177121144877);
             atol = 1e-8,
         )
         # No reference data, I run on my computer.
         @test _isapprox(
-            linfit(EnergyEos(BirchMurnaghan2nd(224, 6e-4)), volumes, energies),
+            linfit(EnergyEquation(BirchMurnaghan2nd(224, 6e-4)), volumes, energies),
             BirchMurnaghan2nd(223.7192539523166, 6.268341030294978e-4, -323.4177121144877),
         )
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L15-L20
         @test _isapprox(
-            nonlinfit(EnergyEos(BirchMurnaghan3rd(224, 6e-4, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(BirchMurnaghan3rd(224, 6e-4, 4)), volumes, energies),
             BirchMurnaghan3rd(224.444565, 6.250619105057268e-4, 3.740369, -323.417714),
         )
         @test _isapprox(
-            linfit(EnergyEos(BirchMurnaghan3rd(224, 6e-4, 4)), volumes, energies),
+            linfit(EnergyEquation(BirchMurnaghan3rd(224, 6e-4, 4)), volumes, energies),
             BirchMurnaghan3rd(224.444565, 6.250619105057268e-4, 3.740369, -323.417714),
         )
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L30-L36
         @test _isapprox(
             nonlinfit(
-                EnergyEos(BirchMurnaghan4th(224, 6e-4, 4, -5460)),  # bohr^3, Ry/bohr^3, 1, bohr^3/Ry, Ry
+                EnergyEquation(BirchMurnaghan4th(224, 6e-4, 4, -5460)),  # bohr^3, Ry/bohr^3, 1, bohr^3/Ry, Ry
                 volumes,
                 energies,
             ),
@@ -329,7 +342,7 @@ end
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L30-L36
         # @test _isapprox(
         #     linfit(
-        #         EnergyEos(BirchMurnaghan4th(224, 6e-4, 4, -5460)),  # bohr^3, Ry/bohr^3, 1, bohr^3/Ry, Ry
+        #         EnergyEquation(BirchMurnaghan4th(224, 6e-4, 4, -5460)),  # bohr^3, Ry/bohr^3, 1, bohr^3/Ry, Ry
         #         volumes,
         #         energies,
         #     ),
@@ -345,7 +358,7 @@ end
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L98-L105
         # @test _isapprox(
         #     nonlinfit(
-        # EnergyEos(        #         BirchMurnaghan5th(224.445371, 0.0006, 4, -5500, 3.884535907971559e7, -323)),
+        # EnergyEquation(        #         BirchMurnaghan5th(224.445371, 0.0006, 4, -5500, 3.884535907971559e7, -323)),
         #         volumes,
         #         energies,
         #     ),
@@ -361,7 +374,7 @@ end
         # )  # FIXME: result is wrong
         # # No reference data, I run on my computer.
         @test _isapprox(
-            nonlinfit(EnergyEos(Vinet(224, 6e-4, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(Vinet(224, 6e-4, 4)), volumes, energies),
             Vinet(
                 224.45278665796354,
                 6.313500637481759e-4,
@@ -371,20 +384,20 @@ end
         )
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L66-L71
         @test _isapprox(
-            nonlinfit(EnergyEos(PoirierTarantola3rd(224, 6e-4, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(PoirierTarantola3rd(224, 6e-4, 4)), volumes, energies),
             PoirierTarantola3rd(224.509208, 6.3589226415983795e-4, 3.690448, -323.41773);
             atol = 1e-5,
         )
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L66-L71
         @test _isapprox(
-            linfit(EnergyEos(PoirierTarantola3rd(224, 6e-4, 4)), volumes, energies),
+            linfit(EnergyEquation(PoirierTarantola3rd(224, 6e-4, 4)), volumes, energies),
             PoirierTarantola3rd(224.509208, 6.3589226415983795e-4, 3.690448, -323.41773);
             atol = 1e-5,
         )
         # # FIXME: This cannot go through
         # @test _isapprox(
         #     nonlinfit(
-        # EnergyEos(        #         PoirierTarantola4th(220, 0.0006, 3.7, -5500, -323)),
+        # EnergyEquation(        #         PoirierTarantola4th(220, 0.0006, 3.7, -5500, -323)),
         #         volumes,
         #         energies,
         #     ),
@@ -399,7 +412,7 @@ end
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L98-L105
         # @test _isapprox(
         #     nonlinfit(
-        #         EnergyEos(PoirierTarantola5th(
+        #         EnergyEquation(PoirierTarantola5th(
         #             224.445371,
         #             0.0006,
         #             3.8,
@@ -426,14 +439,18 @@ end
         volumes, energies = data["volume"] * u"bohr^3", data["energy"] * u"Ry"
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L117-L122
         @test _isapprox(
-            nonlinfit(EnergyEos(Murnaghan(224u"bohr^3", 9u"GPa", 4)), volumes, energies),
+            nonlinfit(
+                EnergyEquation(Murnaghan(224u"bohr^3", 9u"GPa", 4)),
+                volumes,
+                energies,
+            ),
             Murnaghan(224.501825u"bohr^3", 8.896845u"GPa", 3.723835, -323.417686u"Ry");
             atol = 1e-5,
         )
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L15-L20
         @test _isapprox(
             nonlinfit(
-                EnergyEos(BirchMurnaghan3rd(224u"bohr^3", 9u"GPa", 4)),
+                EnergyEquation(BirchMurnaghan3rd(224u"bohr^3", 9u"GPa", 4)),
                 volumes,
                 energies,
             ),
@@ -447,7 +464,7 @@ end
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L15-L20
         @test _isapprox(
             linfit(
-                EnergyEos(BirchMurnaghan3rd(224u"bohr^3", 9u"GPa", 4)),
+                EnergyEquation(BirchMurnaghan3rd(224u"bohr^3", 9u"GPa", 4)),
                 volumes,
                 energies,
             ),
@@ -461,7 +478,7 @@ end
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L30-L36
         @test _isapprox(
             nonlinfit(
-                EnergyEos(BirchMurnaghan4th(224u"bohr^3", 9u"GPa", 4, -0.3u"1/GPa")),
+                EnergyEquation(BirchMurnaghan4th(224u"bohr^3", 9u"GPa", 4, -0.3u"1/GPa")),
                 volumes,
                 energies,
             ),
@@ -477,7 +494,7 @@ end
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L66-L71
         @test _isapprox(
             nonlinfit(
-                EnergyEos(PoirierTarantola3rd(224u"bohr^3", 9u"GPa", 4)),
+                EnergyEquation(PoirierTarantola3rd(224u"bohr^3", 9u"GPa", 4)),
                 volumes,
                 energies,
             ),
@@ -491,7 +508,7 @@ end
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L66-L71
         @test _isapprox(
             linfit(
-                EnergyEos(PoirierTarantola3rd(224u"bohr^3", 9u"GPa", 4)),
+                EnergyEquation(PoirierTarantola3rd(224u"bohr^3", 9u"GPa", 4)),
                 volumes,
                 energies,
             ),
@@ -513,7 +530,7 @@ end
     @testset "without unit" begin
         volumes, energies = data["volume"], data["energy"]
         @test _isapprox(
-            nonlinfit(EnergyEos(Murnaghan(430, 3e-4, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(Murnaghan(430, 3e-4, 4)), volumes, energies),
             Murnaghan(
                 435.05782299050884,
                 2.8297159355249786e-4,
@@ -522,11 +539,11 @@ end
             ),
         )
         @test _isapprox(
-            nonlinfit(EnergyEos(BirchMurnaghan2nd(430, 3e-4)), volumes, energies),
+            nonlinfit(EnergyEquation(BirchMurnaghan2nd(430, 3e-4)), volumes, energies),
             BirchMurnaghan2nd(430.10027687726716, 3.02451215462375e-4, -1201.2083221436026),
         )
         @test _isapprox(
-            nonlinfit(EnergyEos(BirchMurnaghan3rd(430, 3e-4, 4)), volumes, energies),
+            nonlinfit(EnergyEquation(BirchMurnaghan3rd(430, 3e-4, 4)), volumes, energies),
             BirchMurnaghan3rd(
                 432.67139080209046,
                 3.0508544859901674e-4,
@@ -536,7 +553,7 @@ end
         )
         @test _isapprox(
             nonlinfit(
-                EnergyEos(BirchMurnaghan4th(432, 3e-4, 3.8, -11773)),
+                EnergyEquation(BirchMurnaghan4th(432, 3e-4, 3.8, -11773)),
                 volumes,
                 energies,
             ),
@@ -550,7 +567,7 @@ end
             rtol = 1e-4,
         )
         @test _isapprox(
-            nonlinfit(EnergyEos(Vinet(432, 3e-4, 3.8)), volumes, energies),
+            nonlinfit(EnergyEquation(Vinet(432, 3e-4, 3.8)), volumes, energies),
             Vinet(
                 432.04609865398015,
                 3.137631070690569e-4,
@@ -564,7 +581,7 @@ end
         volumes, energies = data["volume"] * u"bohr^3", data["energy"] * u"Ry"
         @test _isapprox(
             nonlinfit(
-                EnergyEos(BirchMurnaghan3rd(430u"bohr^3", 3e-4u"Ry/bohr^3", 4)),
+                EnergyEquation(BirchMurnaghan3rd(430u"bohr^3", 3e-4u"Ry/bohr^3", 4)),
                 volumes,
                 energies,
             ),
@@ -577,7 +594,7 @@ end
         )
         @test _isapprox(
             linfit(
-                EnergyEos(BirchMurnaghan3rd(430u"bohr^3", 3e-4u"Ry/bohr^3", 4)),
+                EnergyEquation(BirchMurnaghan3rd(430u"bohr^3", 3e-4u"Ry/bohr^3", 4)),
                 volumes,
                 energies,
             ),
