@@ -20,6 +20,8 @@ export Murnaghan,
     getparam
 
 include("types.jl")
+include("FiniteStrains.jl")
+using .FiniteStrains: EulerianStrain, NaturalStrain, volume2strain
 include("ev.jl")
 include("pv.jl")
 include("bv.jl")
