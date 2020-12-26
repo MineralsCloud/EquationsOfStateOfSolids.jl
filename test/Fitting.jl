@@ -6,7 +6,7 @@ using Unitful: EnergyUnits, PressureUnits, ustrip, @u_str
 using UnitfulAtomic
 using YAML
 
-using EquationsOfStateOfSolids.Collections:
+using EquationsOfStateOfSolids:
     Parameters,
     Murnaghan,
     BirchMurnaghan2nd,

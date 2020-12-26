@@ -1,11 +1,9 @@
-module Collections
-
 using Measurements: Measurement, measurement
 using SymEngine: Basic, symbols
 using Test: @test, @testset, @test_throws
 using Unitful: Quantity, DimensionlessQuantity, @u_str
 
-using EquationsOfStateOfSolids.Collections
+using EquationsOfStateOfSolids
 
 @testset "Promoting `eltype`" begin
     @testset "Promoting to floating-point numbers" begin
@@ -171,6 +169,4 @@ end
         @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0)) === Basic
         @test iszero(BirchMurnaghan4th(v0, b0, b′0, b″0).e0)
     end
-end
-
 end

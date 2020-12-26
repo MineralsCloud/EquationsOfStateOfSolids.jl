@@ -7,21 +7,17 @@ using Polynomials: fit, derivative, coeffs, derivative
 using Serialization: serialize
 using Unitful: AbstractQuantity, NoUnits, ustrip, unit, uconvert
 
-using EquationsOfStateOfSolids: _ispositive
-using ..Collections:
+using ..EquationsOfStateOfSolids:
     EquationOfStateOfSolids,
     FiniteStrainParameters,
     Parameters,
     PressureEquation,
     EnergyEquation,
     BulkModulusEquation,
-    FiniteStrain,
     orderof,
-    volume2strain,
-    strain2volume,
-    Dⁿᵥf,
-    straintype,
+    _ispositive,
     getparam
+using ..FiniteStrains: FiniteStrain, volume2strain, strain2volume, Dⁿᵥf, straintype
 
 import Unitful
 

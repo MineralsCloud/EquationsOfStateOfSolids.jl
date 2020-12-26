@@ -29,8 +29,8 @@ using Roots:
     Thukral8
 using UnPack: @unpack
 
-using EquationsOfStateOfSolids: _ispositive
-using ..Collections:
+using ..EquationsOfStateOfSolids:
+    _ispositive,
     PressureEquation,
     EnergyEquation,
     EquationOfStateOfSolids,
@@ -39,10 +39,8 @@ using ..Collections:
     BirchMurnaghan3rd,
     PoirierTarantola2nd,
     PoirierTarantola3rd,
-    EulerianStrain,
-    NaturalStrain,
-    strain2volume,
     getparam
+using ..FiniteStrains: EulerianStrain, NaturalStrain, strain2volume
 
 export findvolume, mustfindvolume
 
