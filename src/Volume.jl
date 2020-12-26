@@ -29,8 +29,8 @@ using Roots:
     Thukral8
 using UnPack: @unpack
 
-using EquationsOfStateOfSolids: _ispositive
-using ..Collections:
+using ..EquationsOfStateOfSolids:
+    _ispositive,
     PressureEquation,
     EnergyEquation,
     EquationOfStateOfSolids,

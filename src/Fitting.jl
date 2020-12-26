@@ -7,8 +7,7 @@ using Polynomials: fit, derivative, coeffs, derivative
 using Serialization: serialize
 using Unitful: AbstractQuantity, NoUnits, ustrip, unit, uconvert
 
-using EquationsOfStateOfSolids: _ispositive
-using ..Collections:
+using ..EquationsOfStateOfSolids:
     EquationOfStateOfSolids,
     FiniteStrainParameters,
     Parameters,
@@ -20,6 +19,7 @@ using ..Collections:
     volume2strain,
     strain2volume,
     Dⁿᵥf,
+    _ispositive,
     straintype,
     getparam
 
