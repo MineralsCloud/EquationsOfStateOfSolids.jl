@@ -1,6 +1,5 @@
 using AutoHashEquals: @auto_hash_equals
 using ConstructionBase: constructorof
-using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
 
 using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, NaturalStrain

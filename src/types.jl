@@ -1,5 +1,3 @@
-const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
-
 abstract type EquationOfStateOfSolidsParameters{T} end
 abstract type FiniteStrainParameters{N,T} <: EquationOfStateOfSolidsParameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
