@@ -24,6 +24,7 @@ struct InfinitesimalStrain <: FiniteStrain end
 struct ToStrain{S<:FiniteStrain,T}
     v0::T
 end
+ToStrain{S}(v0::T) where {S,T} = ToStrain{S,T}(v0)
 const ToEulerianStrain = ToStrain{EulerianStrain}
 const ToLagrangianStrain = ToStrain{LagrangianStrain}
 const ToNaturalStrain = ToStrain{NaturalStrain}
@@ -59,6 +60,7 @@ Return a function of `f` that calculates the corresponding volume from `v0`.
 struct FromStrain{S<:FiniteStrain,T}
     v0::T
 end
+FromStrain{S}(v0::T) where {S,T} = FromStrain{S,T}(v0)
 const FromEulerianStrain = FromStrain{EulerianStrain}
 const FromLagrangianStrain = FromStrain{LagrangianStrain}
 const FromNaturalStrain = FromStrain{NaturalStrain}
