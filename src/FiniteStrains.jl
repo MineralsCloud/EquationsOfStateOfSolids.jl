@@ -5,12 +5,14 @@ using Unitful: AbstractQuantity, NoUnits
 using ..EquationsOfStateOfSolids:
     FiniteStrainParameters, BirchMurnaghan, PoirierTarantola, _⅔, _⅓, _1½
 
-export EulerianStrain,
-    LagrangianStrain,
-    NaturalStrain,
-    InfinitesimalStrain,
-    volume2strain,
-    strain2volume,
+export VolumeToEulerianStrain,
+    VolumeToLagrangianStrain,
+    VolumeToNaturalStrain,
+    VolumeToInfinitesimalStrain,
+    EulerianStrainToVolume,
+    LagrangianStrainToVolume,
+    NaturalStrainToVolume,
+    InfinitesimalStrainToVolume,
     straintype
 
 abstract type FiniteStrain end  # Trait
