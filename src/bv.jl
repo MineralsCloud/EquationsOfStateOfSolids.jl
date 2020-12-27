@@ -1,5 +1,4 @@
-(eos::BulkModulusEquation{<:Murnaghan1st})(v) =
-    getparam(eos).b0 + PressureEquation(getparam(eos))(v)
+(eos::BulkModulusEquation{<:Murnaghan1st})(v) = getparam(eos).b0 + PressureFrom(eos)(v)
 function (eos::BulkModulusEquation{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = getparam(eos)
     f = ToEulerianStrain(v0)(v)
