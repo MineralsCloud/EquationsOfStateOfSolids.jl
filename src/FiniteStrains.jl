@@ -68,36 +68,73 @@ Return a function of `f` that calculates the corresponding volume from `v0`.
 !!! info
     See the formulae on Ref. 1 Table 3.
 """
-function strain2volume(::EulerianStrain, v0)
-    return function (f)
-        if isreal(f)
-            f = real(f)
-        else
-            throw(DomainError("strain $f is complex!"))
-        end
-        if f < -1 / 2
-            throw(DomainError("strain $f < -0.5! Volume will be complex!"))
-        else
-            return v0 / (2f + 1)^_1½
-        end
+abstract type StrainToVolume{T} end
+
+struct EulerianStrainToVolume{T} <: StrainToVolume{T}
+    v0::T
+end
+(x::EulerianStrainToVolume)(f::Real) =
+    f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
+    _EulerianStrainToVolume(x.v0, f)
+(x::EulerianStrainToVolume)(f) = _EulerianStrainToVolume(x.v0, f)  # For symbols, etc.
+function (x::NaturalStrainToVolume)(f::Complex)
+    if isreal(f)
+        return x(real(f))
+    elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
+        return real(_EulerianStrainToVolume(x.v0, f))
+    else
+        throw(DomainError("volume will be complex!"))
     end
 end
-function strain2volume(::LagrangianStrain, v0)
-    return function (f)
-        if isreal(f)
-            f = real(f)
-        else
-            throw(DomainError("strain $f is complex!"))
-        end
-        if f < -1 / 2
-            throw(DomainError("strain $f < -0.5! Volume will be complex!"))
-        else
-            return v0 * (2f + 1)^_1½
-        end
+_EulerianStrainToVolume(v0, f) = v0 / (2f + 1)^_1½
+
+struct LagrangianStrainToVolume{T} <: StrainToVolume{T}
+    v0::T
+end
+(x::LagrangianStrainToVolume)(f::Real) =
+    f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
+    _LagrangianStrainToVolume(x.v0, f)
+(x::LagrangianStrainToVolume)(f) = _LagrangianStrainToVolume(x.v0, f)
+function (x::LagrangianStrainToVolume)(f::Complex)
+    if isreal(f)
+        return x(real(f))
+    elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
+        return real(_LagrangianStrainToVolume(x.v0, f))
+    else
+        throw(DomainError("volume will be complex!"))
     end
 end
-strain2volume(::NaturalStrain, v0) = f -> v0 * exp(3f)
-strain2volume(::InfinitesimalStrain, v0) = f -> v0 / (1 - f)^3
+_LagrangianStrainToVolume(v0, f) = v0 * (2f + 1)^_1½
+
+struct NaturalStrainToVolume{T} <: StrainToVolume{T}
+    v0::T
+end
+(x::NaturalStrainToVolume)(f) = _NaturalStrainToVolume(x.v0, f)
+function (x::NaturalStrainToVolume)(f::Complex)
+    if isreal(f)
+        return x(real(f))
+    elseif isinteger(rad2deg(angle(f)) / 60)  # `exp(3f)` is real for some complex `f`
+        return real(_InfinitesimalStrainToVolume(x.v0, f))
+    else
+        throw(DomainError("volume will be complex!"))
+    end
+end
+_NaturalStrainToVolume(v0, f) = v0 * exp(3f)
+
+struct InfinitesimalStrainToVolume{T} <: StrainToVolume{T}
+    v0::T
+end
+(x::InfinitesimalStrainToVolume)(f) = _InfinitesimalStrainToVolume(x.v0, f)
+function (x::InfinitesimalStrainToVolume)(f::Complex)
+    if isreal(f)
+        return x(real(f))
+    elseif isinteger(rad2deg(angle(1 - f)) / 60)  # `(1 - f)^3` is real for some complex `f`
+        return real(_InfinitesimalStrainToVolume(x.v0, f))
+    else
+        throw(DomainError("volume will be complex!"))
+    end
+end
+_InfinitesimalStrainToVolume(v0, f) = v0 / (1 - f)^3
 
 """
     Dⁿᵥf(s::EulerianStrain, deg, v0)
