@@ -2,17 +2,17 @@
     getparam(eos).b0 + PressureEquation(getparam(eos))(v)
 function (eos::BulkModulusEquation{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = getparam(eos)
-    f = volume2strain(EulerianStrain(), v0)(v)
+    f = VolumeToEulerianStrain(v0)(v)
     return b0 * (7f + 1) * (2f + 1)^_2½
 end
 function (eos::BulkModulusEquation{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
-    f = volume2strain(EulerianStrain(), v0)(v)
+    f = VolumeToEulerianStrain(v0)(v)
     return b0 / 2 * (2f + 1)^_2½ * ((27f^2 + 6f) * (b′0 - 4) - 4f + 2)
 end
 function (eos::BulkModulusEquation{<:BirchMurnaghan4th})(v)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
-    f = volume2strain(EulerianStrain(), v0)(v)
+    f = VolumeToEulerianStrain(v0)(v)
     h = b″0 * b0 + b′0^2
     return b0 / 6 *
            (2f + 1)^_2½ *
@@ -20,17 +20,17 @@ function (eos::BulkModulusEquation{<:BirchMurnaghan4th})(v)
 end
 function (eos::BulkModulusEquation{<:PoirierTarantola2nd})(v)
     @unpack v0, b0 = getparam(eos)
-    f = volume2strain(NaturalStrain(), v0)(v)
+    f = VolumeToNaturalStrain(v0)(v)
     return b0 * (1 - 3f) * exp(-3f)
 end
 function (eos::BulkModulusEquation{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
-    f = volume2strain(NaturalStrain(), v0)(v)
+    f = VolumeToNaturalStrain(v0)(v)
     return -b0 / 2 * exp(-3f) * (9f^2 * (b′0 - 2) - 6f * (b′0 + 1) - 2)
 end
 function (eos::BulkModulusEquation{<:PoirierTarantola4th})(v)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
-    f = volume2strain(NaturalStrain(), v0)(v)
+    f = VolumeToNaturalStrain(v0)(v)
     h = b″0 * b0 + b′0^2
     return -b0 / 2 *
            exp(-3f) *
