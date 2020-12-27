@@ -18,6 +18,10 @@ struct EulerianStrain <: FiniteStrain end
 struct LagrangianStrain <: FiniteStrain end
 struct NaturalStrain <: FiniteStrain end
 struct InfinitesimalStrain <: FiniteStrain end
+const Eulerian = EulerianStrain
+const Lagrangian = LagrangianStrain
+const Natural = NaturalStrain
+const Infinitesimal = InfinitesimalStrain
 
 """
     volume2strain(::EulerianStrain, v0)
