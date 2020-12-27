@@ -34,6 +34,7 @@ using ..EquationsOfStateOfSolids:
     PressureEquation,
     EnergyEquation,
     EquationOfStateOfSolids,
+    Murnaghan,
     Murnaghan1st,
     Murnaghan2nd,
     BirchMurnaghan,
