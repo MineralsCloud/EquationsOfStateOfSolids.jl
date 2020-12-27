@@ -1,6 +1,6 @@
 module FiniteStrains
 
-using Unitful: Volume
+using Unitful: AbstractQuantity, NoUnits
 
 using ..EquationsOfStateOfSolids:
     FiniteStrainParameters, BirchMurnaghan, PoirierTarantola, _⅔, _⅓, _1½
@@ -69,6 +69,7 @@ Return a function of `f` that calculates the corresponding volume from `v0`.
     See the formulae on Ref. 1 Table 3.
 """
 abstract type StrainToVolume{T} end
+(x::StrainToVolume)(f::AbstractQuantity) = x(NoUnits(f))
 
 struct EulerianStrainToVolume{T} <: StrainToVolume{T}
     v0::T
