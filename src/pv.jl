@@ -2,6 +2,12 @@ function (eos::PressureEquation{<:Murnaghan})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     return b0 / b′0 * ((v0 / v)^b′0 - 1)
 end
+function (eos::PressureEquation{<:Murnaghan2nd})(v)
+    @unpack v0, b0, b′0, b″0 = getparam(eos)
+    h = b′0^2 - 2b0 * b″0
+    r = (v0 / v)^h
+    return 2b0 / b′0 / (h / b′0 * ((r + 1) / (r - 1)) - 1)
+end
 function (eos::PressureEquation{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = getparam(eos)
     f = volume2strain(EulerianStrain(), v0)(v)
