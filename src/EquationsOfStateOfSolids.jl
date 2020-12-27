@@ -26,7 +26,7 @@ Base.:(^)(x, ::ThreeHalves) = x^(3 // 2)
 Base.:(^)(x::Union{Real,Complex,AbstractQuantity}, ::ThreeHalves) = sqrt(x^3)
 
 include("FiniteStrains.jl")
-include("collections.jl")
+include("collections/collections.jl")
 include("Fitting.jl")
 include("Inverse.jl")
 
