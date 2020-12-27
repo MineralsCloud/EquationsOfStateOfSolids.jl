@@ -56,12 +56,14 @@ Return a function of `f` that calculates the corresponding volume from `v0`.
 !!! info
     See the formulae on Ref. 1 Table 3.
 """
-abstract type StrainToVolume{T} end
-(x::StrainToVolume)(f::AbstractQuantity) = x(NoUnits(f))
-
-struct EulerianStrainToVolume{T} <: StrainToVolume{T}
+struct StrainToVolume{S<:FiniteStrain,T}
     v0::T
 end
+const EulerianStrainToVolume = StrainToVolume{EulerianStrain}
+const LagrangianStrainToVolume = StrainToVolume{LagrangianStrain}
+const NaturalStrainToVolume = StrainToVolume{NaturalStrain}
+const InfinitesimalStrainToVolume = StrainToVolume{InfinitesimalStrain}
+(x::StrainToVolume)(f::AbstractQuantity) = x(NoUnits(f))
 (x::EulerianStrainToVolume)(f::Real) =
     f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
     _EulerianStrainToVolume(x.v0, f)
@@ -76,10 +78,6 @@ function (x::NaturalStrainToVolume)(f::Complex)
     end
 end
 _EulerianStrainToVolume(v0, f) = v0 / (2f + 1)^_1½
-
-struct LagrangianStrainToVolume{T} <: StrainToVolume{T}
-    v0::T
-end
 (x::LagrangianStrainToVolume)(f::Real) =
     f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
     _LagrangianStrainToVolume(x.v0, f)
@@ -94,10 +92,6 @@ function (x::LagrangianStrainToVolume)(f::Complex)
     end
 end
 _LagrangianStrainToVolume(v0, f) = v0 * (2f + 1)^_1½
-
-struct NaturalStrainToVolume{T} <: StrainToVolume{T}
-    v0::T
-end
 (x::NaturalStrainToVolume)(f) = _NaturalStrainToVolume(x.v0, f)
 function (x::NaturalStrainToVolume)(f::Complex)
     if isreal(f)
@@ -109,10 +103,6 @@ function (x::NaturalStrainToVolume)(f::Complex)
     end
 end
 _NaturalStrainToVolume(v0, f) = v0 * exp(3f)
-
-struct InfinitesimalStrainToVolume{T} <: StrainToVolume{T}
-    v0::T
-end
 (x::InfinitesimalStrainToVolume)(f) = _InfinitesimalStrainToVolume(x.v0, f)
 function (x::InfinitesimalStrainToVolume)(f::Complex)
     if isreal(f)
