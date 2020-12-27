@@ -70,7 +70,7 @@ const FromInfinitesimalStrain = FromStrain{InfinitesimalStrain}
     f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
     _FromEulerianStrain(x.v0, f)
 (x::FromEulerianStrain)(f) = _FromEulerianStrain(x.v0, f)  # For symbols, etc.
-function (x::FromNaturalStrain)(f::Complex)
+function (x::FromEulerianStrain)(f::Complex)
     if isreal(f)
         return x(real(f))
     elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
