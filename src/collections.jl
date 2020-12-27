@@ -1,4 +1,5 @@
 using AutoHashEquals: @auto_hash_equals
+using ConstructionBase: constructorof
 using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
 
@@ -16,6 +17,9 @@ export Murnaghan1st,
     EnergyEquation,
     PressureEquation,
     BulkModulusEquation,
+    EnergyFrom,
+    PressureFrom,
+    BulkModulusFrom,
     orderof,
     atomic_number,
     getparam

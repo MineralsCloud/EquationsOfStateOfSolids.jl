@@ -215,6 +215,23 @@ struct BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
 
+abstract type EquationFrom{T<:EquationOfStateOfSolids} end
+struct EnergyFrom{T} <: EquationOfStateOfSolids{T}
+    eos::T
+end
+struct PressureFrom{T} <: EquationOfStateOfSolids{T}
+    eos::T
+end
+struct BulkModulusFrom{T} <: EquationOfStateOfSolids{T}
+    eos::T
+end
+(x::EnergyFrom)(v) = EnergyEquation(getparam(x.eos))(v)
+(x::EnergyFrom{<:EnergyEquation})(v) = x.eos(v)
+(x::PressureFrom)(v) = PressureEquation(getparam(x.eos))(v)
+(x::PressureFrom{<:PressureEquation})(v) = x.eos(v)
+(x::BulkModulusFrom)(v) = BulkModulusEquation(getparam(x.eos))(v)
+(x::BulkModulusFrom{<:BulkModulusEquation})(v) = x.eos(v)
+
 # See https://discourse.julialang.org/t/is-there-a-way-to-include-in-function-name/45378/3
 abstract type Power end
 struct TwoThirds <: Power end
