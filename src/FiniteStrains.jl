@@ -14,14 +14,36 @@ export EulerianStrain,
     straintype
 
 abstract type FiniteStrain end  # Trait
-struct EulerianStrain <: FiniteStrain end
-struct LagrangianStrain <: FiniteStrain end
-struct NaturalStrain <: FiniteStrain end
-struct InfinitesimalStrain <: FiniteStrain end
-const Eulerian = EulerianStrain
-const Lagrangian = LagrangianStrain
-const Natural = NaturalStrain
-const Infinitesimal = InfinitesimalStrain
+# struct EulerianStrain <: FiniteStrain end
+# struct LagrangianStrain <: FiniteStrain end
+# struct NaturalStrain <: FiniteStrain end
+# struct InfinitesimalStrain <: FiniteStrain end
+# const Eulerian = EulerianStrain
+# const Lagrangian = LagrangianStrain
+# const Natural = NaturalStrain
+# const Infinitesimal = InfinitesimalStrain
+
+abstract type VolumeToStrain{T} end
+
+struct VolumeToEulerianStrain{T} <: VolumeToStrain{T}
+    v0::T
+end
+(x::VolumeToEulerianStrain)(v) = ((x.v0 / v)^_⅔ - 1) / 2
+
+struct VolumeToLagrangianStrain{T} <: VolumeToStrain{T}
+    v0::T
+end
+(x::VolumeToLagrangianStrain)(v) = ((v / x.v0)^_⅔ - 1) / 2
+
+struct VolumeToNaturalStrain{T} <: VolumeToStrain{T}
+    v0::T
+end
+(x::VolumeToNaturalStrain)(v) = log(v / x.v0) / 3
+
+struct VolumeToInfinitesimalStrain{T} <: VolumeToStrain{T}
+    v0::T
+end
+(::VolumeToInfinitesimalStrain)(v) = 1 - (x.v0 / v)^_⅓
 
 """
     volume2strain(::EulerianStrain, v0)
@@ -34,10 +56,6 @@ Return a function of `v` that calculates the `FiniteStrain` from `v0`.
 !!! info
     See the formulae on Ref. 1 Table 3.
 """
-volume2strain(::Eulerian, v0) = v -> ((v0 / v)^_⅔ - 1) / 2
-volume2strain(::Lagrangian, v0) = v -> ((v / v0)^_⅔ - 1) / 2
-volume2strain(::Natural, v0) = v -> log(v / v0) / 3
-volume2strain(::Infinitesimal, v0) = v -> 1 - (v0 / v)^_⅓
 
 """
     strain2volume(::EulerianStrain, v0)
