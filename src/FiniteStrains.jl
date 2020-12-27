@@ -14,14 +14,10 @@ export EulerianStrain,
     straintype
 
 abstract type FiniteStrain end  # Trait
-# struct EulerianStrain <: FiniteStrain end
-# struct LagrangianStrain <: FiniteStrain end
-# struct NaturalStrain <: FiniteStrain end
-# struct InfinitesimalStrain <: FiniteStrain end
-# const Eulerian = EulerianStrain
-# const Lagrangian = LagrangianStrain
-# const Natural = NaturalStrain
-# const Infinitesimal = InfinitesimalStrain
+struct EulerianStrain <: FiniteStrain end
+struct LagrangianStrain <: FiniteStrain end
+struct NaturalStrain <: FiniteStrain end
+struct InfinitesimalStrain <: FiniteStrain end
 
 abstract type VolumeToStrain{T} end
 
@@ -178,7 +174,7 @@ end
 function Dⁿᵥf(s::InfinitesimalStrain, deg, v0)
     function (v)
         if isone(deg)  # Stop recursion
-            return (1 - volume2strain(s, v0)(v))^4 / 3 / v0
+            return (1 - VolumeToInfinitesimalStrain(v0)(v))^4 / 3 / v0
         else  # Recursion
             return -(3deg - 2) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
         end
