@@ -34,7 +34,7 @@ using ..EquationsOfStateOfSolids:
     PressureEquation,
     EnergyEquation,
     EquationOfStateOfSolids,
-    Murnaghan,
+    Murnaghan1st,
     Murnaghan2nd,
     BirchMurnaghan,
     BirchMurnaghan2nd,
@@ -55,7 +55,7 @@ struct NumericallyInverted{T} <: Inverted{T}
     eos::T
 end
 
-function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan}})(p)
+function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan1st}})(p)
     @unpack v0, b0, b′0, e0 = getparam(x.eos)
     return (v0 * (1 + b′0 / b0 * p)^(-1 / b′0),)
 end

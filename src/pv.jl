@@ -1,4 +1,4 @@
-function (eos::PressureEquation{<:Murnaghan})(v)
+function (eos::PressureEquation{<:Murnaghan1st})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     return b0 / b′0 * ((v0 / v)^b′0 - 1)
 end

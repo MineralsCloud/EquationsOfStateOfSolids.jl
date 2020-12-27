@@ -1,4 +1,4 @@
-function (eos::EnergyEquation{<:Murnaghan})(v)
+function (eos::EnergyEquation{<:Murnaghan1st})(v)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     x, y = b′0 - 1, (v0 / v)^b′0
     return e0 + b0 / b′0 * v * (y / x + 1) - v0 * b0 / x
