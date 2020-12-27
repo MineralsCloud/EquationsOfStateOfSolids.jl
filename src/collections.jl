@@ -25,8 +25,6 @@ export Murnaghan1st,
     getparam
 
 include("types.jl")
-include("FiniteStrains.jl")
-using .FiniteStrains: ToEulerianStrain, ToNaturalStrain
 include("ev.jl")
 include("pv.jl")
 include("bv.jl")
