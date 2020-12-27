@@ -1,25 +1,5 @@
 const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
 
-abstract type Power end
-struct TwoThirds <: Power end
-struct OneThird <: Power end
-struct FiveHalves <: Power end
-struct ThreeHalves <: Power end
-
-const _⅔ = TwoThirds()
-const _⅓ = OneThird()
-const _2½ = FiveHalves()
-const _1½ = ThreeHalves()
-
-Base.:(^)(x, ::TwoThirds) = x^(2 // 3)
-Base.:(^)(x::Union{Real,AbstractQuantity}, ::TwoThirds) = cbrt(x^2)
-Base.:(^)(x, ::OneThird) = x^(1 // 3)
-Base.:(^)(x::Union{Real,AbstractQuantity}, ::OneThird) = cbrt(x)
-Base.:(^)(x, ::FiveHalves) = x^(5 // 2)
-Base.:(^)(x::Union{Real,AbstractQuantity}, ::FiveHalves) = sqrt(x^5)
-Base.:(^)(x, ::ThreeHalves) = x^(3 // 2)
-Base.:(^)(x::Union{Real,AbstractQuantity}, ::ThreeHalves) = sqrt(x^3)
-
 abstract type EquationOfStateOfSolidsParameters{T} end
 abstract type FiniteStrainParameters{N,T} <: EquationOfStateOfSolidsParameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
@@ -234,3 +214,23 @@ end
 struct BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
+
+abstract type Power end
+struct TwoThirds <: Power end
+struct OneThird <: Power end
+struct FiveHalves <: Power end
+struct ThreeHalves <: Power end
+
+const _⅔ = TwoThirds()
+const _⅓ = OneThird()
+const _2½ = FiveHalves()
+const _1½ = ThreeHalves()
+
+Base.:(^)(x, ::TwoThirds) = x^(2 // 3)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::TwoThirds) = cbrt(x^2)
+Base.:(^)(x, ::OneThird) = x^(1 // 3)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::OneThird) = cbrt(x)
+Base.:(^)(x, ::FiveHalves) = x^(5 // 2)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::FiveHalves) = sqrt(x^5)
+Base.:(^)(x, ::ThreeHalves) = x^(3 // 2)
+Base.:(^)(x::Union{Real,AbstractQuantity}, ::ThreeHalves) = sqrt(x^3)
