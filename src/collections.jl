@@ -2,7 +2,8 @@ using AutoHashEquals: @auto_hash_equals
 using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
 
-export Murnaghan,
+export Murnaghan1st,
+    Murnaghan2nd,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
     BirchMurnaghan4th,
@@ -61,6 +62,16 @@ end
 
 (::Type{T})(arr::AbstractVector) where {T<:Parameters} = T{eltype(arr)}(arr...)
 (::Type{T})(args...) where {T<:Parameters} = T([args...])
+function Murnaghan(args...)
+    N = length(args)
+    if N == 4
+        return Murnaghan1st(args...)
+    elseif N == 5
+        return Murnaghan2nd(args...)
+    else
+        throw(ArgumentError("unknown number of arguments $N."))
+    end
+end
 """
     BirchMurnaghan(args...)
 

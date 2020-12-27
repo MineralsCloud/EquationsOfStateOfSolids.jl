@@ -39,12 +39,22 @@ This equation of state can have units. The units are specified in
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
 - `e0`: the energy of solid at zero pressure.
 """
-@auto_hash_equals struct Murnaghan{T} <: Parameters{T}
+abstract type Murnaghan{T} <: Parameters{T} end
+@auto_hash_equals struct Murnaghan1st{T} <: Murnaghan{T}
     v0::T
     b0::T
     b′0::T
     e0::T
-    Murnaghan{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+    Murnaghan1st{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+end
+@auto_hash_equals struct Murnaghan2nd{T} <: Murnaghan{T}
+    v0::T
+    b0::T
+    b′0::T
+    b″0::T
+    e0::T
+    Murnaghan2nd{T}(v0, b0, b′0, b″0, e0 = zero(v0 * b0)) where {T} =
+        new(v0, b0, b′0, b″0, e0)
 end
 """
     BirchMurnaghan2nd(v0, b0, e0=zero(v0 * b0))
