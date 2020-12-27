@@ -1,5 +1,7 @@
 module FiniteStrains
 
+using Unitful: Volume
+
 using ..EquationsOfStateOfSolids:
     FiniteStrainParameters, BirchMurnaghan, PoirierTarantola, _⅔, _⅓, _1½
 
@@ -28,10 +30,11 @@ Return a function of `v` that calculates the `FiniteStrain` from `v0`.
 !!! info
     See the formulae on Ref. 1 Table 3.
 """
-volume2strain(::EulerianStrain, v0) = v -> ((v0 / v)^_⅔ - 1) / 2
-volume2strain(::LagrangianStrain, v0) = v -> ((v / v0)^_⅔ - 1) / 2
-volume2strain(::NaturalStrain, v0) = v -> log(v / v0) / 3
-volume2strain(::InfinitesimalStrain, v0) = v -> 1 - (v0 / v)^_⅓
+volume2strain(::EulerianStrain, v0::Union{Real,Volume{<:Real}}) = v -> ((v0 / v)^_⅔ - 1) / 2
+volume2strain(::LagrangianStrain, v0::Union{Real,Volume{<:Real}}) =
+    v -> ((v / v0)^_⅔ - 1) / 2
+volume2strain(::NaturalStrain, v0::Union{Real,Volume{<:Real}}) = v -> log(v / v0) / 3
+volume2strain(::InfinitesimalStrain, v0::Union{Real,Volume{<:Real}}) = v -> 1 - (v0 / v)^_⅓
 
 """
     strain2volume(::EulerianStrain, v0)
