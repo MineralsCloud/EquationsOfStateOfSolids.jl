@@ -22,7 +22,6 @@ const Eulerian = EulerianStrain
 const Lagrangian = LagrangianStrain
 const Natural = NaturalStrain
 const Infinitesimal = InfinitesimalStrain
-const V0 = Union{Real,Volume{<:Real}}
 
 """
     volume2strain(::EulerianStrain, v0)
@@ -35,10 +34,10 @@ Return a function of `v` that calculates the `FiniteStrain` from `v0`.
 !!! info
     See the formulae on Ref. 1 Table 3.
 """
-volume2strain(::Eulerian, v0::V0) = v -> ((v0 / v)^_⅔ - 1) / 2
-volume2strain(::Lagrangian, v0::V0) = v -> ((v / v0)^_⅔ - 1) / 2
-volume2strain(::Natural, v0::V0) = v -> log(v / v0) / 3
-volume2strain(::Infinitesimal, v0::V0) = v -> 1 - (v0 / v)^_⅓
+volume2strain(::Eulerian, v0) = v -> ((v0 / v)^_⅔ - 1) / 2
+volume2strain(::Lagrangian, v0) = v -> ((v / v0)^_⅔ - 1) / 2
+volume2strain(::Natural, v0) = v -> log(v / v0) / 3
+volume2strain(::Infinitesimal, v0) = v -> 1 - (v0 / v)^_⅓
 
 """
     strain2volume(::EulerianStrain, v0)
