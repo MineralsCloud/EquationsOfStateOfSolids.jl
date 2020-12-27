@@ -185,6 +185,13 @@ This equation of state can have units. The units are specified in
     e0::T
     Vinet{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
+@auto_hash_equals struct Bridgman{T} <: Parameters{T}
+    v0::T
+    b0::T
+    b′0::T
+    e0::T
+    Bridgman{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+end
 @auto_hash_equals struct AntonSchmidt{T} <: Parameters{T}
     v0::T
     b0::T

@@ -40,6 +40,11 @@ function (eos::BulkModulusEquation{<:Vinet})(v)
     x, ξ = (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return -b0 / (2 * x^2) * (3x * (x - 1) * (b′0 - 1) + 2 * (x - 2)) * exp(-ξ * (x - 1))
 end
+function (eos::BulkModulusEquation{<:Bridgman})(v)
+    @unpack v0, b0, b′0 = getparam(eos)
+    p = PressureFrom(eos)(v)
+    return b0 / v0 / ((b′0 + 1) * p / b0 - 1)
+end
 function (f::BulkModulusEquation{<:AntonSchmidt})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     x, n = v / v0, -b′0 / 2

@@ -54,6 +54,11 @@ function (eos::PressureEquation{<:Vinet})(v)
     x, y = (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return 3b0 / x^2 * (1 - x) * exp(y * (1 - x))
 end
+function (eos::PressureEquation{<:Bridgman})(v)
+    @unpack v0, b0, b′0 = getparam(eos)
+    x = b′0 + 1
+    return
+end
 function (f::PressureEquation{<:AntonSchmidt})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     x, n = v / v0, -b′0 / 2

@@ -43,6 +43,7 @@ using ..EquationsOfStateOfSolids:
     PoirierTarantola,
     PoirierTarantola2nd,
     PoirierTarantola3rd,
+    Bridgman,
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
@@ -110,6 +111,11 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     else
         return ()  # Complex strains
     end
+end
+function (x::AnalyticallyInverted{<:PressureEquation{<:Bridgman}})(p)
+    @unpack v0, b0, b′0 = getparam(x.eos)
+    x = p / b0
+    return (v0 * (1 - x + x^2 / 2 * (b′0 + 1)),)
 end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
