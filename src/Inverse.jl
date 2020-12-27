@@ -46,7 +46,7 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export mustfindvolume, inverse
+export inverse
 
 abstract type Inverted{T<:EquationOfStateOfSolids} end
 struct AnalyticallyInverted{T} <: Inverted{T}
@@ -128,8 +128,7 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
 end
 _within(interval, ::AbstractBracketing) = extrema(interval)
 _within(interval, ::AbstractSecant) = sum(extrema(interval)) / 2
-
-function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs...)
+function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false, kwargs...)
     for T in [
         Bisection,
         BisectionExact,
@@ -157,7 +156,7 @@ function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs
         end
         try
             # `maximum` and `minimum` also works with `AbstractQuantity`s.
-            return Inverted(eos)(y, T(); verbose = verbose, kwargs...)
+            return x(y, T(); verbose = verbose, kwargs...)
         catch e
             if verbose
                 @info "method `$T` failed because of `$e`."
