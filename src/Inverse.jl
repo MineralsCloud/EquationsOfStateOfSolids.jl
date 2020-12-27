@@ -114,11 +114,11 @@ end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
     method::Union{AbstractBracketing,AbstractSecant};
-    vscale = (0.5, 1.5),
+    interval = (0.5, 1.5),
     maxiter = 40,
     verbose = false,
 )
-    v0 = _vscale(vscale, method) .* getparam(x.eos).v0  # v0 can be negative
+    v0 = _within(interval, method) .* getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(x -> x.eos(x) - y, v0, method; maxevals = maxiter, verbose = verbose)
     if !_ispositive(v)
@@ -126,8 +126,8 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     end
     return v
 end
-_vscale(vscale, ::AbstractBracketing) = extrema(vscale)
-_vscale(vscale, ::AbstractSecant) = sum(extrema(vscale)) / 2
+_within(interval, ::AbstractBracketing) = extrema(interval)
+_within(interval, ::AbstractSecant) = sum(extrema(interval)) / 2
 
 function mustfindvolume(eos::EquationOfStateOfSolids, y; verbose = false, kwargs...)
     for T in [
