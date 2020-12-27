@@ -3,6 +3,10 @@ using ConstructionBase: constructorof
 using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
 
+using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, NaturalStrain
+
+import .FiniteStrains: straintype
+
 export Murnaghan1st,
     Murnaghan2nd,
     BirchMurnaghan2nd,
@@ -119,5 +123,9 @@ end
 Get the `Parameters` from an `EquationOfStateOfSolids`.
 """
 getparam(eos::EquationOfStateOfSolids) = eos.param
+
+straintype(::Type{<:BirchMurnaghan}) = EulerianStrain
+straintype(::Type{<:PoirierTarantola}) = NaturalStrain
+straintype(x::FiniteStrainParameters) = straintype(typeof(x))
 
 Base.eltype(::Type{<:Parameters{T}}) where {T} = T
