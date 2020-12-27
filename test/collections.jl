@@ -7,7 +7,7 @@ using EquationsOfStateOfSolids
 
 @testset "Promoting `eltype`" begin
     @testset "Promoting to floating-point numbers" begin
-        @test eltype(Murnaghan(1, 2, 3.0, 0)) === Float64
+        @test eltype(Murnaghan1st(1, 2, 3.0, 0)) === Float64
         @test eltype(BirchMurnaghan2nd(1, 2.0, 0)) === Float64
         @test eltype(BirchMurnaghan3rd(1, 2, 3.0, 0)) === Float64
         @test eltype(BirchMurnaghan4th(1, 2.0, 3, 4, 0)) === Float64
@@ -16,8 +16,9 @@ using EquationsOfStateOfSolids
         @test eltype(Vinet(1, 2, 3.0, 0)) === Float64
         @test eltype(AntonSchmidt(1, 2, 3.0, 0)) === Float64
         # @test eltype(BreenanStacey(1, 2, 3.0, 0)) === Float64
-        @test eltype(Murnaghan{Float32}(Int(1), 2 // 1, Int8(3), Float64(4))) === Float32
-        @test eltype(Murnaghan{BigFloat}(Int(1), 2 // 1, Int8(3), Float64(4))) === BigFloat
+        @test eltype(Murnaghan1st{Float32}(Int(1), 2 // 1, Int8(3), Float64(4))) === Float32
+        @test eltype(Murnaghan1st{BigFloat}(Int(1), 2 // 1, Int8(3), Float64(4))) ===
+              BigFloat
         @test eltype(PoirierTarantola4th{Float16}(Int8(1), 2 // 1, 4, Int16(5), 6)) ===
               Float16
         @test eltype(BirchMurnaghan4th(Int8(1), 2 // 1, big(4.0), Int16(5), 6)) === BigFloat
@@ -27,8 +28,8 @@ using EquationsOfStateOfSolids
 
     @testset "Promoting to rationals" begin
         @test eltype(PoirierTarantola4th(1, 2, 3, 4, 0)) === Int
-        @test eltype(Murnaghan(Int32(1), Int16(2), Int8(3), 0)) === Int
-        @test eltype(Murnaghan(1, 2 // 1, Int8(3), 0)) === Rational{Int}
+        @test eltype(Murnaghan1st(Int32(1), Int16(2), Int8(3), 0)) === Int
+        @test eltype(Murnaghan1st(1, 2 // 1, Int8(3), 0)) === Rational{Int}
         @test eltype(BirchMurnaghan2nd(1, Int8(2), 0)) === Int
         @test eltype(BirchMurnaghan2nd(1 // 1, Int32(2))) === Rational{Int}
         @test eltype(BirchMurnaghan3rd(Int8(1), 2, 4, 0)) === Int
@@ -53,14 +54,13 @@ using EquationsOfStateOfSolids
     end
 
     @testset "Promoting with units" begin
-        @test Murnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3.0, 4u"eV") ===
-              Murnaghan(1.0u"angstrom^3", 2.0u"eV/angstrom^3", 3.0, 4.0u"eV")
-        @test Murnaghan(1u"angstrom^3", 2u"eV/nm^3", 3 // 2, 4u"eV") ===
-              Murnaghan((1 // 1)u"angstrom^3", (2 // 1)u"eV/nm^3", 3 // 2, (4 // 1)u"eV")
+        @test Murnaghan1st(1u"angstrom^3", 2u"eV/angstrom^3", 3.0, 4u"eV") ===
+              Murnaghan1st(1.0u"angstrom^3", 2.0u"eV/angstrom^3", 3.0, 4.0u"eV")
+        @test Murnaghan1st(1u"angstrom^3", 2u"eV/nm^3", 3 // 2, 4u"eV") ===
+              Murnaghan1st((1 // 1)u"angstrom^3", (2 // 1)u"eV/nm^3", 3 // 2, (4 // 1)u"eV")
         @test BirchMurnaghan2nd(1u"angstrom^3", 2u"eV/angstrom^3", 3.0u"J") ===
               BirchMurnaghan2nd(1.0u"angstrom^3", 2.0u"eV/angstrom^3", 3.0u"J")
-        @test BirchMurnaghan2nd(1u"pm^3", 2u"eV/angstrom^3", (3 // 1)u"eV") ===
-              BirchMurnaghan2nd((1 // 1)u"pm^3", (2 // 1)u"eV/angstrom^3", (3 // 1)u"eV")
+        BirchMurnaghan2nd((1 // 1)u"pm^3", (2 // 1)u"eV/angstrom^3", (3 // 1)u"eV")
         @test BirchMurnaghan3rd(1u"angstrom^3", 2u"GPa", 4.0, 3u"eV") ===
               BirchMurnaghan3rd(1.0u"angstrom^3", 2.0u"GPa", 4.0, 3.0u"eV")
         @test BirchMurnaghan3rd(1u"angstrom^3", 2u"GPa", 4 // 1, 3u"eV") ===
@@ -117,7 +117,7 @@ using EquationsOfStateOfSolids
 end
 
 @testset "Parameter `e0` and promotion" begin
-    @test Murnaghan(1, 2, 3.0) === Murnaghan(1.0, 2.0, 3.0, 0.0)
+    @test Murnaghan1st(1, 2, 3.0) === Murnaghan1st(1.0, 2.0, 3.0, 0.0)
     @test BirchMurnaghan2nd(1, 2.0) === BirchMurnaghan2nd(1.0, 2.0, 0.0)
     @test BirchMurnaghan3rd(1, 2, 3.0) === BirchMurnaghan3rd(1.0, 2.0, 3.0, 0.0)
     @test BirchMurnaghan4th(1, 2.0, 3, 4) === BirchMurnaghan4th(1.0, 2.0, 3.0, 4.0, 0.0)
@@ -127,8 +127,8 @@ end
     @test PoirierTarantola4th(1, 2, 3, 4) === PoirierTarantola4th(1, 2, 3, 4, 0)
     @test AntonSchmidt(1, 2, 3.0) === AntonSchmidt(1.0, 2.0, 3.0, 0.0)
     # @test BreenanStacey(1, 2, 3.0) === BreenanStacey(1.0, 2.0, 3.0, 0.0)
-    @test eltype(Murnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3)) === Quantity{Int}
-    @test eltype(Murnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3.0)) === Quantity{Float64}
+    @test eltype(Murnaghan1st(1u"angstrom^3", 2u"eV/angstrom^3", 3)) === Quantity{Int}
+    @test eltype(Murnaghan1st(1u"angstrom^3", 2u"eV/angstrom^3", 3.0)) === Quantity{Float64}
     @test eltype(BirchMurnaghan2nd(1u"nm^3", 2u"GPa")) === Quantity{Int}
     @test eltype(BirchMurnaghan2nd(1u"nm^3", 2.0u"GPa")) === Quantity{Float64}
     @test eltype(BirchMurnaghan3rd(1u"nm^3", 2u"GPa", 4)) === Quantity{Int}
@@ -153,7 +153,7 @@ end
 @testset "`float` on an EOS" begin
     @test eltype(float(Vinet(1, 2, 3))) === Float64
     @test eltype(float(Vinet(1u"nm^3", 2u"GPa", 3))) === Quantity{Float64}
-    @test eltype(float(Murnaghan(big(2), 3, 4, 5))) === BigFloat
+    @test eltype(float(Murnaghan1st(big(2), 3, 4, 5))) === BigFloat
 end
 
 @testset "Other element types" begin

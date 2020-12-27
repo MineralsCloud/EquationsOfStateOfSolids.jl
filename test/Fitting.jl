@@ -8,7 +8,7 @@ using YAML
 
 using EquationsOfStateOfSolids:
     Parameters,
-    Murnaghan,
+    Murnaghan1st,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
     BirchMurnaghan4th,
@@ -59,8 +59,8 @@ end
             ),
         )
         @test _isapprox(
-            nonlinfit(EnergyEquation(Murnaghan(41, 0.5, 4)), volumes, energies),
-            Murnaghan(
+            nonlinfit(EnergyEquation(Murnaghan1st(41, 0.5, 4)), volumes, energies),
+            Murnaghan1st(
                 41.13757930387086,
                 0.5144967693786603,
                 3.9123862262572264,
@@ -299,8 +299,8 @@ end
         volumes, energies = data["volume"], data["energy"]
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L117-L122
         @test _isapprox(
-            nonlinfit(EnergyEquation(Murnaghan(224, 6e-4, 4)), volumes, energies),
-            Murnaghan(224.501825, 6.047952315268776e-4, 3.723835, -323.417686);
+            nonlinfit(EnergyEquation(Murnaghan1st(224, 6e-4, 4)), volumes, energies),
+            Murnaghan1st(224.501825, 6.047952315268776e-4, 3.723835, -323.417686);
             atol = 1e-5,
         )
         # No reference data, I run on my computer.
@@ -440,11 +440,11 @@ end
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L117-L122
         @test _isapprox(
             nonlinfit(
-                EnergyEquation(Murnaghan(224u"bohr^3", 9u"GPa", 4)),
+                EnergyEquation(Murnaghan1st(224u"bohr^3", 9u"GPa", 4)),
                 volumes,
                 energies,
             ),
-            Murnaghan(224.501825u"bohr^3", 8.896845u"GPa", 3.723835, -323.417686u"Ry");
+            Murnaghan1st(224.501825u"bohr^3", 8.896845u"GPa", 3.723835, -323.417686u"Ry");
             atol = 1e-5,
         )
         # See https://github.com/aoterodelaroza/asturfit/blob/4de9b41/test/test03.out#L15-L20
@@ -530,8 +530,8 @@ end
     @testset "without unit" begin
         volumes, energies = data["volume"], data["energy"]
         @test _isapprox(
-            nonlinfit(EnergyEquation(Murnaghan(430, 3e-4, 4)), volumes, energies),
-            Murnaghan(
+            nonlinfit(EnergyEquation(Murnaghan1st(430, 3e-4, 4)), volumes, energies),
+            Murnaghan1st(
                 435.05782299050884,
                 2.8297159355249786e-4,
                 3.5705032675000785,
