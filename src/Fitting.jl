@@ -17,7 +17,7 @@ using ..EquationsOfStateOfSolids:
     orderof,
     _ispositive,
     getparam
-using ..FiniteStrains: FiniteStrain, volume2strain, strain2volume, Dⁿᵥf, straintype
+using ..FiniteStrains: FiniteStrain, ToStrain, FromStrain, Dⁿᵥf, straintype
 
 import Unitful
 
@@ -66,7 +66,7 @@ function linfit(
     verbose = false,
 )::FiniteStrainParameters
     deg = orderof(getparam(eos))
-    s = straintype(getparam(eos))()
+    S = straintype(getparam(eos))
     v0 = iszero(getparam(eos).v0) ? volumes[findmin(energies)[2]] : getparam(eos).v0  # Initial v0
     uv, ue = unit(v0), unit(energies[1])
     uvrule = uconvert(unit(volumes[1]), 1 * uv)
@@ -74,18 +74,18 @@ function linfit(
     volumes = parent(map(x -> ustrip(uv, x), volumes))  # `parent` is needed to unwrap `DimArray`
     energies = parent(map(x -> ustrip(ue, x), energies))
     for i in 1:maxiter  # Self consistent loop
-        strains = map(volume2strain(s, v0), volumes)
+        strains = map(ToStrain{S}(v0), volumes)
         if !(isreal(strains) && isreal(energies))
             throw(DomainError("the strains or the energies are complex!"))
         end
         poly = fit(real(strains), real(energies), deg)
         f0, e0 = _minofmin(poly, root_thr)
-        v0_prev, v0 = v0, strain2volume(s, v0)(f0)  # Record v0 to v0_prev, then update v0
+        v0_prev, v0 = v0, FromStrain{S}(v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
             if verbose
                 @info "convergence reached after $i steps!"
             end
-            fᵥ = map(deg -> Dⁿᵥf(s, deg, v0)(v0), 1:4)
+            fᵥ = map(deg -> Dⁿᵥf(S(), deg, v0)(v0), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
             b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
             return _update(

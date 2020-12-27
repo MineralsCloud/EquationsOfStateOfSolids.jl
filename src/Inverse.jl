@@ -44,7 +44,7 @@ using ..EquationsOfStateOfSolids:
     PoirierTarantola2nd,
     PoirierTarantola3rd,
     getparam
-using ..FiniteStrains: EulerianStrain, NaturalStrain, strain2volume
+using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
 export mustfindvolume, inverse
 
@@ -73,7 +73,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        return map(strain2volume(EulerianStrain(), v0), (f, -f))
+        return map(FromEulerianStrain(v0), (f, -f))
     else
         return ()  # Complex strains
     end
@@ -98,7 +98,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
     else  # Δ > 0
         (cbrt(p + √Δ) + cbrt(p - √Δ),)  # Only 1 real solution
     end  # solutions are strains
-    vs = map(strain2volume(EulerianStrain(), v0), fs)
+    vs = map(FromEulerianStrain(v0), fs)
     return filter(_ispositive, map(real, filter(isreal, vs)))
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
@@ -106,7 +106,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        return map(strain2volume(NaturalStrain(), v0), (f, -f))
+        return map(FromNaturalStrain(v0), (f, -f))
     else
         return ()  # Complex strains
     end
