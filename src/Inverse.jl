@@ -44,7 +44,11 @@ using ..FiniteStrains: EulerianStrain, NaturalStrain, strain2volume
 
 export mustfindvolume, inverse
 
-struct Inverted{T<:EquationOfStateOfSolids}
+abstract type Inverted{T<:EquationOfStateOfSolids} end
+struct AnalyticallyInverted{T} <: Inverted{T}
+    eos::T
+end
+struct NumericallyInverted{T} <: Inverted{T}
     eos::T
 end
 
