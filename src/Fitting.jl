@@ -21,7 +21,7 @@ using ..FiniteStrains: FiniteStrain, ToStrain, FromStrain, Dⁿᵥf, straintype
 
 import Unitful
 
-export linfit, nonlinfit, eosfit, v2p
+export linfit, nonlinfit, eosfit
 
 # See https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
 struct ConvergenceFailed

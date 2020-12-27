@@ -7,7 +7,6 @@ using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, Natural
 import .FiniteStrains: straintype
 
 export Murnaghan1st,
-    Murnaghan2nd,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
     BirchMurnaghan4th,
@@ -15,8 +14,6 @@ export Murnaghan1st,
     PoirierTarantola3rd,
     PoirierTarantola4th,
     Vinet,
-    AntonSchmidt,
-    Holzapfel,
     EnergyEquation,
     PressureEquation,
     BulkModulusEquation,
@@ -24,7 +21,6 @@ export Murnaghan1st,
     PressureFrom,
     BulkModulusFrom,
     orderof,
-    atomic_number,
     getparam
 
 include("types.jl")

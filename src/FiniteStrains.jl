@@ -4,15 +4,7 @@ using Unitful: AbstractQuantity, NoUnits
 
 using ..EquationsOfStateOfSolids: _⅔, _⅓, _1½
 
-export ToEulerianStrain,
-    ToLagrangianStrain,
-    ToNaturalStrain,
-    ToInfinitesimalStrain,
-    FromEulerianStrain,
-    FromLagrangianStrain,
-    FromNaturalStrain,
-    FromInfinitesimalStrain,
-    straintype
+export ToEulerianStrain, ToNaturalStrain, FromEulerianStrain, FromNaturalStrain, straintype
 
 abstract type FiniteStrain end
 struct EulerianStrain <: FiniteStrain end
