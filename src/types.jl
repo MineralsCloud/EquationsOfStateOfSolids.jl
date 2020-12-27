@@ -46,6 +46,15 @@ This equation of state can have units. The units are specified in
     e0::T
     Murnaghan{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
+@auto_hash_equals struct Murnaghan2nd{T} <: Parameters{T}
+    v0::T
+    b0::T
+    b′0::T
+    b″0::T
+    e0::T
+    Murnaghan2nd{T}(v0, b0, b′0, b″0, e0 = zero(v0 * b0)) where {T} =
+        new(v0, b0, b′0, b″0, e0)
+end
 """
     BirchMurnaghan2nd(v0, b0, e0=zero(v0 * b0))
 

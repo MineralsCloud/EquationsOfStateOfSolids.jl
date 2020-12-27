@@ -3,6 +3,7 @@ using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
 
 export Murnaghan,
+    Murnaghan2nd,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
     BirchMurnaghan4th,
