@@ -10,23 +10,23 @@ function (eos::PressureEquation{<:Murnaghan2nd})(v)
 end
 function (eos::PressureEquation{<:BirchMurnaghan2nd})(v)
     @unpack v0, b0 = getparam(eos)
-    f = VolumeToEulerianStrain(v0)(v)
+    f = ToEulerianStrain(v0)(v)
     return 3b0 * f * (2f + 1)^_2½
 end
 function (eos::PressureEquation{<:BirchMurnaghan3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
-    f = VolumeToEulerianStrain(v0)(v)
+    f = ToEulerianStrain(v0)(v)
     return 3f / 2 * b0 * (2f + 1)^_2½ * (2 + 3f * (b′0 - 4))
 end
 function (eos::PressureEquation{<:BirchMurnaghan4th})(v)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
-    f = VolumeToEulerianStrain(v0)(v)
+    f = ToEulerianStrain(v0)(v)
     h = b″0 * b0 + b′0^2
     return b0 / 2 * (2f + 1)^_2½ * ((9h - 63b′0 + 143) * f^2 + 9f * (b′0 - 4) + 6)
 end
 function (eos::PressureEquation{<:PoirierTarantola2nd})(v)
     @unpack v0, b0 = getparam(eos)
-    f = VolumeToNaturalStrain(v0)(v)
+    f = ToNaturalStrain(v0)(v)
     return -3b0 * f * exp(-3f)
 end
 """
@@ -40,12 +40,12 @@ P(V) = B_0 \\frac{V_0}{V} \\left[\\ln \\left( \\frac{V_0}{V} \\right) + \\frac{\
 """
 function (eos::PressureEquation{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
-    f = VolumeToNaturalStrain(v0)(v)
+    f = ToNaturalStrain(v0)(v)
     return -3b0 / 2 * f * exp(-3f) * (3f * (b′0 - 2) + 1)
 end
 function (eos::PressureEquation{<:PoirierTarantola4th})(v)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
-    f = VolumeToNaturalStrain(v0)(v)
+    f = ToNaturalStrain(v0)(v)
     h = b″0 * b0 + b′0^2
     return -3b0 / 2 * f * exp(-3f) * (3f^2 * (h + 3b′0 + 3) + 3f * (b′0 - 2) + 2)
 end

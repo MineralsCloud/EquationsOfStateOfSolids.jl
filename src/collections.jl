@@ -22,7 +22,7 @@ export Murnaghan1st,
 
 include("types.jl")
 include("FiniteStrains.jl")
-using .FiniteStrains: VolumeToEulerianStrain, VolumeToNaturalStrain
+using .FiniteStrains: ToEulerianStrain, ToNaturalStrain
 include("ev.jl")
 include("pv.jl")
 include("bv.jl")

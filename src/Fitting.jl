@@ -17,7 +17,7 @@ using ..EquationsOfStateOfSolids:
     orderof,
     _ispositive,
     getparam
-using ..FiniteStrains: FiniteStrain, VolumeToStrain, StrainToVolume, Dⁿᵥf, straintype
+using ..FiniteStrains: FiniteStrain, ToStrain, FromStrain, Dⁿᵥf, straintype
 
 import Unitful
 
@@ -74,13 +74,13 @@ function linfit(
     volumes = parent(map(x -> ustrip(uv, x), volumes))  # `parent` is needed to unwrap `DimArray`
     energies = parent(map(x -> ustrip(ue, x), energies))
     for i in 1:maxiter  # Self consistent loop
-        strains = map(VolumeToStrain{S}(v0), volumes)
+        strains = map(ToStrain{S}(v0), volumes)
         if !(isreal(strains) && isreal(energies))
             throw(DomainError("the strains or the energies are complex!"))
         end
         poly = fit(real(strains), real(energies), deg)
         f0, e0 = _minofmin(poly, root_thr)
-        v0_prev, v0 = v0, StrainToVolume{S}(v0)(f0)  # Record v0 to v0_prev, then update v0
+        v0_prev, v0 = v0, FromStrain{S}(v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
             if verbose
                 @info "convergence reached after $i steps!"
