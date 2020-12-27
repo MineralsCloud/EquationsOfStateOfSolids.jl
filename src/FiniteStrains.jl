@@ -32,7 +32,7 @@ const ToInfinitesimalStrain = ToStrain{InfinitesimalStrain}
 (x::ToEulerianStrain)(v) = ((x.v0 / v)^_⅔ - 1) / 2
 (x::ToLagrangianStrain)(v) = ((v / x.v0)^_⅔ - 1) / 2
 (x::ToNaturalStrain)(v) = log(v / x.v0) / 3
-(::ToInfinitesimalStrain)(v) = 1 - (x.v0 / v)^_⅓
+(x::ToInfinitesimalStrain)(v) = 1 - (x.v0 / v)^_⅓
 
 """
     volume2strain(::EulerianStrain, v0)
