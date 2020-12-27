@@ -74,8 +74,10 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
         return map(FromEulerianStrain(v0), (f, -f))
-    else
+    elseif Δ < 0
         return ()  # Complex strains
+    else
+        throw(ArgumentError("this should never happen!"))
     end
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
@@ -86,7 +88,9 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
     d = (e0 - e) / (9 / 2 * b0 * v0)
     p, q = -r^3 - d / 2a, -r^2
     Δ = p^2 + q^3
-    fs = -r .+ if Δ < 0
+    fs = -r .+ if Δ > 0
+        (cbrt(p + √Δ) + cbrt(p - √Δ),)  # Only 1 real solution
+    elseif Δ < 0
         SIN, COS = sincos(acos(p / abs(r)^3) / 3)
         (2COS, -COS - √3 * SIN, -COS + √3 * SIN) .* abs(r)  # Verified
     elseif Δ == 0
@@ -95,8 +99,8 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
         else  # p == -q != 0
             2cbrt(p), -cbrt(p)  # 2 real roots are equal, leaving 2 solutions
         end
-    else  # Δ > 0
-        (cbrt(p + √Δ) + cbrt(p - √Δ),)  # Only 1 real solution
+    else
+        throw(ArgumentError("this should never happen!"))
     end  # solutions are strains
     vs = map(FromEulerianStrain(v0), fs)
     return filter(_ispositive, map(real, filter(isreal, vs)))
@@ -107,8 +111,10 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
         return map(FromNaturalStrain(v0), (f, -f))
-    else
+    elseif Δ < 0
         return ()  # Complex strains
+    else
+        throw(ArgumentError("this should never happen!"))
     end
 end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
