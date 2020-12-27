@@ -2,8 +2,7 @@ module FiniteStrains
 
 using Unitful: AbstractQuantity, NoUnits
 
-using ..EquationsOfStateOfSolids:
-    FiniteStrainParameters, BirchMurnaghan, PoirierTarantola, _⅔, _⅓, _1½
+using ..EquationsOfStateOfSolids: _⅔, _⅓, _1½
 
 export ToEulerianStrain,
     ToLagrangianStrain,
@@ -165,8 +164,6 @@ function Dⁿᵥf(s::InfinitesimalStrain, deg, v0)
     end
 end
 
-straintype(::Type{<:BirchMurnaghan}) = EulerianStrain
-straintype(::Type{<:PoirierTarantola}) = NaturalStrain
-straintype(x::FiniteStrainParameters) = straintype(typeof(x))
+function straintype end
 
 end

@@ -1,7 +1,10 @@
 using AutoHashEquals: @auto_hash_equals
 using ConstructionBase: constructorof
-using Unitful: AbstractQuantity, NoUnits, ħ, me
 using UnPack: @unpack
+
+using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, NaturalStrain
+
+import .FiniteStrains: straintype
 
 export Murnaghan1st,
     Murnaghan2nd,
@@ -25,8 +28,6 @@ export Murnaghan1st,
     getparam
 
 include("types.jl")
-include("FiniteStrains.jl")
-using .FiniteStrains: ToEulerianStrain, ToNaturalStrain
 include("ev.jl")
 include("pv.jl")
 include("bv.jl")
@@ -121,5 +122,9 @@ end
 Get the `Parameters` from an `EquationOfStateOfSolids`.
 """
 getparam(eos::EquationOfStateOfSolids) = eos.param
+
+straintype(::Type{<:BirchMurnaghan}) = EulerianStrain
+straintype(::Type{<:PoirierTarantola}) = NaturalStrain
+straintype(x::FiniteStrainParameters) = straintype(typeof(x))
 
 Base.eltype(::Type{<:Parameters{T}}) where {T} = T
