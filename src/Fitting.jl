@@ -32,11 +32,6 @@ struct CriterionNotMet
     msg::String
 end
 
-function v2p(eos::EnergyEquation, volumes, energies)
-    para = eosfit(eos, volumes, energies)
-    return map(PressureEquation(para), volumes)
-end
-
 eosfit(eos::EnergyEquation{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
     linfit(eos, volumes, energies; kwargs...)
 eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
