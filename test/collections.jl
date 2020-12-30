@@ -3,7 +3,16 @@ using SymEngine: Basic, symbols
 using Test: @test, @testset, @test_throws
 using Unitful: Quantity, DimensionlessQuantity, @u_str
 
-using EquationsOfStateOfSolids
+using EquationsOfStateOfSolids:
+    Murnaghan1st,
+    BirchMurnaghan2nd,
+    BirchMurnaghan3rd,
+    BirchMurnaghan4th,
+    PoirierTarantola2nd,
+    PoirierTarantola3rd,
+    PoirierTarantola4th,
+    Vinet,
+    AntonSchmidt
 
 @testset "Promoting `eltype`" begin
     @testset "Promoting to floating-point numbers" begin
