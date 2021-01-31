@@ -120,13 +120,19 @@ end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
     method::Union{AbstractBracketing,AbstractSecant};
-    interval = (0.5, 1.5),
+    interval = (eps(), 2),
     maxiter = 40,
     verbose = false,
 )
     v0 = _within(interval, method) .* getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
-    v = find_zero(guess -> x.eos(guess) - y, v0, method; maxevals = maxiter, verbose = verbose)
+    v = find_zero(
+        guess -> x.eos(guess) - y,
+        v0,
+        method;
+        maxevals = maxiter,
+        verbose = verbose,
+    )
     if !_ispositive(v)
         @warn "the volume found is negative!"
     end
