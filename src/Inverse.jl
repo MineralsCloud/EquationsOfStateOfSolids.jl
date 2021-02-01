@@ -1,6 +1,5 @@
 module Inverse
 
-using Preferences: set_preferences!, @load_preference, @set_preferences!
 using Compat: filter
 using InteractiveUtils: subtypes
 using PolynomialRoots: roots
@@ -47,7 +46,7 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export inverse, set_search_interval, get_search_interval
+export inverse, get_search_interval
 
 abstract type Inverted{T<:EquationOfStateOfSolids} end
 struct AnalyticallyInverted{T} <: Inverted{T}
@@ -185,10 +184,10 @@ inverse(eos::PressureEquation{<:Murnaghan}) = AnalyticallyInverted(eos)
 inverse(eos::EnergyEquation{<:BirchMurnaghan}) = AnalyticallyInverted(eos)
 inverse(eos::EnergyEquation{<:PoirierTarantola}) = AnalyticallyInverted(eos)
 
-set_search_interval(search_interval::Tuple{Real,Real}) =
-    @set_preferences!("search_interval" => collect(search_interval))
-get_search_interval() = @load_preference("search_interval")
-
-set_preferences!(Inverse, "search_interval" => [eps(), 2]; export_prefs = true)
+if VERSION > v"1.5.3"
+    include("config.jl")
+else
+    get_search_interval() = (eps(), 2)
+end
 
 end
