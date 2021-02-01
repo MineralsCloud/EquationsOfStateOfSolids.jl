@@ -121,11 +121,11 @@ end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
     method::Union{AbstractBracketing,AbstractSecant};
-    interval = (eps(), 2),
+    search_interval = get_search_interval(),
     maxiter = 40,
     verbose = false,
 )
-    v0 = _within(interval, method) .* getparam(x.eos).v0  # v0 can be negative
+    v0 = _within(search_interval, method) .* getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(
         guess -> x.eos(guess) - y,
@@ -139,8 +139,8 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     end
     return v
 end
-_within(interval, ::AbstractBracketing) = extrema(interval)
-_within(interval, ::AbstractSecant) = sum(extrema(interval)) / 2
+_within(search_interval, ::AbstractBracketing) = extrema(search_interval)
+_within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false, kwargs...)
     for T in [
         Bisection,
