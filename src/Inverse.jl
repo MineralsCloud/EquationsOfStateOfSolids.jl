@@ -1,6 +1,7 @@
 module Inverse
 
 using Compat: filter
+using Configurations: from_kwargs, @option
 using InteractiveUtils: subtypes
 using PolynomialRoots: roots
 using Roots:
@@ -46,7 +47,7 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export inverse, get_search_interval
+export inverse, NumericalInversionOptions
 
 abstract type Inverted{T<:EquationOfStateOfSolids} end
 struct AnalyticallyInverted{T} <: Inverted{T}
@@ -54,6 +55,12 @@ struct AnalyticallyInverted{T} <: Inverted{T}
 end
 struct NumericallyInverted{T} <: Inverted{T}
     eos::T
+end
+
+@option "num_inv" struct NumericalInversionOptions
+    search_interval::Tuple{Real,Real} = (eps(), 2)
+    maxiter::UInt = 40
+    verbose::Bool = false
 end
 
 function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan1st}})(p)
@@ -119,28 +126,35 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
 end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
-    method::Union{AbstractBracketing,AbstractSecant};
-    search_interval = get_search_interval(),
-    maxiter = 40,
-    verbose = false,
+    method::Union{AbstractBracketing,AbstractSecant},
+    options::NumericalInversionOptions,
 )
-    v0 = _within(search_interval, method) .* getparam(x.eos).v0  # v0 can be negative
+    v0 = _within(options.search_interval, method) .* getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(
         guess -> x.eos(guess) - y,
         v0,
         method;
-        maxevals = maxiter,
-        verbose = verbose,
+        maxevals = options.maxiter,
+        verbose = options.verbose,
     )
     if !_ispositive(v)
         @warn "the volume found is negative!"
     end
     return v
 end
-_within(search_interval, ::AbstractBracketing) = extrema(search_interval)
-_within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
-function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false, kwargs...)
+function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
+    y,
+    method::Union{AbstractBracketing,AbstractSecant};
+    kwargs...,
+)
+    options = from_kwargs(NumericalInversionOptions; kwargs...)
+    return x(y, method, options)
+end
+function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
+    y,
+    options::NumericalInversionOptions,
+)
     for T in [
         Bisection,
         BisectionExact,
@@ -163,14 +177,14 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false,
         Thukral16,
         Thukral8,
     ]
-        if verbose
+        if options.verbose
             @info "using method `$T`..."
         end
         try
             # `maximum` and `minimum` also works with `AbstractQuantity`s.
-            return x(y, T(); verbose = verbose, kwargs...)
+            return x(y, T(), options)
         catch e
-            if verbose
+            if options.verbose
                 @info "method `$T` failed because of `$e`."
             end
             continue
@@ -178,16 +192,17 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false,
     end
     error("no volume found!")
 end
+function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; kwargs...)
+    options = from_kwargs(NumericalInversionOptions; kwargs...)
+    return x(y, options)
+end
+_within(search_interval, ::AbstractBracketing) = extrema(search_interval)
+_within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
 
 inverse(eos::EquationOfStateOfSolids) = NumericallyInverted(eos)
 inverse(eos::PressureEquation{<:Murnaghan}) = AnalyticallyInverted(eos)
 inverse(eos::EnergyEquation{<:BirchMurnaghan}) = AnalyticallyInverted(eos)
 inverse(eos::EnergyEquation{<:PoirierTarantola}) = AnalyticallyInverted(eos)
 
-if VERSION > v"1.5.3"
-    include("config.jl")
-else
-    get_search_interval() = (eps(), 2)
-end
 
 end
