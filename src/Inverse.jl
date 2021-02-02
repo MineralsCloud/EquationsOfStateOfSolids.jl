@@ -151,7 +151,10 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     options = from_kwargs(NumericalInversionOptions; kwargs...)
     return x(y, method, options)
 end
-function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false, kwargs...)
+function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
+    y,
+    options::NumericalInversionOptions,
+)
     for T in [
         Bisection,
         BisectionExact,
@@ -174,20 +177,24 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false,
         Thukral16,
         Thukral8,
     ]
-        if verbose
+        if options.verbose
             @info "using method `$T`..."
         end
         try
             # `maximum` and `minimum` also works with `AbstractQuantity`s.
-            return x(y, T(); verbose = verbose, kwargs...)
+            return x(y, T(), options)
         catch e
-            if verbose
+            if options.verbose
                 @info "method `$T` failed because of `$e`."
             end
             continue
         end
     end
     error("no volume found!")
+end
+function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; kwargs...)
+    options = from_kwargs(NumericalInversionOptions; kwargs...)
+    return x(y, options)
 end
 _within(search_interval, ::AbstractBracketing) = extrema(search_interval)
 _within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
