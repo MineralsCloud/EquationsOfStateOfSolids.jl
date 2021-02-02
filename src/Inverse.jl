@@ -204,5 +204,4 @@ inverse(eos::PressureEquation{<:Murnaghan}) = AnalyticallyInverted(eos)
 inverse(eos::EnergyEquation{<:BirchMurnaghan}) = AnalyticallyInverted(eos)
 inverse(eos::EnergyEquation{<:PoirierTarantola}) = AnalyticallyInverted(eos)
 
-
 end
