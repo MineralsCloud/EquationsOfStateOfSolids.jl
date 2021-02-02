@@ -151,8 +151,6 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     options = from_kwargs(NumericalInversionOptions; kwargs...)
     return x(y, method, options)
 end
-_within(search_interval, ::AbstractBracketing) = extrema(search_interval)
-_within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false, kwargs...)
     for T in [
         Bisection,
@@ -191,6 +189,8 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; verbose = false,
     end
     error("no volume found!")
 end
+_within(search_interval, ::AbstractBracketing) = extrema(search_interval)
+_within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
 
 inverse(eos::EquationOfStateOfSolids) = NumericallyInverted(eos)
 inverse(eos::PressureEquation{<:Murnaghan}) = AnalyticallyInverted(eos)
