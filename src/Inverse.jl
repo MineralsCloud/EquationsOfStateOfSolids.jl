@@ -126,24 +126,30 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
 end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
-    method::Union{AbstractBracketing,AbstractSecant};
-    search_interval = get_search_interval(),
-    maxiter = 40,
-    verbose = false,
+    method::Union{AbstractBracketing,AbstractSecant},
+    options::NumericalInversionOptions = NumericallyInversionOptions(),
 )
-    v0 = _within(search_interval, method) .* getparam(x.eos).v0  # v0 can be negative
+    v0 = _within(options.search_interval, method) .* getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(
         guess -> x.eos(guess) - y,
         v0,
         method;
-        maxevals = maxiter,
-        verbose = verbose,
+        maxevals = options.maxiter,
+        verbose = options.verbose,
     )
     if !_ispositive(v)
         @warn "the volume found is negative!"
     end
     return v
+end
+function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
+    y,
+    method::Union{AbstractBracketing,AbstractSecant};
+    kwargs...,
+)
+    options = from_kwargs(NumericalInversionOptions; kwargs...)
+    return x(y, method, options)
 end
 _within(search_interval, ::AbstractBracketing) = extrema(search_interval)
 _within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
