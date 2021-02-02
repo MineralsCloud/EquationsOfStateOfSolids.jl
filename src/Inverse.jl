@@ -184,10 +184,5 @@ inverse(eos::PressureEquation{<:Murnaghan}) = AnalyticallyInverted(eos)
 inverse(eos::EnergyEquation{<:BirchMurnaghan}) = AnalyticallyInverted(eos)
 inverse(eos::EnergyEquation{<:PoirierTarantola}) = AnalyticallyInverted(eos)
 
-if VERSION > v"1.5.3"
-    include("config.jl")
-else
-    get_search_interval() = (eps(), 2)
-end
 
 end
