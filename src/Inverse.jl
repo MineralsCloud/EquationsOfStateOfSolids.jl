@@ -1,6 +1,7 @@
 module Inverse
 
 using Compat: filter
+using Configurations: from_kwargs, @option
 using InteractiveUtils: subtypes
 using PolynomialRoots: roots
 using Roots:
@@ -46,7 +47,7 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export inverse, get_search_interval
+export inverse, NumericalInversionOptions
 
 abstract type Inverted{T<:EquationOfStateOfSolids} end
 struct AnalyticallyInverted{T} <: Inverted{T}
@@ -54,6 +55,12 @@ struct AnalyticallyInverted{T} <: Inverted{T}
 end
 struct NumericallyInverted{T} <: Inverted{T}
     eos::T
+end
+
+@option "num_inv" struct NumericalInversionOptions
+    search_interval::Tuple{Real,Real} = (eps(), 2)
+    maxiter::UInt = 40
+    verbose::Bool = false
 end
 
 function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan1st}})(p)
