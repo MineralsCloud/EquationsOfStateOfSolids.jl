@@ -127,7 +127,7 @@ end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
     method::Union{AbstractBracketing,AbstractSecant},
-    options::NumericalInversionOptions = NumericallyInversionOptions(),
+    options::NumericalInversionOptions,
 )
     v0 = _within(options.search_interval, method) .* getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
