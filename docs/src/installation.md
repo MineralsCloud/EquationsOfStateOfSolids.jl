@@ -56,7 +56,7 @@ platform to explain the following steps:
 3. Run
 
    ```julia
-   julia> using EquationsOfStateOfSolids.Collections, EquationsOfStateOfSolids.Find, EquationsOfStateOfSolids.Fitting, Unitful, UnitfulAtomic
+   julia> using EquationsOfStateOfSolids, EquationsOfStateOfSolids.Inverse, EquationsOfStateOfSolids.Fitting, Unitful, UnitfulAtomic
    ```
 
    and have fun!

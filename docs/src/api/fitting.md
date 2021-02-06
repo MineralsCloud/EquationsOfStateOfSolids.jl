@@ -30,7 +30,7 @@ for more information.
 We provide API `nonlinfit` currently.
 
 ```julia
-using EquationsOfStateOfSolids.Collections
+using EquationsOfStateOfSolids
 using EquationsOfStateOfSolids.Fitting
 
 volumes = [

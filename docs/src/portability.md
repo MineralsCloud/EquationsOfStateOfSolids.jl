@@ -19,7 +19,7 @@ a JLD format by [`JLD2.jl`](https://github.com/JuliaIO/JLD2.jl) package.
 2. Create some `EquationsOfStateOfSolids`s:
 
    ```julia
-   julia> using EquationsOfStateOfSolids.Collections, Unitful, UnitfulAtomic
+   julia> using EquationsOfStateOfSolids, Unitful, UnitfulAtomic
 
    julia> m = Murnaghan(224.501825, 0.00060479524074699499, 3.723835, -323.417686)
    Murnaghan{Float64}(224.501825, 0.000604795240746995, 3.723835, -323.417686)
@@ -39,7 +39,7 @@ a JLD format by [`JLD2.jl`](https://github.com/JuliaIO/JLD2.jl) package.
 4. On another computer, or some days later, load them into REPL:
 
    ```julia
-   julia> using EquationsOfStateOfSolids.Collections, Unitful, UnitfulAtomic
+   julia> using EquationsOfStateOfSolids, Unitful, UnitfulAtomic
 
    julia> @load "/some/path/eos.jld2" m bm
    ```

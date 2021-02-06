@@ -25,12 +25,12 @@ writing too much code. Luckily, Julia provides such a feature.
    ```python
    In [1]: from julia import Unitful
 
-   In [2]: from julia.EquationsOfStateOfSolids.Collections import *
+   In [2]: from julia.EquationsOfStateOfSolids import *
 
    In [3]: from julia.EquationsOfStateOfSolids.Fitting import *
 
    In [4]: Murnaghan(1, 2, 3.0, 4)
-   Out[4]: <PyCall.jlwrap EquationsOfStateOfSolids.Collections.Murnaghan{Float64}(1.0, 2.0, 3.0, 4.0)>
+   Out[4]: <PyCall.jlwrap EquationsOfStateOfSolids.Murnaghan{Float64}(1.0, 2.0, 3.0, 4.0)>
 
    In [5]: result = nonlinfit(
       ...:     PressureEquation(BirchMurnaghan3rd(1, 2, 3.0, 0)),

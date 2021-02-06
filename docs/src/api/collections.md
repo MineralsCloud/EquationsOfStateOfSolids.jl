@@ -1,7 +1,7 @@
 # Collections
 
 ```@meta
-CurrentModule = EquationsOfStateOfSolids.Collections
+CurrentModule = EquationsOfStateOfSolids
 ```
 
 The current `Parameters`s contain
@@ -279,14 +279,7 @@ Holzapfel
 EnergyEquation
 PressureEquation
 BulkModulusEquation
-EulerianStrain
-LagrangianStrain
-NaturalStrain
-InfinitesimalStrain
 getparam
 orderof
 straintype
-strain2volume
-volume2strain
-atomic_number
 ```

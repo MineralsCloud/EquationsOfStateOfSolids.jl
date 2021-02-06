@@ -24,7 +24,7 @@ julia> using EquationOfStateRecipes
 Finally, load `EquationsOfStateOfSolids.jl` and build your own `EquationOfStateOfSolids`:
 
 ```julia
-julia> using EquationsOfStateOfSolids.Collections
+julia> using EquationsOfStateOfSolids
 
 julia> eos = EnergyEquation(Murnaghan(224.501825u"bohr^3", 8.896845u"GPa", 3.723835, -323.417686u"Ry"));
 
