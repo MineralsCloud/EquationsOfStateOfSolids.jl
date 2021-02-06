@@ -40,8 +40,8 @@ See its
 ## Compatibility
 
 - [Julia version: `v1.0.0` and above](https://julialang.org/downloads/)
-- Dependencies: see `Project.toml` [`deps` field](Project.toml#L7-L16) and
-  [`compat` field](Project.toml#L19-L27)
+- Dependencies: see `Project.toml` [`deps` field](Project.toml#L7-L18) and
+  [`compat` field](Project.toml#L21-L31)
 - OS: macOS, Linux, and Windows
 
 ## References
