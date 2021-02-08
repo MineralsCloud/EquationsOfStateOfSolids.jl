@@ -59,7 +59,7 @@ end
 
 @option "num_inv" struct NumericalInversionOptions
     search_interval::Tuple{Real,Real} = (eps(), 2)
-    maxiter::UInt = 40
+    maxiter::Int64 = 40
     verbose::Bool = false
 end
 
