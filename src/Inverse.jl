@@ -58,7 +58,7 @@ struct NumericallyInverted{T} <: Inverted{T}
 end
 
 @option "num_inv" struct NumericalInversionOptions
-    search_interval::Tuple{Real,Real} = (eps(), 2)
+    search_interval::AbstractVector = [eps(), 2]
     maxiter::Int64 = 40
     verbose::Bool = false
 end
@@ -196,8 +196,8 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; kwargs...)
     options = from_kwargs(NumericalInversionOptions; kwargs...)
     return x(y, options)
 end
-_within(search_interval, ::AbstractBracketing) = extrema(collect(search_interval))
-_within(search_interval, ::AbstractSecant) = sum(extrema(collect(search_interval))) / 2
+_within(search_interval, ::AbstractBracketing) = extrema(search_interval)
+_within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
 
 inverse(eos::EquationOfStateOfSolids) = NumericallyInverted(eos)
 inverse(eos::PressureEquation{<:Murnaghan}) = AnalyticallyInverted(eos)
