@@ -61,8 +61,11 @@ function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/
     end
 end
 
-(::Type{T})(arr::AbstractVector) where {T<:Parameters} = T{eltype(arr)}(arr...)
-(::Type{T})(args...) where {T<:Parameters} = T([args...])
+function (::Type{T})(args...) where {T<:Parameters}
+    E = Base.promote_typeof(args...)
+    return constructorof(T){E}(args...)  # Cannot use `T.(args...)`! For `AbstractQuantity` they will fail!
+end
+(::Type{T})(arr::AbstractVector) where {T<:Parameters} = T(arr...)
 function Murnaghan(args...)
     N = length(args)
     if N == 4
