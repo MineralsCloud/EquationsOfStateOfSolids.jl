@@ -198,7 +198,7 @@ end
 
 # Do not export!
 buildmodel(eos::EquationOfStateOfSolids{T}) where {T} =
-    (x, p...) -> map(setproperties(eos; param = constructorof(T)(p...)), x)
+    (x, p...) -> constructorof(typeof(eos))(constructorof(T)(p...)).(x)
 
 function checkresult(p::Parameters)  # Do not export!
     if p.v0 <= zero(p.v0) || p.b0 <= zero(p.b0)
