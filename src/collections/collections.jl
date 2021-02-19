@@ -6,10 +6,13 @@ using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, Natural
 
 import .FiniteStrains: straintype
 
-export Murnaghan1st,
+export Murnaghan,
+    Murnaghan1st,
+    BirchMurnaghan,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
     BirchMurnaghan4th,
+    PoirierTarantola,
     PoirierTarantola2nd,
     PoirierTarantola3rd,
     PoirierTarantola4th,
