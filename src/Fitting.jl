@@ -200,13 +200,13 @@ end
 buildmodel(eos::EquationOfStateOfSolids{T}) where {T} =
     (x, p) -> constructorof(typeof(eos))(constructorof(T)(p...)).(x)
 
-function checkresult(p::Parameters)  # Do not export!
-    if p.v0 <= zero(p.v0) || p.b0 <= zero(p.b0)
-        @error "either v0 ($(p.v0)) or b0 ($(p.b0)) is not positive!"
+function checkresult(x::Parameters)  # Do not export!
+    if x.v0 <= zero(x.v0) || x.b0 <= zero(x.b0)
+        @error "either v0 ($(x.v0)) or b0 ($(x.b0)) is not positive!"
     end
-    # if PressureEquations(param)(minimum(v)) >= param.b0
-    #     @warn "use higher order EOS!"
-    # end
+    if PressureEquation(x)(x.v0) >= x.b0 && x isa FiniteStrainParameters
+        @warn "consider using higher order EOS!"
+    end
 end
 
 function _preprocess(eos, xdata, ydata)  # Do not export!
