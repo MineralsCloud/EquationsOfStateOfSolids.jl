@@ -1,8 +1,8 @@
 abstract type EquationOfStateOfSolidsParameters{T} end
-abstract type FiniteStrainParameters{N,T} <: EquationOfStateOfSolidsParameters{T} end
+const Parameters = EquationOfStateOfSolidsParameters
+abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
 abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
-const Parameters = EquationOfStateOfSolidsParameters
 """
     Murnaghan(v0, b0, b′0, e0=zero(v0 * b0))
 
