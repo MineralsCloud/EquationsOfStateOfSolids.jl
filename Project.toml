@@ -20,7 +20,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 [compat]
 AutoHashEquals = "0.2"
 Compat = "3.1"
-Configurations = "0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.14"
+Configurations = "0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12, 0.13, 0.14"
 ConstructionBase = "1.0"
 LsqFit = "0.8, 0.9, 0.10, 0.11, 0.12"
 PolynomialRoots = "1.0"
