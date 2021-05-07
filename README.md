@@ -7,6 +7,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://MineralsCloud.github.io/EquationsOfStateOfSolids.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://MineralsCloud.github.io/EquationsOfStateOfSolids.jl/dev)
 [![Build Status](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/workflows/CI/badge.svg)](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/actions)
+[![GitLab pipeline](https://img.shields.io/gitlab/pipeline/singularitti/equationsofstateofsolids.jl)](https://gitlab.com/singularitti/equationsofstateofsolids.jl/builds)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/MineralsCloud/EquationsOfStateOfSolids.jl?svg=true)](https://ci.appveyor.com/project/singularitti/EquationsOfStateOfSolids-jl)
 [![Build Status](https://cloud.drone.io/api/badges/MineralsCloud/EquationsOfStateOfSolids.jl/status.svg)](https://cloud.drone.io/MineralsCloud/EquationsOfStateOfSolids.jl)
 [![Build Status](https://api.cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl.svg)](https://cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl)
