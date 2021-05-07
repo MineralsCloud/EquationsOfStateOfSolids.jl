@@ -46,6 +46,26 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
-      - uses: julia-actions/julia-uploadcoveralls@v1
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+      - run: |
+          julia --project=docs -e '
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()'
+      - run: |
+          julia --project=docs -e '
+            using Documenter: DocMeta, doctest
+            using EquationsOfStateOfSolids
+            DocMeta.setdocmeta!(EquationsOfStateOfSolids, :DocTestSetup, :(using EquationsOfStateOfSolids); recursive=true)
+            doctest(EquationsOfStateOfSolids)'
+      - run: julia --project=docs docs/make.jl
         env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
