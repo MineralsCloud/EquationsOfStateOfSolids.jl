@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Fitting · EquationsOfStateOfSolids.jl</title><link rel="canonical" href="https://MineralsCloud.github.io/EquationsOfStateOfSolids.jl/api/fitting/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="EquationsOfStateOfSolids.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">EquationsOfStateOfSolids.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../installation/">Installation</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../collections/">Collections</a></li><li class="is-active"><a class="tocitem" href>Fitting</a><ul class="internal"><li><a class="tocitem" href="#Usage"><span>Usage</span></a></li><li><a class="tocitem" href="#Public-interfaces"><span>Public interfaces</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li><li><a class="tocitem" href="../../portability/">Portability</a></li><li><a class="tocitem" href="../../interoperability/">Interoperability</a></li><li><a class="tocitem" href="../../plotting/">Plotting</a></li></ul></li><li><a class="tocitem" href="../../faq/">FAQ</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>Fitting</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Fitting</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/master/docs/src/api/fitting.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Nonlinear-fitting"><a class="docs-heading-anchor" href="#Nonlinear-fitting">Nonlinear fitting</a><a id="Nonlinear-fitting-1"></a><a class="docs-heading-anchor-permalink" href="#Nonlinear-fitting" title="Permalink"></a></h1><p>From Ref. 1,</p><blockquote><p>The equations of state depend nonlinearly of a collection of parameters, <span>$E_0$</span>, <span>$V_0$</span>, <span>$B_0$</span>, <span>$B_0&#39;$</span>, ..., that represent physical properties of the solid at equilibrium and can, in principle, be obtained expermentally by independent methods. The use of a given analytical EOS may have significant influence on the results obtained, particularly because the parameters are far from being independent. The number of parameters has to be considered in comparing the goodness of fit of functional forms with different analytical flexibility. The possibility of using too many parameters, beyond what is physically justified by the information contained in the experimental data, is a serious aspect that deserves consideration.</p></blockquote><p>In <a href="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl"><code>EquationsOfStateOfSolids</code></a>, the nonlinear fitting is currently implemented by <a href="https://github.com/JuliaNLSolvers/LsqFit.jl"><code>LsqFit</code></a>, a small library that provides basic least-squares fitting in pure Julia. It only utilizes the <em>Levenberg-Marquardt algorithm</em> for non-linear fitting. See its <a href="https://github.com/JuliaNLSolvers/LsqFit.jl/blob/master/README.md">documentation</a> for more information.</p><h2 id="Usage"><a class="docs-heading-anchor" href="#Usage">Usage</a><a id="Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Usage" title="Permalink"></a></h2><p>We provide API <code>nonlinfit</code> currently.</p><pre><code class="language-julia">using EquationsOfStateOfSolids
+using EquationsOfStateOfSolids.Fitting
+
+volumes = [
+    25.987454833,
+    26.9045702104,
+    27.8430241908,
+    28.8029649591,
+    29.7848370694,
+    30.7887887064,
+    31.814968055,
+    32.8638196693,
+    33.9353435494,
+    35.0299842495,
+    36.1477417695,
+    37.2892088485,
+    38.4543854865,
+    39.6437162376,
+    40.857201102,
+    42.095136449,
+    43.3579668329,
+    44.6456922537,
+    45.9587572656,
+    47.2973100535,
+    48.6614988019,
+    50.0517680652,
+    51.4682660281,
+    52.9112890601,
+    54.3808371612,
+    55.8775030703,
+    57.4014349722,
+    58.9526328669,
+];
+energies = [
+    -7.63622156576,
+    -8.16831294894,
+    -8.63871612686,
+    -9.05181213218,
+    -9.41170988374,
+    -9.72238224345,
+    -9.98744832526,
+    -10.210309552,
+    -10.3943401353,
+    -10.5427238068,
+    -10.6584266073,
+    -10.7442240979,
+    -10.8027285713,
+    -10.8363890521,
+    -10.8474912964,
+    -10.838157792,
+    -10.8103477586,
+    -10.7659387815,
+    -10.7066179666,
+    -10.6339907853,
+    -10.5495538639,
+    -10.4546677714,
+    -10.3506386542,
+    -10.2386366017,
+    -10.1197772808,
+    -9.99504030111,
+    -9.86535084973,
+    -9.73155247952,
+];
+
+julia&gt; nonlinfit(EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4, 0)), volumes, energies)
+BirchMurnaghan3rd{Float64}(40.989265727925826, 0.5369258245608038, 4.1786442319302015, -10.842803908298968)
+
+julia&gt; nonlinfit(EnergyEquation(Murnaghan(41, 0.5, 4, 0)), volumes, energies)
+Murnaghan{Float64}(41.13757924894751, 0.5144967655882123, 3.912386317519504, -10.836794511015869)
+
+julia&gt; nonlinfit(EnergyEquation(PoirierTarantola3rd(41, 0.5, 4, 0)), volumes, energies)
+PoirierTarantola3rd{Float64}(40.86770643567383, 0.5667729960008705, 4.331688934942696, -10.851486685029547)
+
+julia&gt; nonlinfit(EnergyEquation(Vinet(41, 0.5, 4, 0)), volumes, energies)
+Vinet{Float64}(40.91687567368755, 0.5493839427734198, 4.30519294991197, -10.846160810968053)</code></pre><p>Then 4 different equations of state will be fitted.</p><h2 id="Public-interfaces"><a class="docs-heading-anchor" href="#Public-interfaces">Public interfaces</a><a id="Public-interfaces-1"></a><a class="docs-heading-anchor-permalink" href="#Public-interfaces" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="EquationsOfStateOfSolids.Fitting.linfit" href="#EquationsOfStateOfSolids.Fitting.linfit"><code>EquationsOfStateOfSolids.Fitting.linfit</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">linfit(eos::EnergyEquation{&lt;:FiniteStrainParameters}, volumes, energies; kwargs...)</code></pre><p><strong>Keyword Arguments</strong></p><ul><li><code>maxiter::Integer=1000</code>: .</li><li><code>conv_thr::AbstractFloat=1e-12</code>: .</li><li><code>root_thr::AbstractFloat=1e-20</code>: .</li><li><code>verbose::Bool=false</code>: .</li></ul><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>If you want to fit with <code>BigFloat</code> data, you need to install <a href="https://github.com/JuliaLinearAlgebra/GenericSVD.jl"><code>GenericSVD.jl</code></a> and <code>using GenericSVD</code> before fittting!</p></div></div></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/d99cb755d04d4877faf7e009ef4fd2004bf7a88d/src/Fitting.jl#LL40-L53">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="EquationsOfStateOfSolids.Fitting.nonlinfit" href="#EquationsOfStateOfSolids.Fitting.nonlinfit"><code>EquationsOfStateOfSolids.Fitting.nonlinfit</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">nonlinfit(eos::EquationOfStateOfSolids, xs, ys; kwargs...)</code></pre><p><strong>Keyword Arguments</strong></p><ul><li><code>xtol::AbstractFloat=1e-16</code>: .</li><li><code>gtol::AbstractFloat=1e-16</code>: .</li><li><code>maxiter::Integer=1000</code>: .</li><li><code>min_step_quality::AbstractFloat=1e-16</code>: .</li><li><code>good_step_quality::AbstractFloat=0.75</code>: .</li><li><code>verbose::Bool=false</code>: .</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/d99cb755d04d4877faf7e009ef4fd2004bf7a88d/src/Fitting.jl#LL154-L164">source</a></section></article><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><ol><li><a href="https://www.sciencedirect.com/science/article/pii/S0010465511001470">A. Otero-De-La-Roza, V. Luaña, <em>Computer Physics Communications</em>. <strong>182</strong>, 1708–1720 (2011), doi:10.1016/j.cpc.2011.04.016.</a></li></ol></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../collections/">« Collections</a><a class="docs-footer-nextpage" href="../../portability/">Portability »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 7 May 2021 19:13">Friday 7 May 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
