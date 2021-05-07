@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./docs/src/assets/logo.png" height="200"><br>
+  <img src="https://raw.githubusercontent.com/MineralsCloud/EquationsOfStateOfSolids.jl/master/docs/src/assets/logo.png" height="200"><br>
 </div>
 
 # EquationsOfStateOfSolids
