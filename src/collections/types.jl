@@ -3,6 +3,7 @@ const Parameters = EquationOfStateOfSolidsParameters
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
 abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
+abstract type Murnaghan{T} <: Parameters{T} end
 """
     Murnaghan1st(v0, b0, b′0, e0=zero(v0 * b0))
 
@@ -14,10 +15,9 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-abstract type Murnaghan{T} <: Parameters{T} end
 @auto_hash_equals struct Murnaghan1st{T} <: Murnaghan{T}
     v0::T
     b0::T
@@ -64,7 +64,7 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
@@ -85,8 +85,8 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
-- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure. "`″`" can be typed by `\\pprime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
+- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
@@ -128,7 +128,7 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
@@ -149,8 +149,8 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
-- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure. "`″`" can be typed by `\\pprime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
+- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
@@ -173,7 +173,7 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct Vinet{T} <: Parameters{T}
