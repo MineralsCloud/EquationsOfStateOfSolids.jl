@@ -217,18 +217,52 @@ end
 end
 
 abstract type EquationOfState{T<:Parameters} end
+"""
+    EquationOfStateOfSolids{T<:Parameters}
+
+Represent an equation of state of solids.
+"""
 abstract type EquationOfStateOfSolids{T} <: EquationOfState{T} end
+"""
+    EnergyEquation{T} <: EquationOfStateOfSolids{T}
+    EnergyEquation(parameters::Parameters)
+
+Construct an equation of state which evaluates the energy of the given `parameters`.
+"""
 struct EnergyEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
+"""
+    PressureEquation{T} <: EquationOfStateOfSolids{T}
+    PressureEquation(parameters::Parameters)
+
+Construct an equation of state which evaluates the pressure of the given `parameters`.
+"""
 struct PressureEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
+"""
+    BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
+    BulkModulusEquation(parameters::Parameters)
+
+Construct an equation of state which evaluates the bulk modulus of the given `parameters`.
+"""
 struct BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
 
+"""
+    EquationFrom{T<:EquationOfStateOfSolids}
+
+Construct an equation of state from another equation of state.
+"""
 abstract type EquationFrom{T<:EquationOfStateOfSolids} end
+"""
+    EnergyFrom{T} <: EquationOfStateOfSolids{T}
+    EnergyFrom(eos::EquationOfStateOfSolids)
+
+Construct an equation of state from another equation of state.
+"""
 struct EnergyFrom{T} <: EquationOfStateOfSolids{T}
     eos::T
 end
