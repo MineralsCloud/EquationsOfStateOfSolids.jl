@@ -4,9 +4,9 @@ abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
 abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
 """
-    Murnaghan(v0, b0, b′0, e0=zero(v0 * b0))
+    Murnaghan1st(v0, b0, b′0, e0=zero(v0 * b0))
 
-Create a Murnaghan equation of state.
+Create a Murnaghan first order equation of state.
 
 This equation of state can have units. The units are specified in
 [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
