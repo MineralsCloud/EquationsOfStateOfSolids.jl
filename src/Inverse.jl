@@ -84,7 +84,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     elseif Δ < 0
         return ()  # Complex strains
     else
-        throw(ArgumentError("this should never happen!"))
+        @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
@@ -107,7 +107,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
             2cbrt(p), -cbrt(p)  # 2 real roots are equal, leaving 2 solutions
         end
     else
-        throw(ArgumentError("this should never happen!"))
+        @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
     end  # solutions are strains
     vs = map(FromEulerianStrain(v0), fs)
     return filter(_ispositive, map(real, filter(isreal, vs)))
@@ -121,7 +121,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     elseif Δ < 0
         return ()  # Complex strains
     else
-        throw(ArgumentError("this should never happen!"))
+        @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
