@@ -1,5 +1,5 @@
-abstract type EquationOfStateOfSolidsParameters{T} end
-const Parameters = EquationOfStateOfSolidsParameters
+using EquationsOfState: Parameters, EquationOfState
+
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
 abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
@@ -216,7 +216,6 @@ end
     end
 end
 
-abstract type EquationOfState{T<:Parameters} end
 """
     EquationOfStateOfSolids{T<:Parameters}
 
