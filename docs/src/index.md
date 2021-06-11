@@ -18,11 +18,16 @@ CurrentModule = EquationsOfStateOfSolids
 See the [Index](@ref main-index) for the complete list of documented functions
 and types.
 
+The old [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl)
+package has been superseded by `EquationsOfStateOfSolids.jl`, and will be deprecated.
+So please just use `EquationsOfStateOfSolids.jl`.
+
 ## Manual Outline
 
 ```@contents
 Pages = [
     "installation.md",
+    "develop.md",
     "portability.md",
     "interoperability.md",
     "plotting.md",
@@ -34,8 +39,4 @@ Depth = 3
 ```
 
 ```@index
-```
-
-```@autodocs
-Modules = [EquationsOfStateOfSolids]
 ```

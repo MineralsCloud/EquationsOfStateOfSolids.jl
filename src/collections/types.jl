@@ -3,10 +3,11 @@ const Parameters = EquationOfStateOfSolidsParameters
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
 abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
+abstract type Murnaghan{T} <: Parameters{T} end
 """
-    Murnaghan(v0, b0, b′0, e0=zero(v0 * b0))
+    Murnaghan1st(v0, b0, b′0, e0=zero(v0 * b0))
 
-Create a Murnaghan equation of state.
+Create a Murnaghan first order equation of state.
 
 This equation of state can have units. The units are specified in
 [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
@@ -14,10 +15,9 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-abstract type Murnaghan{T} <: Parameters{T} end
 @auto_hash_equals struct Murnaghan1st{T} <: Murnaghan{T}
     v0::T
     b0::T
@@ -25,6 +25,21 @@ abstract type Murnaghan{T} <: Parameters{T} end
     e0::T
     Murnaghan1st{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
+"""
+    Murnaghan2nd(v0, b0, b′0, b″0, e0=zero(v0 * b0))
+
+Create a Murnaghan second order equation of state.
+
+This equation of state can have units. The units are specified in
+[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+
+# Arguments
+- `v0`: the volume of solid at zero pressure.
+- `b0`: the bulk modulus of solid at zero pressure.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
+- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
+- `e0`: the energy of solid at zero pressure.
+"""
 @auto_hash_equals struct Murnaghan2nd{T} <: Murnaghan{T}
     v0::T
     b0::T
@@ -64,7 +79,7 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
@@ -85,8 +100,8 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
-- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure. "`″`" can be typed by `\\pprime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
+- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
@@ -128,7 +143,7 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
@@ -149,8 +164,8 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
-- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure. "`″`" can be typed by `\\pprime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
+- `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
@@ -173,7 +188,7 @@ This equation of state can have units. The units are specified in
 # Arguments
 - `v0`: the volume of solid at zero pressure.
 - `b0`: the bulk modulus of solid at zero pressure.
-- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure. "`′`" can be typed by `\\prime<tab>`.
+- `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
 @auto_hash_equals struct Vinet{T} <: Parameters{T}
@@ -202,24 +217,70 @@ end
 end
 
 abstract type EquationOfState{T<:Parameters} end
+"""
+    EquationOfStateOfSolids{T<:Parameters}
+
+Represent an equation of state of solids.
+"""
 abstract type EquationOfStateOfSolids{T} <: EquationOfState{T} end
+"""
+    EnergyEquation{T} <: EquationOfStateOfSolids{T}
+    EnergyEquation(parameters::Parameters)
+
+Construct an equation of state which evaluates the energy of the given `parameters`.
+"""
 struct EnergyEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
+"""
+    PressureEquation{T} <: EquationOfStateOfSolids{T}
+    PressureEquation(parameters::Parameters)
+
+Construct an equation of state which evaluates the pressure of the given `parameters`.
+"""
 struct PressureEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
+"""
+    BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
+    BulkModulusEquation(parameters::Parameters)
+
+Construct an equation of state which evaluates the bulk modulus of the given `parameters`.
+"""
 struct BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
 
+"""
+    EquationFrom{T<:EquationOfStateOfSolids}
+
+Construct an equation of state from another equation of state.
+"""
 abstract type EquationFrom{T<:EquationOfStateOfSolids} end
+"""
+    EnergyFrom{T} <: EquationOfStateOfSolids{T}
+    EnergyFrom(eos::EquationOfStateOfSolids)
+
+Construct an energy equation of state from another equation of state.
+"""
 struct EnergyFrom{T} <: EquationOfStateOfSolids{T}
     eos::T
 end
+"""
+    PressureFrom{T} <: EquationOfStateOfSolids{T}
+    PressureFrom(eos::EquationOfStateOfSolids)
+
+Construct a pressure equation of state from another equation of state.
+"""
 struct PressureFrom{T} <: EquationOfStateOfSolids{T}
     eos::T
 end
+"""
+    BulkModulusFrom{T} <: EquationOfStateOfSolids{T}
+    BulkModulusFrom(eos::EquationOfStateOfSolids)
+
+Construct a bulk modulus equation of state from another equation of state.
+"""
 struct BulkModulusFrom{T} <: EquationOfStateOfSolids{T}
     eos::T
 end
