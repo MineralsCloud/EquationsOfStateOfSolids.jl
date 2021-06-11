@@ -76,7 +76,7 @@ function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     return term1 / term2
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
-    @unpack v0, b0, b′0, e0 = getparam(x.eos)
+    @unpack v0, b0, e0 = getparam(x.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -113,7 +113,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
     return filter(_ispositive, map(real, filter(isreal, vs)))
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
-    @unpack v0, b0, b′0, e0 = getparam(x.eos)
+    @unpack v0, b0, e0 = getparam(x.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
