@@ -73,7 +73,7 @@ function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     k = b″0 * p + b′0
     term1 = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
     term2 = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
-    return term1 / term2
+    return (term1 / term2,)
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     @unpack v0, b0, e0 = getparam(x.eos)
