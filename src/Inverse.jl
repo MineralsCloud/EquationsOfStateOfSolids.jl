@@ -64,7 +64,7 @@ end
 end
 
 function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan1st}})(p)
-    @unpack v0, b0, b′0, e0 = getparam(x.eos)
+    @unpack v0, b0, b′0 = getparam(x.eos)
     return (v0 * (1 + b′0 / b0 * p)^(-1 / b′0),)
 end
 function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan2nd}})(p)
