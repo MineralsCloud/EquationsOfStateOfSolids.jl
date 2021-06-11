@@ -27,6 +27,7 @@ So please just use `EquationsOfStateOfSolids.jl`.
 ```@contents
 Pages = [
     "installation.md",
+    "develop.md",
     "portability.md",
     "interoperability.md",
     "plotting.md",
