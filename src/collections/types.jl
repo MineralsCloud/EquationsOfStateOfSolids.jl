@@ -261,14 +261,26 @@ abstract type EquationFrom{T<:EquationOfStateOfSolids} end
     EnergyFrom{T} <: EquationOfStateOfSolids{T}
     EnergyFrom(eos::EquationOfStateOfSolids)
 
-Construct an equation of state from another equation of state.
+Construct an energy equation of state from another equation of state.
 """
 struct EnergyFrom{T} <: EquationOfStateOfSolids{T}
     eos::T
 end
+"""
+    PressureFrom{T} <: EquationOfStateOfSolids{T}
+    PressureFrom(eos::EquationOfStateOfSolids)
+
+Construct a pressure equation of state from another equation of state.
+"""
 struct PressureFrom{T} <: EquationOfStateOfSolids{T}
     eos::T
 end
+"""
+    BulkModulusFrom{T} <: EquationOfStateOfSolids{T}
+    BulkModulusFrom(eos::EquationOfStateOfSolids)
+
+Construct a bulk modulus equation of state from another equation of state.
+"""
 struct BulkModulusFrom{T} <: EquationOfStateOfSolids{T}
     eos::T
 end
