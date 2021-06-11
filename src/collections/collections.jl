@@ -20,9 +20,6 @@ export Murnaghan,
     EnergyEquation,
     PressureEquation,
     BulkModulusEquation,
-    EnergyFrom,
-    PressureFrom,
-    BulkModulusFrom,
     orderof,
     getparam
 

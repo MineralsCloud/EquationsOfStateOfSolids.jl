@@ -232,6 +232,7 @@ Construct an equation of state which evaluates the energy of the given `paramete
 struct EnergyEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
+EnergyEquation(eos::EquationOfStateOfSolids) = EnergyEquation(getparam(eos))
 """
     PressureEquation{T} <: EquationOfStateOfSolids{T}
     PressureEquation(parameters::Parameters)
@@ -241,6 +242,7 @@ Construct an equation of state which evaluates the pressure of the given `parame
 struct PressureEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
+PressureEquation(eos::EquationOfStateOfSolids) = PressureEquation(getparam(eos))
 """
     BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     BulkModulusEquation(parameters::Parameters)
@@ -250,43 +252,4 @@ Construct an equation of state which evaluates the bulk modulus of the given `pa
 struct BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
-
-"""
-    EquationFrom{T<:EquationOfStateOfSolids}
-
-Construct an equation of state from another equation of state.
-"""
-abstract type EquationFrom{T<:EquationOfStateOfSolids} end
-"""
-    EnergyFrom{T} <: EquationOfStateOfSolids{T}
-    EnergyFrom(eos::EquationOfStateOfSolids)
-
-Construct an energy equation of state from another equation of state.
-"""
-struct EnergyFrom{T} <: EquationOfStateOfSolids{T}
-    eos::T
-end
-"""
-    PressureFrom{T} <: EquationOfStateOfSolids{T}
-    PressureFrom(eos::EquationOfStateOfSolids)
-
-Construct a pressure equation of state from another equation of state.
-"""
-struct PressureFrom{T} <: EquationOfStateOfSolids{T}
-    eos::T
-end
-"""
-    BulkModulusFrom{T} <: EquationOfStateOfSolids{T}
-    BulkModulusFrom(eos::EquationOfStateOfSolids)
-
-Construct a bulk modulus equation of state from another equation of state.
-"""
-struct BulkModulusFrom{T} <: EquationOfStateOfSolids{T}
-    eos::T
-end
-(x::EnergyFrom)(v) = EnergyEquation(getparam(x.eos))(v)
-(x::EnergyFrom{<:EnergyEquation})(v) = x.eos(v)
-(x::PressureFrom)(v) = PressureEquation(getparam(x.eos))(v)
-(x::PressureFrom{<:PressureEquation})(v) = x.eos(v)
-(x::BulkModulusFrom)(v) = BulkModulusEquation(getparam(x.eos))(v)
-(x::BulkModulusFrom{<:BulkModulusEquation})(v) = x.eos(v)
+BulkModulusEquation(eos::EquationOfStateOfSolids) = BulkModulusEquation(getparam(eos))
