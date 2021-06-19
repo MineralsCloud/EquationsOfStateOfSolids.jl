@@ -18,7 +18,7 @@
 This package implements some _equations of state_ (EOS) of solids which are
 useful in research. It currently includes:
 
-1. `Murnaghan` EOS
+1. `Murnaghan1st` EOS
 2. Birch–Murnaghan EOS family:
    1. `BirchMurnaghan2nd`
    2. `BirchMurnaghan3rd`
@@ -27,8 +27,6 @@ useful in research. It currently includes:
 4. Poirier–Tarantola EOS family:
    1. `PoirierTarantola2nd`
    2. `PoirierTarantola3rd`
-   3. `PoirierTarantola4th`
-5. `AntonSchmidt` EOS (experimental)
 
 The formulae are referenced from Ref. 1.
 
