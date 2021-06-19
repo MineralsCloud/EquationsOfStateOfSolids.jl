@@ -1,3 +1,5 @@
+using AutoHashEquals: @auto_hash_equals
+using ConstructionBase: constructorof
 using EquationsOfState: Parameters, EquationOfState
 
 export Murnaghan,
