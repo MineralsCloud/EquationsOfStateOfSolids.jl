@@ -608,4 +608,119 @@ end
     end
 end
 
+# Data from http://tutorials.crystalsolutions.eu/tutorial.html?td=eos&tf=eos_tut
+@testset "Test MgO data" begin
+    volumes = [17.789658, 18.382125, 18.987603, 19.336585, 19.606232, 20.238155, 20.883512]
+    energies = [
+        -275.3023029137,
+        -275.3039525749,
+        -275.3047829172,
+        -275.3049167772,
+        -275.3048617406,
+        -275.3042539881,
+        -275.3030141001,
+    ]
+    @testset "without unit" begin
+        @test _isapprox(
+            nonlinfit(EnergyEquation(Murnaghan1st(19, 100, 4)), volumes, energies),
+            Murnaghan1st(19.3620, 0.035786498967406696, 3.70, -275.30491639);
+            atol = 1e-2,
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEquation(BirchMurnaghan3rd(19, 100, 4)), volumes, energies),
+            BirchMurnaghan3rd(19.3618, 0.035859897760315104, 3.72, -275.30491678);
+            atol = 1e-2,
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEquation(PoirierTarantola3rd(19, 100, 4)), volumes, energies),
+            PoirierTarantola3rd(19.3617, 0.0358988908690477, 3.73, -275.30491699);
+            atol = 1e-2,
+        )
+        @test _isapprox(
+            nonlinfit(EnergyEquation(Vinet(19, 100, 4)), volumes, energies),
+            Vinet(19.3617, 0.035880541170820596, 3.73, -275.30491690);
+            atol = 1e-4,
+        )
+    end
+
+    @testset "with units" begin
+        volumes *= u"angstrom^3"
+        energies *= u"Eh_au"
+        @test _isapprox(
+            nonlinfit(
+                EnergyEquation(Murnaghan1st(19u"angstrom^3", 100u"GPa", 4)),
+                volumes,
+                energies,
+            ),
+            Murnaghan1st(19.3620u"angstrom^3", 156.02u"GPa", 3.70, -275.30491639u"Eh_au");
+            rtol = 1e-6,
+        )
+        @test _isapprox(
+            nonlinfit(
+                EnergyEquation(BirchMurnaghan3rd(19u"angstrom^3", 100u"GPa", 4)),
+                volumes,
+                energies,
+            ),
+            BirchMurnaghan3rd(
+                19.3618u"angstrom^3",
+                156.34u"GPa",
+                3.72,
+                -275.30491678u"Eh_au",
+            );
+            rtol = 1e-6,
+        )
+        @test _isapprox(
+            nonlinfit(
+                EnergyEquation(PoirierTarantola3rd(19u"angstrom^3", 100u"GPa", 4)),
+                volumes,
+                energies,
+            ),
+            PoirierTarantola3rd(
+                19.3617u"angstrom^3",
+                156.51u"GPa",
+                3.73,
+                -275.30491699u"Eh_au",
+            );
+            rtol = 1e-6,
+        )
+        @test _isapprox(
+            nonlinfit(
+                EnergyEquation(Vinet(19u"angstrom^3", 100u"GPa", 4)),
+                volumes,
+                energies,
+            ),
+            Vinet(19.3617u"angstrom^3", 156.43u"GPa", 3.73, -275.30491690u"Eh_au");
+            rtol = 1e-6,
+        )
+        @test _isapprox(
+            linfit(
+                EnergyEquation(BirchMurnaghan3rd(19u"angstrom^3", 100u"GPa", 4)),
+                volumes,
+                energies,
+            ),
+            BirchMurnaghan3rd(
+                19.3618u"angstrom^3",
+                0.035859897760315104u"Eh_au / angstrom^3",
+                3.72,
+                -275.30491678u"Eh_au",
+            );
+            rtol = 1e-4,
+        )
+        @test _isapprox(
+            linfit(
+                EnergyEquation(PoirierTarantola3rd(19u"angstrom^3", 100u"GPa", 4)),
+                volumes,
+                energies,
+            ),
+            PoirierTarantola3rd(
+                19.3617u"angstrom^3",
+                0.0358988908690477u"Eh_au / angstrom^3",
+                3.73,
+                -275.30491699u"Eh_au",
+            );
+            rtol = 1e-5,
+        )
+    end
+end
+
 end
