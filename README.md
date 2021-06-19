@@ -40,10 +40,22 @@ See its
 
 ## Compatibility
 
-- [Julia version: `v1.0.0` and above](https://julialang.org/downloads/)
-- Dependencies: see `Project.toml` [`deps` field](Project.toml#L7-L18) and
-  [`compat` field](Project.toml#L21-L31)
-- OS: macOS, Linux, and Windows
+- [Julia version: `v1.0.0` to `v1.6.1`](https://julialang.org/downloads/)
+- Dependencies:
+  - [`AutoHashEquals.jl`](https://github.com/andrewcooke/AutoHashEquals.jl) `v0.2.0` and above
+  - [`Compat.jl`](https://github.com/JuliaLang/Compat.jl) `v3.1.0` and above
+  - [`Configurations.jl`](https://github.com/Roger-luo/Configurations.jl) `v0.3.0` and above
+  - [`ConstructionBase.jl`](https://github.com/JuliaObjects/ConstructionBase.jl) `v1.0` and above
+  - [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl) `v4.0.0` and above
+  - [`LsqFit.jl`](https://github.com/JuliaNLSolvers/LsqFit.jl) `v0.8.0` and above
+  - [`PolynomialRoots.jl`](https://github.com/giordano/PolynomialRoots.jl) `v1.0.0` and above
+  - [`Polynomials.jl`](https://github.com/JuliaMath/Polynomials.jl) `v0.8.0` and above
+  - [`Roots.jl`](https://github.com/JuliaMath/Roots.jl) `v0.8.0` and above
+  - [`Roots.jl`](https://github.com/JuliaMath/Roots.jl) `v0.8.0` and above
+  - [`UnPack.jl`](https://github.com/mauro3/UnPack.jl) `v1.0.0` and above
+  - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) `v0.18.0` and above
+- OS: macOS, Linux, Windows, and FreeBSD
+- Architecture: x86, x64, ARM
 
 ## References
 
