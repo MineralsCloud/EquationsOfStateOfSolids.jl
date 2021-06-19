@@ -49,7 +49,7 @@ function (eos::EnergyEquation{<:Vinet})(v)
     x, y = 1 - (v / v0)^_⅓, 3 / 2 * (b′0 - 1)
     return e0 + 9b0 * v0 / y^2 * (1 + (x * y - 1) * exp(x * y))
 end
-function (f::EnergyEquation{<:AntonSchmidt})(v)
+function (eos::EnergyEquation{<:AntonSchmidt})(v)
     @unpack v0, b0, b′0, e∞ = getparam(eos)
     n₊₁ = -b′0 / 2 + 1
     x = v / v0
