@@ -24,15 +24,6 @@ function (eos::EnergyEquation{<:PoirierTarantola2nd})(v)
     f = ToNaturalStrain(v0)(v)
     return e0 + 9b0 * v0 * f^2 / 2
 end
-"""
-    (eos::EnergyEquation{<:PoirierTarantola3rd})(v)
-
-Evaluate a Poirier--Tarantola energy EOS on volume `v`.
-
-```math
-E(V) = E_0 + \\frac {B_0 V_0}{2}\\left[ \\ln \\left( \\frac{V_0}{V}\\right) \\right]^{2} + \\frac{B_0 V_0}{6} \\left[ \\ln \\left(\\frac{V_0}V{} \\right) \\right]^3 \\left(B_0^\\prime - 2 \\right)
-```
-"""
 function (eos::EnergyEquation{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0, e0 = getparam(eos)
     f = ToNaturalStrain(v0)(v)

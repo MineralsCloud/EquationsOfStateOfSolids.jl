@@ -29,15 +29,6 @@ function (eos::PressureEquation{<:PoirierTarantola2nd})(v)
     f = ToNaturalStrain(v0)(v)
     return -3b0 * f * exp(-3f)
 end
-"""
-    (eos::PressureEquation{<:PoirierTarantola3rd})(v)
-
-Evaluate a Poirier--Tarantola pressure EOS on volume `v`.
-
-```math
-P(V) = B_0 \\frac{V_0}{V} \\left[\\ln \\left( \\frac{V_0}{V} \\right) + \\frac{\\left( B_0^\\prime -2 \\right) }{2} \\left[ \\ln \\left( \\frac{V_0}{V} \\right) \\right]^2\\right]
-```
-"""
 function (eos::PressureEquation{<:PoirierTarantola3rd})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     f = ToNaturalStrain(v0)(v)
