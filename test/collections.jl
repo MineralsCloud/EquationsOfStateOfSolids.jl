@@ -4,10 +4,13 @@ using Test: @test, @testset, @test_throws
 using Unitful: Quantity, DimensionlessQuantity, @u_str
 
 using EquationsOfStateOfSolids:
+    Murnaghan,
     Murnaghan1st,
+    BirchMurnaghan,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
     BirchMurnaghan4th,
+    PoirierTarantola,
     PoirierTarantola2nd,
     PoirierTarantola3rd,
     PoirierTarantola4th,
@@ -159,6 +162,28 @@ end
     #@test eltype(BreenanStacey(1u"nm^3", 2u"GPa", 3.0)
 end
 
+@testset "Constructors" begin
+    @test_throws ArgumentError Murnaghan(1, 2, 3.0)
+    @test_throws ArgumentError Murnaghan(1, 2, 3.0, 4, 5 // 1, Int32(6))
+    @test Murnaghan(1, 2, 3.0, 4) === Murnaghan1st(1.0, 2.0, 3.0, 4.0)
+    @test Murnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3.0, 4u"eV") ===
+          Murnaghan1st(1.0u"angstrom^3", 2.0u"eV/angstrom^3", 3.0, 4.0u"eV")
+    @test_throws ArgumentError BirchMurnaghan(1, 2)
+    @test BirchMurnaghan(1, 2 // 1, 3.0) === BirchMurnaghan2nd(1.0, 2.0, 3.0)
+    @test BirchMurnaghan(1, 2, 3.0, 4) === BirchMurnaghan3rd(1.0, 2.0, 3.0, 4.0)
+    @test BirchMurnaghan(1, 2, 3.0, 4, Int32(5)) ===
+          BirchMurnaghan4th(1.0, 2.0, 3.0, 4.0, 5.0)
+    @test BirchMurnaghan(1u"angstrom^3", 2u"eV/angstrom^3", 3.0, 4u"eV") ===
+          BirchMurnaghan3rd(1.0u"angstrom^3", 2.0u"eV/angstrom^3", 3.0, 4.0u"eV")
+    @test_throws ArgumentError PoirierTarantola(1, 2)
+    @test PoirierTarantola(1, 2 // 1, 3.0) === PoirierTarantola2nd(1.0, 2.0, 3.0)
+    @test PoirierTarantola(1, 2, 3.0, 4) === PoirierTarantola3rd(1.0, 2.0, 3.0, 4.0)
+    @test PoirierTarantola(1, 2, 3.0, 4, Int32(5)) ===
+          PoirierTarantola4th(1.0, 2.0, 3.0, 4.0, 5.0)
+    @test PoirierTarantola(1u"angstrom^3", 2u"eV/angstrom^3", 3.0, 4u"eV") ===
+          PoirierTarantola3rd(1.0u"angstrom^3", 2.0u"eV/angstrom^3", 3.0, 4.0u"eV")
+end
+
 @testset "`float` on an EOS" begin
     @test eltype(float(Vinet(1, 2, 3))) === Float64
     @test eltype(float(Vinet(1u"nm^3", 2u"GPa", 3))) === Quantity{Float64}
@@ -166,12 +191,9 @@ end
 end
 
 @testset "Other element types" begin
-    @test eltype(BirchMurnaghan4th(
-        measurement("1 +- 0.1"),
-        3 // 1,
-        2,
-        measurement("-123.4(56)"),
-    )) === Measurement{Float64}
+    @test eltype(
+        BirchMurnaghan4th(measurement("1 +- 0.1"), 3 // 1, 2, measurement("-123.4(56)")),
+    ) === Measurement{Float64}
     @testset "`SymEngine.Basic`" begin
         v0, b0, b′0, b″0, e0 = symbols("v0, b0, b′0, b″0, e0")
         @test eltype(BirchMurnaghan4th(v0, b0, b′0, b″0, e0)) === Basic
