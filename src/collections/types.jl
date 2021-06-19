@@ -231,6 +231,59 @@ end
     end
 end
 
+function (::Type{T})(args...) where {T<:Parameters}
+    E = Base.promote_typeof(args...)
+    return constructorof(T){E}(args...)  # Cannot use `T.(args...)`! For `AbstractQuantity` they will fail!
+end
+function Murnaghan(args...)
+    N = length(args)
+    if N == 4
+        return Murnaghan1st(args...)
+    elseif N == 5
+        return Murnaghan2nd(args...)
+    else
+        throw(ArgumentError("unknown number of arguments $N."))
+    end
+end
+"""
+    BirchMurnaghan(args...)
+
+Construct a `BirchMurnaghan` based on the length of arguments, where `e0` must be provided.
+
+See also: [`BirchMurnaghan2nd`](@ref), [`BirchMurnaghan3rd`](@ref), [`BirchMurnaghan4th`](@ref)
+"""
+function BirchMurnaghan(args...)
+    N = length(args)
+    if N == 3
+        return BirchMurnaghan2nd(args...)
+    elseif N == 4
+        return BirchMurnaghan3rd(args...)
+    elseif N == 5
+        return BirchMurnaghan4th(args...)
+    else
+        throw(ArgumentError("unknown number of arguments $N."))
+    end
+end
+"""
+    PoirierTarantola(args...)
+
+Construct a `PoirierTarantola` based on the length of arguments, where `e0` must be provided.
+
+See also: [`PoirierTarantola2nd`](@ref), [`PoirierTarantola3rd`](@ref), [`PoirierTarantola4th`](@ref)
+"""
+function PoirierTarantola(args...)
+    N = length(args)
+    if N == 3
+        return PoirierTarantola2nd(args...)
+    elseif N == 4
+        return PoirierTarantola3rd(args...)
+    elseif N == 5
+        return PoirierTarantola4th(args...)
+    else
+        throw(ArgumentError("unknown number of arguments $N."))
+    end
+end
+
 """
     EquationOfStateOfSolids{T<:Parameters}
 
