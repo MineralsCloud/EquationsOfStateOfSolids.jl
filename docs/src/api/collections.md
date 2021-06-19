@@ -264,7 +264,7 @@ The $B(V)$ relation of equations of state are listed as below:
 ## Public interfaces
 
 ```@docs
-Murnaghan
+Murnaghan1st
 BirchMurnaghan
 BirchMurnaghan2nd
 BirchMurnaghan3rd
@@ -272,14 +272,10 @@ BirchMurnaghan4th
 PoirierTarantola
 PoirierTarantola2nd
 PoirierTarantola3rd
-PoirierTarantola4th
 Vinet
 AntonSchmidt
-Holzapfel
 EnergyEquation
 PressureEquation
 BulkModulusEquation
 getparam
-orderof
-straintype
 ```
