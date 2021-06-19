@@ -1,5 +1,20 @@
 using EquationsOfState: Parameters, EquationOfState
 
+export Murnaghan,
+    Murnaghan1st,
+    BirchMurnaghan,
+    BirchMurnaghan2nd,
+    BirchMurnaghan3rd,
+    BirchMurnaghan4th,
+    PoirierTarantola,
+    PoirierTarantola2nd,
+    PoirierTarantola3rd,
+    PoirierTarantola4th,
+    Vinet,
+    EnergyEquation,
+    PressureEquation,
+    BulkModulusEquation
+
 abstract type FiniteStrainParameters{N,T} <: Parameters{T} end
 abstract type BirchMurnaghan{N,T} <: FiniteStrainParameters{N,T} end
 abstract type PoirierTarantola{N,T} <: FiniteStrainParameters{N,T} end
