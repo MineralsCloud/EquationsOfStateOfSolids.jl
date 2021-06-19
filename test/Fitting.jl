@@ -708,7 +708,7 @@ end
         )
         @test _isapprox(
             linfit(
-                EnergyEquation(PoirierTarantola3rd(19u"angstrom^3", 100u"GPa", 4)),
+                EnergyEquation(PoirierTarantola3rd(19u"angstrom^3", 150u"GPa", 3.7)),
                 volumes,
                 energies,
             ),
