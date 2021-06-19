@@ -30,9 +30,6 @@ true
 orderof(::Type{<:FiniteStrainParameters{N}}) where {N} = N
 orderof(x::FiniteStrainParameters) = orderof(typeof(x))
 
-atomic_number(::Type{<:Holzapfel{Z}}) where {Z} = Z
-atomic_number(x::Holzapfel) = atomic_number(typeof(x))
-
 function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
     if get(io, :compact, false)
         Base.show_default(IOContext(io, :limit => true), param)
