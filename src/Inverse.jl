@@ -1,7 +1,6 @@
 module Inverse
 
 using Configurations: from_kwargs, @option
-using InteractiveUtils: subtypes
 using PolynomialRoots: roots
 using Roots:
     find_zero,
