@@ -45,7 +45,7 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export inverse, NumericalInversionOptions
+export NumericalInversionOptions
 
 abstract type Inverted{T<:EquationOfStateOfSolids} end
 struct AnalyticallyInverted{T} <: Inverted{T}
@@ -203,9 +203,17 @@ end
 _within(search_interval, ::AbstractBracketing) = extrema(search_interval)
 _within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
 
-inverse(eos::EquationOfStateOfSolids) = NumericallyInverted(eos)
-inverse(eos::PressureEquation{<:Murnaghan}) = AnalyticallyInverted(eos)
-inverse(eos::EnergyEquation{<:BirchMurnaghan}) = AnalyticallyInverted(eos)
-inverse(eos::EnergyEquation{<:PoirierTarantola}) = AnalyticallyInverted(eos)
+# Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
+Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) =
+    NumericallyInverted(eos)
+Base.literal_pow(
+    ::typeof(^),
+    eos::Union{
+        PressureEquation{<:Murnaghan},
+        EnergyEquation{<:BirchMurnaghan},
+        EnergyEquation{<:PoirierTarantola},
+    },
+    ::Val{-1},
+) = AnalyticallyInverted(eos)
 
 end
