@@ -1,8 +1,6 @@
 module Inverse
 
-using Compat: filter
 using Configurations: from_kwargs, @option
-using InteractiveUtils: subtypes
 using PolynomialRoots: roots
 using Roots:
     find_zero,
@@ -113,7 +111,9 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
             @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
         end  # solutions are strains
         vs = map(FromEulerianStrain(v0), fs)
-        return filter(_ispositive, map(real, filter(isreal, vs)))
+        return Tuple(Iterators.filter(_ispositive, map(real, filter(isreal, vs))))
+    end
+end
     end
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)

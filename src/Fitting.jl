@@ -4,7 +4,6 @@ using ConstructionBase: constructorof, setproperties
 using LsqFit: curve_fit, coef
 using PolynomialRoots: roots
 using Polynomials: fit, derivative, coeffs, derivative
-using Serialization: serialize
 using Unitful: AbstractQuantity, NoUnits, ustrip, unit, uconvert
 
 using ..EquationsOfStateOfSolids:
