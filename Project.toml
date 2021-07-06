@@ -5,7 +5,6 @@ version = "0.1.1"
 
 [deps]
 AutoHashEquals = "15f4f7f2-30c1-5605-9d31-71845cf9641f"
-Configurations = "5218b696-f38b-4ac9-8b61-a12ec717816d"
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 EquationsOfState = "0438fec6-b81c-52d9-9651-d286848f50a8"
 LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"
@@ -17,7 +16,6 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 AutoHashEquals = "0.2"
-Configurations = "0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16"
 ConstructionBase = "1.0"
 EquationsOfState = "4.0"
 LsqFit = "0.8, 0.9, 0.10, 0.11, 0.12"
