@@ -112,8 +112,12 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
         else
             @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
         end  # solutions are strains
-        vs = map(FromEulerianStrain(v0), fs)
-        return Tuple(Iterators.filter(_ispositive, map(real, filter(isreal, vs))))
+        return @chain fs begin
+            map(FromEulerianStrain(v0), _)
+            filter(isreal, _)
+            @. real
+            filter(_ispositive, _)
+        end
     end
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
