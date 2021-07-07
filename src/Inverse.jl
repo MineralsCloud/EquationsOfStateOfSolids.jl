@@ -107,7 +107,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
             [2COS, -COS - √3 * SIN, -COS + √3 * SIN] .* abs(r)  # Verified
         elseif Δ == 0
             if p == q == 0
-                (0,)  # 3 reals are equal
+                [0]  # 3 reals are equal
             else  # p == -q != 0
                 [2cbrt(p), -cbrt(p)]  # 2 real roots are equal, leaving 2 solutions
             end
