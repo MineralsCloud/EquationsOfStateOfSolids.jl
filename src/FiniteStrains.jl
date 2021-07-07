@@ -65,7 +65,8 @@ function (x::FromEulerianStrain)(f::Complex)
     elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
         return real(_FromEulerianStrain(x.v0, f))
     else
-        throw(DomainError("volume will be complex!"))
+        @warn "volume will be complex with strain $f."
+        return _FromEulerianStrain(x.v0, f)
     end
 end
 _FromEulerianStrain(v0, f) = v0 / (2f + 1)^_1½
@@ -79,7 +80,8 @@ function (x::FromLagrangianStrain)(f::Complex)
     elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
         return real(_FromLagrangianStrain(x.v0, f))
     else
-        throw(DomainError("volume will be complex!"))
+        @warn "volume will be complex with strain $f."
+        return _FromLagrangianStrain(x.v0, f)
     end
 end
 _FromLagrangianStrain(v0, f) = v0 * (2f + 1)^_1½
@@ -90,7 +92,8 @@ function (x::FromNaturalStrain)(f::Complex)
     elseif isinteger(rad2deg(angle(f)) / 60)  # `exp(3f)` is real for some complex `f`
         return real(_FromInfinitesimalStrain(x.v0, f))
     else
-        throw(DomainError("volume will be complex!"))
+        @warn "volume will be complex with strain $f."
+        return _FromNaturalStrain(x.v0, f)
     end
 end
 _FromNaturalStrain(v0, f) = v0 * exp(3f)
@@ -101,7 +104,8 @@ function (x::FromInfinitesimalStrain)(f::Complex)
     elseif isinteger(rad2deg(angle(1 - f)) / 60)  # `(1 - f)^3` is real for some complex `f`
         return real(_FromInfinitesimalStrain(x.v0, f))
     else
-        throw(DomainError("volume will be complex!"))
+        @warn "volume will be complex with strain $f."
+        return _FromInfinitesimalStrain(x.v0, f)
     end
 end
 _FromInfinitesimalStrain(v0, f) = v0 / (1 - f)^3
