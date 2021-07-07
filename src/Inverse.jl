@@ -1,5 +1,6 @@
 module Inverse
 
+using Chain: @chain
 using Configurations: from_kwargs, @option
 using PolynomialRoots: roots
 using Roots:
@@ -39,13 +40,14 @@ using ..EquationsOfStateOfSolids:
     BirchMurnaghan,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
+    BirchMurnaghan4th,
     PoirierTarantola,
     PoirierTarantola2nd,
     PoirierTarantola3rd,
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export inverse, NumericalInversionOptions
+export NumericalInversionOptions
 
 abstract type Inverted{T<:EquationOfStateOfSolids} end
 struct AnalyticallyInverted{T} <: Inverted{T}
@@ -69,9 +71,9 @@ function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     @unpack v0, b0, b′0, b″0 = getparam(x.eos)
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
-    term1 = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
-    term2 = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
-    return (term1 / term2,)
+    numerator = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
+    denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
+    return (numerator / denominator,)
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     @unpack v0, b0, e0 = getparam(x.eos)
@@ -114,6 +116,16 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
         return Tuple(Iterators.filter(_ispositive, map(real, filter(isreal, vs))))
     end
 end
+function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
+    @unpack v0, b0, b′0, b″0, e0 = getparam(x.eos)
+    h = b0 * b″0 + b′0^2
+    fs = roots([e0 - e, 3 // 8 * v0 * b0 .* (9h - 63b′0 + 143, 12 * (b′0 - 4), 12)...])
+    return @chain fs begin
+        map(FromEulerianStrain(v0), _)
+        filter(isreal, _)
+        @. real
+        filter(_ispositive, _)
+        Tuple
     end
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
@@ -203,9 +215,17 @@ end
 _within(search_interval, ::AbstractBracketing) = extrema(search_interval)
 _within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
 
-inverse(eos::EquationOfStateOfSolids) = NumericallyInverted(eos)
-inverse(eos::PressureEquation{<:Murnaghan}) = AnalyticallyInverted(eos)
-inverse(eos::EnergyEquation{<:BirchMurnaghan}) = AnalyticallyInverted(eos)
-inverse(eos::EnergyEquation{<:PoirierTarantola}) = AnalyticallyInverted(eos)
+# Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
+Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) =
+    NumericallyInverted(eos)
+Base.literal_pow(
+    ::typeof(^),
+    eos::Union{
+        PressureEquation{<:Murnaghan},
+        EnergyEquation{<:BirchMurnaghan},
+        EnergyEquation{<:PoirierTarantola},
+    },
+    ::Val{-1},
+) = AnalyticallyInverted(eos)
 
 end
