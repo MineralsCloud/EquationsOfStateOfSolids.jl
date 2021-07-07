@@ -91,7 +91,9 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
     @unpack v0, b0, b′0, e0 = getparam(x.eos)
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
-        throw(DivideError())  # `a` will be zero.
+        @warn "`b′0 == 4` for a `BirchMurnaghan3rd` is just a `BirchMurnaghan2nd`!"
+        eos⁻¹ = EnergyEquation(BirchMurnaghan2nd(v0, b0, e0))^(-1)
+        return eos⁻¹(e)
     else
         a = b′0 - 4
         r = 1 / 3a  # b = 1
