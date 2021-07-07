@@ -1,5 +1,6 @@
 module Inverse
 
+using Chain: @chain
 using Configurations: from_kwargs, @option
 using PolynomialRoots: roots
 using Roots:
@@ -39,6 +40,7 @@ using ..EquationsOfStateOfSolids:
     BirchMurnaghan,
     BirchMurnaghan2nd,
     BirchMurnaghan3rd,
+    BirchMurnaghan4th,
     PoirierTarantola,
     PoirierTarantola2nd,
     PoirierTarantola3rd,
@@ -114,6 +116,16 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
         return Tuple(Iterators.filter(_ispositive, map(real, filter(isreal, vs))))
     end
 end
+function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
+    @unpack v0, b0, b′0, b″0, e0 = getparam(x.eos)
+    h = b0 * b″0 + b′0^2
+    fs = roots([e0 - e, 3 // 8 * v0 * b0 .* (9h - 63b′0 + 143, 12 * (b′0 - 4), 12)...])
+    return @chain fs begin
+        map(FromEulerianStrain(v0), _)
+        filter(isreal, _)
+        @. real
+        filter(_ispositive, _)
+        Tuple
     end
 end
 function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
