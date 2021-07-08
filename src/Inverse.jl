@@ -3,30 +3,7 @@ module Inverse
 using Chain: @chain
 using Configurations: from_kwargs, @option
 using PolynomialRoots: roots
-using Roots:
-    find_zero,
-    AbstractBracketing,
-    AbstractSecant,
-    Bisection,
-    BisectionExact,
-    FalsePosition,
-    A42,
-    AlefeldPotraShi,
-    Brent,
-    Esser,
-    King,
-    KumarSinghAkanksha,
-    Order0,
-    Order16,
-    Order1B,
-    Order2,
-    Order2B,
-    Order5,
-    Order8,
-    Secant,
-    Steffensen,
-    Thukral16,
-    Thukral8
+using Roots: find_zero, Order16
 using UnPack: @unpack
 
 using ..EquationsOfStateOfSolids:
@@ -147,15 +124,14 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
 end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
-    method::Union{AbstractBracketing,AbstractSecant},
     options::NumericalInversionOptions,
 )
-    v0 = _within(options.search_interval, method) .* getparam(x.eos).v0  # v0 can be negative
+    v0 = sum(extrema(options.search_interval)) / 2 * getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(
         guess -> x.eos(guess) - y,
         v0,
-        method;
+        Order16();
         maxevals = options.maxiter,
         verbose = options.verbose,
     )
@@ -164,61 +140,10 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     end
     return v
 end
-function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
-    y,
-    method::Union{AbstractBracketing,AbstractSecant};
-    kwargs...,
-)
-    options = from_kwargs(NumericalInversionOptions; kwargs...)
-    return x(y, method, options)
-end
-function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
-    y,
-    options::NumericalInversionOptions,
-)
-    for T in [
-        Bisection,
-        BisectionExact,
-        FalsePosition,
-        A42,
-        AlefeldPotraShi,
-        Brent,
-        Esser,
-        King,
-        KumarSinghAkanksha,
-        Order0,
-        Order16,
-        Order1B,
-        Order2,
-        Order2B,
-        Order5,
-        Order8,
-        Secant,
-        Steffensen,
-        Thukral16,
-        Thukral8,
-    ]
-        if options.verbose
-            @info "using method `$T`..."
-        end
-        try
-            # `maximum` and `minimum` also works with `AbstractQuantity`s.
-            return x(y, T(), options)
-        catch e
-            if options.verbose
-                @info "method `$T` failed because of `$e`."
-            end
-            continue
-        end
-    end
-    error("no volume found!")
-end
-function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y; kwargs...)
+function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y, kwargs...)
     options = from_kwargs(NumericalInversionOptions; kwargs...)
     return x(y, options)
 end
-_within(search_interval, ::AbstractBracketing) = extrema(search_interval)
-_within(search_interval, ::AbstractSecant) = sum(extrema(search_interval)) / 2
 
 # Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
 Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) =
