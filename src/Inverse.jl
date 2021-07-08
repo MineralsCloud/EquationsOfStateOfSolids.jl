@@ -26,11 +26,7 @@ using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
 export InversionOptions
 
-abstract type Inverted{T<:EquationOfStateOfSolids} end
-struct AnalyticallyInverted{T} <: Inverted{T}
-    eos::T
-end
-struct NumericallyInverted{T} <: Inverted{T}
+struct Inverted{T<:EquationOfStateOfSolids}
     eos::T
 end
 
@@ -40,11 +36,11 @@ end
     verbose::Bool = false
 end
 
-function (eos⁻¹::AnalyticallyInverted{<:PressureEquation{<:Murnaghan1st}})(p)
+function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan1st}})(p)
     @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
     return [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
 end
-function (eos⁻¹::AnalyticallyInverted{<:PressureEquation{<:Murnaghan2nd}})(p)
+function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     @unpack v0, b0, b′0, b″0 = getparam(eos⁻¹.eos)
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
@@ -52,7 +48,7 @@ function (eos⁻¹::AnalyticallyInverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
     return [numerator / denominator]
 end
-function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
+function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -64,7 +60,7 @@ function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
+function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
     @unpack v0, b0, b′0, e0 = getparam(eos⁻¹.eos)
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
@@ -99,7 +95,7 @@ function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})
         end
     end
 end
-function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
+function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
     @unpack v0, b0, b′0, b″0, e0 = getparam(eos⁻¹.eos)
     h = b0 * b″0 + b′0^2
     fs = roots([e0 - e, 3 // 8 * v0 * b0 .* (9h - 63b′0 + 143, 12 * (b′0 - 4), 12)...])
@@ -110,7 +106,7 @@ function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan4th}})
         filter(_ispositive, _)
     end
 end
-function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
+function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -122,10 +118,7 @@ function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::NumericallyInverted{<:EquationOfStateOfSolids})(
-    y,
-    options::InversionOptions,
-)
+function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, options::InversionOptions)
     v0 = sum(extrema(options.search_interval)) / 2 * getparam(eos⁻¹.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(
@@ -140,22 +133,12 @@ function (eos⁻¹::NumericallyInverted{<:EquationOfStateOfSolids})(
     end
     return v
 end
-function (eos⁻¹::NumericallyInverted{<:EquationOfStateOfSolids})(y, kwargs...)
+function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, kwargs...)
     options = from_kwargs(InversionOptions; kwargs...)
     return eos⁻¹(y, options)
 end
 
 # Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
-Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) =
-    NumericallyInverted(eos)
-Base.literal_pow(
-    ::typeof(^),
-    eos::Union{
-        PressureEquation{<:Murnaghan},
-        EnergyEquation{<:BirchMurnaghan},
-        EnergyEquation{<:PoirierTarantola},
-    },
-    ::Val{-1},
-) = AnalyticallyInverted(eos)
+Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) = Inverted(eos)
 
 end
