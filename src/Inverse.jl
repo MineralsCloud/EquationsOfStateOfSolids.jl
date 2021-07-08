@@ -69,7 +69,7 @@ function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan2nd}})(p)
     return @chain fs begin
         map(FromEulerianStrain(v0), _)
         filter(x -> eos(x) ≈ p, _)
-        filter(x -> abs(imag(x)) < eps(), _)
+        filter(x -> abs(imag(x)) < eps(real(oneunit(x))), _)  # If `x` has unit
         @. real
     end
 end
@@ -81,7 +81,7 @@ function (eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}})(b)
     return @chain fs begin
         map(FromEulerianStrain(v0), _)
         filter(x -> eos(x) ≈ b, _)
-        filter(x -> abs(imag(x)) < eps(), _)
+        filter(x -> abs(imag(x)) < eps(real(oneunit(x))), _)  # If `x` has unit
         @. real
     end
 end
