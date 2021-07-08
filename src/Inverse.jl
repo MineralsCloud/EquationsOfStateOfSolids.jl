@@ -40,20 +40,20 @@ end
     verbose::Bool = false
 end
 
-function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan1st}})(p)
-    @unpack v0, b0, b′0 = getparam(x.eos)
+function (eos⁻¹::AnalyticallyInverted{<:PressureEquation{<:Murnaghan1st}})(p)
+    @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
     return [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
 end
-function (x::AnalyticallyInverted{<:PressureEquation{<:Murnaghan2nd}})(p)
-    @unpack v0, b0, b′0, b″0 = getparam(x.eos)
+function (eos⁻¹::AnalyticallyInverted{<:PressureEquation{<:Murnaghan2nd}})(p)
+    @unpack v0, b0, b′0, b″0 = getparam(eos⁻¹.eos)
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
     numerator = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
     return [numerator / denominator]
 end
-function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
-    @unpack v0, b0, e0 = getparam(x.eos)
+function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
+    @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -64,8 +64,8 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
-    @unpack v0, b0, b′0, e0 = getparam(x.eos)
+function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
+    @unpack v0, b0, b′0, e0 = getparam(eos⁻¹.eos)
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
         @warn "`b′0 == 4` for a `BirchMurnaghan3rd` is just a `BirchMurnaghan2nd`!"
@@ -99,8 +99,8 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
         end
     end
 end
-function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
-    @unpack v0, b0, b′0, b″0, e0 = getparam(x.eos)
+function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
+    @unpack v0, b0, b′0, b″0, e0 = getparam(eos⁻¹.eos)
     h = b0 * b″0 + b′0^2
     fs = roots([e0 - e, 3 // 8 * v0 * b0 .* (9h - 63b′0 + 143, 12 * (b′0 - 4), 12)...])
     return @chain fs begin
@@ -110,8 +110,8 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
         filter(_ispositive, _)
     end
 end
-function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
-    @unpack v0, b0, e0 = getparam(x.eos)
+function (eos⁻¹::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
+    @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -122,14 +122,14 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
+function (eos⁻¹::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
     options::InversionOptions,
 )
-    v0 = sum(extrema(options.search_interval)) / 2 * getparam(x.eos).v0  # v0 can be negative
+    v0 = sum(extrema(options.search_interval)) / 2 * getparam(eos⁻¹.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(
-        guess -> x.eos(guess) - y,
+        guess -> eos⁻¹.eos(guess) - y,
         v0,
         Order16();
         maxevals = options.maxiter,
@@ -140,9 +140,9 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     end
     return v
 end
-function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y, kwargs...)
+function (eos⁻¹::NumericallyInverted{<:EquationOfStateOfSolids})(y, kwargs...)
     options = from_kwargs(InversionOptions; kwargs...)
-    return x(y, options)
+    return eos⁻¹(y, options)
 end
 
 # Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
