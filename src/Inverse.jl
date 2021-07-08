@@ -24,7 +24,7 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export NumericalInversionOptions
+export InversionOptions
 
 abstract type Inverted{T<:EquationOfStateOfSolids} end
 struct AnalyticallyInverted{T} <: Inverted{T}
@@ -34,7 +34,7 @@ struct NumericallyInverted{T} <: Inverted{T}
     eos::T
 end
 
-@option "num_inv" struct NumericalInversionOptions
+@option "invopts" struct InversionOptions
     search_interval::AbstractVector = [eps(), 2]
     maxiter::Int64 = 40
     verbose::Bool = false
@@ -124,7 +124,7 @@ function (x::AnalyticallyInverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
 end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     y,
-    options::NumericalInversionOptions,
+    options::InversionOptions,
 )
     v0 = sum(extrema(options.search_interval)) / 2 * getparam(x.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
@@ -141,7 +141,7 @@ function (x::NumericallyInverted{<:EquationOfStateOfSolids})(
     return v
 end
 function (x::NumericallyInverted{<:EquationOfStateOfSolids})(y, kwargs...)
-    options = from_kwargs(NumericalInversionOptions; kwargs...)
+    options = from_kwargs(InversionOptions; kwargs...)
     return x(y, options)
 end
 
