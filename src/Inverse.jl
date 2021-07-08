@@ -8,6 +8,7 @@ using UnPack: @unpack
 
 using ..EquationsOfStateOfSolids:
     _ispositive,
+    BulkModulusEquation,
     PressureEquation,
     EnergyEquation,
     EquationOfStateOfSolids,
@@ -58,6 +59,30 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
         return []  # Complex strains
     else
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
+    end
+end
+function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan2nd}})(p)
+    eos = eos⁻¹.eos
+    @unpack v0, b0 = getparam(eos⁻¹.eos)
+    # Solve f for (3 B0 f (2f + 1))^2 == p^2
+    fs = roots([-(p / 3b0)^2, 0, 1, 10, 40, 80, 80, 32]; polish = true)
+    return @chain fs begin
+        map(FromEulerianStrain(v0), _)
+        filter(x -> eos(x) ≈ p, _)
+        filter(x -> abs(imag(x)) < eps(), _)
+        @. real
+    end
+end
+function (eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}})(b)
+    eos = eos⁻¹.eos
+    @unpack v0, b0 = getparam(eos⁻¹.eos)
+    # Solve f for ((7f + 1) * (2f + 1)^(5/2))^2 == (b/b0)^2
+    fs = roots([1 - (b / b0)^2, 24, 229, 1130, 3160, 5072, 4368, 1568]; polish = true)
+    return @chain fs begin
+        map(FromEulerianStrain(v0), _)
+        filter(x -> eos(x) ≈ b, _)
+        filter(x -> abs(imag(x)) < eps(), _)
+        @. real
     end
 end
 function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
