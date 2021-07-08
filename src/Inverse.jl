@@ -124,14 +124,14 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
     @unpack v0, b0, b′0, b″0, e0 = getparam(eos⁻¹.eos)
     h = b0 * b″0 + b′0^2
     fs = roots(
-        [e0 - e, 3 // 8 * v0 * b0 .* (9h - 63b′0 + 143, 12 * (b′0 - 4), 12)...];
+        [(e0 - e) / (3 / 8 * v0 * b0), 0, 12, 12(b′0 - 4), 143 - 63b′0 + 9h];
         polish = true,
     )
     return @chain fs begin
         map(FromEulerianStrain(v0), _)
-        filter(isreal, _)
+        filter(x -> eos⁻¹.eos(x) ≈ e, _)
+        filter(x -> abs(imag(x)) < eps(oneunit(real(x))), _)  # If `x` has unit
         @. real
-        filter(_ispositive, _)
     end
 end
 function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
