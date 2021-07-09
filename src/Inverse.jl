@@ -1,7 +1,7 @@
 module Inverse
 
 using PolynomialRoots: roots
-using Roots: find_zero, Order16
+using Roots: find_zero, Order2
 using StaticArrays: MVector
 using UnPack: @unpack
 
@@ -144,25 +144,15 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
-    y;
-    search_interval = (eps(), 2),
-    maxiter = 40,
-    verbose = false,
-)
-    v0 = sum(extrema(search_interval)) / 2 * getparam(eos⁻¹.eos).v0  # v0 can be negative
-    @assert _ispositive(minimum(v0))  # No negative volume
+function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, x0; maxiter = 40, verbose = false)
     v = find_zero(
         guess -> eos⁻¹.eos(guess) - y,
-        v0,
-        Order16();
+        x0,
+        Order2();
         maxevals = maxiter,
         verbose = verbose,
     )
-    if !_ispositive(v)
-        @warn "the volume found is negative!"
-    end
-    return v
+    return MVector(v...)
 end
 
 function _strain2volume(
