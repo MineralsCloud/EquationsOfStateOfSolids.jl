@@ -92,7 +92,11 @@ function (eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}})(
     )
     return _strain2volume(eos⁻¹.eos, v0, fs, b, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
+function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(
+    e;
+    chop = eps(),
+    rtol = sqrt(eps()),
+)
     @unpack v0, b0, b′0, e0 = getparam(eos⁻¹.eos)
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
@@ -119,12 +123,7 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
         else
             @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
         end  # solutions are strains
-        return @chain fs begin
-            map(FromEulerianStrain(v0), _)
-            filter(isreal, _)
-            @. real
-            filter(_ispositive, _)
-        end
+        return _strain2volume(eos⁻¹.eos, v0, fs, e, chop, rtol)
     end
 end
 function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(
