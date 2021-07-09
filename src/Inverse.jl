@@ -1,9 +1,9 @@
 module Inverse
 
 using Chain: @chain
-using Configurations: from_kwargs, @option
 using PolynomialRoots: roots
 using Roots: find_zero, Order16
+using StaticArrays: MVector
 using UnPack: @unpack
 
 using ..EquationsOfStateOfSolids:
@@ -25,22 +25,14 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export InversionOptions
-
 "Wrap an equation of state for inversions."
 struct Inverted{T<:EquationOfStateOfSolids}
     eos::T
 end
 
-@option "invopts" struct InversionOptions
-    search_interval::AbstractVector = [eps(), 2]
-    maxiter::Int64 = 40
-    verbose::Bool = false
-end
-
 function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan1st}})(p)
     @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
-    return [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
+    return MVector(v0 * (1 + b′0 / b0 * p)^(-1 / b′0))
 end
 function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     @unpack v0, b0, b′0, b″0 = getparam(eos⁻¹.eos)
@@ -48,16 +40,16 @@ function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     k = b″0 * p + b′0
     numerator = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
-    return [numerator / denominator]
+    return MVector(numerator / denominator)
 end
 function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        return map(FromEulerianStrain(v0), [f, -f])
+        return map(FromEulerianStrain(v0), MVector(f, -f))
     elseif Δ < 0
-        return []  # Complex strains
+        return MVector{0,typeof(v0)}()  # Complex strains
     else
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
@@ -110,15 +102,15 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(
         p, q = -r^3 - d / 2a, -r^2
         Δ = p^2 + q^3
         fs = -r .+ if Δ > 0
-            [cbrt(p + √Δ) + cbrt(p - √Δ)]  # Only 1 real solution
+            MVector(cbrt(p + √Δ) + cbrt(p - √Δ))  # Only 1 real solution
         elseif Δ < 0
             SIN, COS = sincos(acos(p / abs(r)^3) / 3)
-            [2COS, -COS - √3 * SIN, -COS + √3 * SIN] .* abs(r)  # Verified
+            MVector(2COS, -COS - √3 * SIN, -COS + √3 * SIN) .* abs(r)  # Verified
         elseif Δ == 0
             if p == q == 0
-                [0]  # 3 reals are equal
+                MVector(0)  # 3 reals are equal
             else  # p == -q != 0
-                [2cbrt(p), -cbrt(p)]  # 2 real roots are equal, leaving 2 solutions
+                MVector(2cbrt(p), -cbrt(p))  # 2 real roots are equal, leaving 2 solutions
             end
         else
             @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
@@ -146,31 +138,32 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        return map(FromNaturalStrain(v0), [f, -f])
+        return map(FromNaturalStrain(v0), MVector(f, -f))
     elseif Δ < 0
-        return []  # Complex strains
+        return MVector{0,typeof(v0)}()  # Complex strains
     else
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, options::InversionOptions)
-    v0 = sum(extrema(options.search_interval)) / 2 * getparam(eos⁻¹.eos).v0  # v0 can be negative
+function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
+    y;
+    search_interval = (eps(), 2),
+    maxiter = 40,
+    verbose = false,
+)
+    v0 = sum(extrema(search_interval)) / 2 * getparam(eos⁻¹.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(
         guess -> eos⁻¹.eos(guess) - y,
         v0,
         Order16();
-        maxevals = options.maxiter,
-        verbose = options.verbose,
+        maxevals = maxiter,
+        verbose = verbose,
     )
     if !_ispositive(v)
         @warn "the volume found is negative!"
     end
     return v
-end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, kwargs...)
-    options = from_kwargs(InversionOptions; kwargs...)
-    return eos⁻¹(y, options)
 end
 
 function _strain2volume(
@@ -187,6 +180,7 @@ function _strain2volume(
         filter(x -> abs(imag(x)) < chop * oneunit(imag(x)), _)  # If `x` has unit
         @. real
         filter(x -> isapprox(eos(x), y; rtol = rtol), _)
+        MVector(_...)
     end
 end
 
