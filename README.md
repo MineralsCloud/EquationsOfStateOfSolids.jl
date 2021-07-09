@@ -58,3 +58,4 @@ See its
 ## References
 
 1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).](https://www.sciencedirect.com/science/article/pii/S0010465511001470)
+2. [R. J. Angel, M. Alvaro, J. Gonzalez-Platas, *Zeitschrift Für Kristallographie - Cryst Mater*. **229**, 405–419 (2014).](https://www.degruyter.com/document/doi/10.1515/zkri-2013-1711/html)
