@@ -201,3 +201,11 @@ end
         @test iszero(BirchMurnaghan4th(v0, b0, b′0, b″0).e0)
     end
 end
+
+@testset "Test equality" begin
+    @test BirchMurnaghan3rd(1, 2, 3, 4) == BirchMurnaghan3rd(1.0, 2.0, 3.0, 4.0)
+    @test BirchMurnaghan3rd(1 // 1, 2 // 1, 6 // 2, 12 // 3) ==
+          BirchMurnaghan3rd(1.0, 2.0, 3.0, 4.0)
+    @test BirchMurnaghan3rd(1u"angstrom^3", 2u"GPa", 3) ==
+          BirchMurnaghan3rd(1.0u"angstrom^3", 2.0u"GPa", 3.0)
+end
