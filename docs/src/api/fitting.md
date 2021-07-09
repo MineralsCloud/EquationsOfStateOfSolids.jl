@@ -1,21 +1,21 @@
-# Nonlinear fitting
-
 ```@meta
 CurrentModule = EquationsOfStateOfSolids.Fitting
 ```
 
+# Nonlinear fitting
+
 From Ref. 1,
 
-> The equations of state depend nonlinearly of a collection of parameters,
-$E_0$, $V_0$, $B_0$, $B_0'$, ..., that represent physical properties of the
-solid at equilibrium and can, in principle, be obtained expermentally by
-independent methods. The use of a given analytical EOS may have significant
-influence on the results obtained, particularly because the parameters are far
-from being independent. The number of parameters has to be considered in
-comparing the goodness of fit of functional forms with different analytical
-flexibility. The possibility of using too many parameters, beyond what is
-physically justified by the information contained in the experimental data, is
-a serious aspect that deserves consideration.
+> The equations of state depend nonlinearly on a collection of parameters,
+> $E_0$, $V_0$, $B_0$, $B_0'$, ..., that represent physical properties of the
+> solid at equilibrium and can, in principle, be obtained experimentally by
+> independent methods. The use of a given analytical EOS may have significant
+> influence on the results obtained, particularly because the parameters are far
+> from being independent. The number of parameters has to be considered in
+> comparing the goodness of fit of functional forms with different analytical
+> flexibility. The possibility of using too many parameters, beyond what is
+> physically justified by the information contained in the experimental data, is
+> a serious aspect that deserves consideration.
 
 In [`EquationsOfStateOfSolids`](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
 the nonlinear fitting is currently implemented by
@@ -93,18 +93,36 @@ energies = [
     -9.86535084973,
     -9.73155247952,
 ];
+```
 
-julia> nonlinfit(EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4, 0)), volumes, energies)
-BirchMurnaghan3rd{Float64}(40.989265727925826, 0.5369258245608038, 4.1786442319302015, -10.842803908298968)
+```julia
+nonlinfit(EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4, 0)), volumes, energies)
+# BirchMurnaghan3rd{Float64}
+#  v0 = 40.98926572792904
+#  b0 = 0.5369258245610551
+#  b′0 = 4.178644231924164
+#  e0 = -10.84280390829923
 
-julia> nonlinfit(EnergyEquation(Murnaghan(41, 0.5, 4, 0)), volumes, energies)
-Murnaghan{Float64}(41.13757924894751, 0.5144967655882123, 3.912386317519504, -10.836794511015869)
+nonlinfit(EnergyEquation(Murnaghan(41, 0.5, 4, 0)), volumes, energies)
+# Murnaghan1st{Float64}
+#  v0 = 41.137579246216546
+#  b0 = 0.5144967654207855
+#  b′0 = 3.9123863218932553
+#  e0 = -10.836794510856276
 
-julia> nonlinfit(EnergyEquation(PoirierTarantola3rd(41, 0.5, 4, 0)), volumes, energies)
-PoirierTarantola3rd{Float64}(40.86770643567383, 0.5667729960008705, 4.331688934942696, -10.851486685029547)
+nonlinfit(EnergyEquation(PoirierTarantola3rd(41, 0.5, 4, 0)), volumes, energies)
+# PoirierTarantola3rd{Float64}
+#  v0 = 40.86770643566912
+#  b0 = 0.5667729960007934
+#  b′0 = 4.331688934950856
+#  e0 = -10.851486685029291
 
-julia> nonlinfit(EnergyEquation(Vinet(41, 0.5, 4, 0)), volumes, energies)
-Vinet{Float64}(40.91687567368755, 0.5493839427734198, 4.30519294991197, -10.846160810968053)
+nonlinfit(EnergyEquation(Vinet(41, 0.5, 4, 0)), volumes, energies)
+# Vinet{Float64}
+#  v0 = 40.91687567401044
+#  b0 = 0.5493839427843428
+#  b′0 = 4.305192949379345
+#  e0 = -10.846160810983534
 ```
 
 Then 4 different equations of state will be fitted.

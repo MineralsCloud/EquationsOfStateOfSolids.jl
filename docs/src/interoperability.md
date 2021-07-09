@@ -30,7 +30,7 @@ writing too much code. Luckily, Julia provides such a feature.
    In [3]: from julia.EquationsOfStateOfSolids.Fitting import *
 
    In [4]: Murnaghan(1, 2, 3.0, 4)
-   Out[4]: <PyCall.jlwrap EquationsOfStateOfSolids.Murnaghan{Float64}(1.0, 2.0, 3.0, 4.0)>
+   Out[4]: <PyCall.jlwrap EquationsOfStateOfSolids.Murnaghan1st{Float64}(1.0, 2.0, 3.0, 4.0)>
 
    In [5]: result = nonlinfit(
       ...:     PressureEquation(BirchMurnaghan3rd(1, 2, 3.0, 0)),
@@ -38,14 +38,14 @@ writing too much code. Luckily, Julia provides such a feature.
       ...:     [5, 6, 9, 8, 7],
       ...: )
 
-   In [6]: result.v0, result.b0, result.bp0
+   In [6]: result.v0, result.b0, result.b′0
    Out[6]: (1.1024687826913997, 29.308616965851673, 12.689089874230556)
 
    In [7]: from julia import Main
 
-   In [8]: volumes = Main.eval("data[:, 1] .* UnitfulAtomic.bohr^3")
+   In [8]: volumes = Main.eval("data[:, 1] .* u\"bohr^3\"")
 
-   In [9]: energies = Main.eval("data[:, 2] .* UnitfulAtomic.Ry")
+   In [9]: energies = Main.eval("data[:, 2] .* u\"Ry\"")
    ```
 
    where `data` is copied from Julia:

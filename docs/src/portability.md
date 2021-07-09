@@ -21,11 +21,9 @@ a JLD format by [`JLD2.jl`](https://github.com/JuliaIO/JLD2.jl) package.
    ```julia
    julia> using EquationsOfStateOfSolids, Unitful, UnitfulAtomic
 
-   julia> m = Murnaghan(224.501825, 0.00060479524074699499, 3.723835, -323.417686)
-   Murnaghan{Float64}(224.501825, 0.000604795240746995, 3.723835, -323.417686)
+   julia> m = Murnaghan(224.501825, 0.00060479524074699499, 3.723835, -323.417686);
 
-   julia> bm = BirchMurnaghan3rd(224.4445656763778u"bohr^3", 9.194980249913018u"GPa", 3.7403684211716297, -161.70885710742223u"hartree")
-   BirchMurnaghan3rd{Quantity{Float64,D,U} where U where D}(224.4445656763778 a₀^3, 9.194980249913018 GPa, 3.7403684211716297, -161.70885710742223 Eₕ)
+   julia> bm = BirchMurnaghan3rd(224.4445656763778u"bohr^3", 9.194980249913018u"GPa", 3.7403684211716297, -161.70885710742223u"hartree");
    ```
 
 3. Save them to file `"eos.jld2"`:
@@ -44,13 +42,13 @@ a JLD format by [`JLD2.jl`](https://github.com/JuliaIO/JLD2.jl) package.
    julia> @load "/some/path/eos.jld2" m bm
    ```
 
-   Now variables `m` and `bm` represent the orginal `Parameters`s:
+   Now variables `m` and `bm` represent the original `Parameters`:
 
    ```julia
    julia> m.b0
    0.000604795240746995
 
-   julia> m.bp0
+   julia> m.b′0
    3.723835
 
    julia> bm.v0

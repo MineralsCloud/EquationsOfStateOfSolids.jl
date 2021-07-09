@@ -16,12 +16,12 @@ julia> using Plots
 Then install `EquationOfStateRecipes.jl` with
 
 ```julia
-julia> pkg"add https://github.com/MineralsCloud/EquationOfStateRecipes.jl.git"
+julia> Pkg.add("EquationOfStateRecipes")
 
 julia> using EquationOfStateRecipes
 ```
 
-Finally, load `EquationsOfStateOfSolids.jl` and build your own `EquationOfStateOfSolids`:
+Finally, load `EquationsOfStateOfSolids.jl` and plot:
 
 ```julia
 julia> using EquationsOfStateOfSolids

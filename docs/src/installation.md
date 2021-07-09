@@ -2,7 +2,7 @@
 
 ```@contents
 Pages = ["installation.md"]
-Depth = 5
+Depth = 3
 ```
 
 To install this package, first, you need to install a `julia` executable from
@@ -56,7 +56,7 @@ platform to explain the following steps:
 3. Run
 
    ```julia
-   julia> using EquationsOfStateOfSolids, EquationsOfStateOfSolids.Inverse, EquationsOfStateOfSolids.Fitting, Unitful, UnitfulAtomic
+   julia> using EquationsOfStateOfSolids, EquationsOfStateOfSolids.Fitting, Unitful, UnitfulAtomic
    ```
 
    and have fun!

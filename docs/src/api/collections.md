@@ -1,26 +1,33 @@
-# Collections
-
 ```@meta
 CurrentModule = EquationsOfStateOfSolids
+```
+
+# Collections
+
+```@contents
+Pages = ["collections.md"]
+Depth = 3
 ```
 
 The current `Parameters`s contain
 
 ```
-Parameters
-├─ AntonSchmidt
-├─ FiniteStrainParameters
-│  ├─ BirchMurnaghan
-│  │  ├─ BirchMurnaghan2nd
-│  │  ├─ BirchMurnaghan3rd
-│  │  └─ BirchMurnaghan4th
-│  └─ PoirierTarantola
-│     ├─ PoirierTarantola2nd
-│     ├─ PoirierTarantola3rd
-│     └─ PoirierTarantola4th
-├─ Holzapfel
-├─ Murnaghan
-└─ Vinet
+EquationsOfState.EquationOfStateOfSolidsParameters
+ ├─ EquationsOfStateOfSolids.AntonSchmidt
+ ├─ EquationsOfStateOfSolids.FiniteStrainParameters
+ │   ├─ BirchMurnaghan
+ │   │   ├─ BirchMurnaghan2nd
+ │   │   ├─ BirchMurnaghan3rd
+ │   │   └─ BirchMurnaghan4th
+ │   └─ PoirierTarantola
+ │       ├─ EquationsOfStateOfSolids.PoirierTarantola4th
+ │       ├─ PoirierTarantola2nd
+ │       └─ PoirierTarantola3rd
+ ├─ EquationsOfStateOfSolids.Holzapfel
+ ├─ Murnaghan
+ │   ├─ EquationsOfStateOfSolids.Murnaghan2nd
+ │   └─ Murnaghan1st
+ └─ Vinet
 ```
 
 Here the leaves of the type tree are concrete types and can be constructed.
@@ -222,7 +229,7 @@ The $B(V)$ relation of equations of state are listed as below:
 2. `BirchMurnaghan3rd`:
 
    ```math
-   B(V) = \frac{B_{0}}{8 x^{10 / 3}}\left\{x^{5 / 3}\left(15 B_{0}^{\prime}-80\right)-x\left(42 B_{0}^{\prime}-196\right)\right.\left.+27 x^{1 / 3}\left(B_{0}^{\prime}-4\right)\right\}.
+   B(V) = B_{0}(2 f+1)^{5 / 2} \left\{ 1 + (3B_{0}^{\prime} - 5) f + \frac{ 27 }{ 2 }(B_{0}^{\prime} - 4) f^2 \right\}
    ```
 
 3. `BirchMurnaghan4th`:
@@ -273,10 +280,12 @@ PoirierTarantola
 PoirierTarantola2nd
 PoirierTarantola3rd
 Vinet
-AntonSchmidt
 EnergyEquation
 PressureEquation
 BulkModulusEquation
 getparam
 orderof
+real
+isreal
+float
 ```
