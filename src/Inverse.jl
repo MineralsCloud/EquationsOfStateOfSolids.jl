@@ -25,17 +25,9 @@ using ..EquationsOfStateOfSolids:
     getparam
 using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export InversionOptions
-
 "Wrap an equation of state for inversions."
 struct Inverted{T<:EquationOfStateOfSolids}
     eos::T
-end
-
-@option "invopts" struct InversionOptions
-    search_interval::AbstractVector = [eps(), 2]
-    maxiter::Int64 = 40
-    verbose::Bool = false
 end
 
 function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan1st}})(p)
@@ -153,24 +145,25 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, options::InversionOptions)
-    v0 = sum(extrema(options.search_interval)) / 2 * getparam(eos⁻¹.eos).v0  # v0 can be negative
+function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
+    y;
+    search_interval = (eps(), 2),
+    maxiter = 40,
+    verbose = false,
+)
+    v0 = sum(extrema(search_interval)) / 2 * getparam(eos⁻¹.eos).v0  # v0 can be negative
     @assert _ispositive(minimum(v0))  # No negative volume
     v = find_zero(
         guess -> eos⁻¹.eos(guess) - y,
         v0,
         Order16();
-        maxevals = options.maxiter,
-        verbose = options.verbose,
+        maxevals = maxiter,
+        verbose = verbose,
     )
     if !_ispositive(v)
         @warn "the volume found is negative!"
     end
     return v
-end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, kwargs...)
-    options = from_kwargs(InversionOptions; kwargs...)
-    return eos⁻¹(y, options)
 end
 
 function _strain2volume(
