@@ -9,7 +9,12 @@ A suggested way is to use the
 julia> using IterTools
 
 julia> eos = BirchMurnaghan4th(1, 2.0, 3, 4)
-BirchMurnaghan4th{Float64}(1.0, 2.0, 3.0, 4.0, 0.0)
+BirchMurnaghan4th{Float64}
+ v0 = 1.0
+ b0 = 2.0
+ b′0 = 3.0
+ b″0 = 4.0
+ e0 = 0.0
 
 julia> collect(fieldvalues(eos))
 5-element Array{Float64,1}:
