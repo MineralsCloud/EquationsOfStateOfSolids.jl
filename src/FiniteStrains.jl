@@ -99,18 +99,17 @@ function (x::FromNaturalStrain)(f::Complex)
         return v
     end
 end
-(x::FromInfinitesimalStrain)(f) = _FromInfinitesimalStrain(x.v0, f)
+# Infinitesimal strain
+(x::FromInfinitesimalStrain)(f) = x.v0 / (1 - f)^3
 function (x::FromInfinitesimalStrain)(f::Complex)
-    if isreal(f)
-        return x(real(f))
-    elseif isinteger(rad2deg(angle(1 - f)) / 60)  # `(1 - f)^3` is real for some complex `f`
-        return real(_FromInfinitesimalStrain(x.v0, f))
+    v = x.v0 / (1 - f)^3
+    if isreal(f) || isinteger(rad2deg(angle(1 - f)) / 60)  # `(1 - f)^3` is real for some complex `f`
+        return real(v)
     else
         @warn "volume will be complex with strain $f."
-        return _FromInfinitesimalStrain(x.v0, f)
+        return v
     end
 end
-_FromInfinitesimalStrain(v0, f) = v0 / (1 - f)^3
 
 """
     Dⁿᵥf(s::EulerianStrain, deg, v0)
