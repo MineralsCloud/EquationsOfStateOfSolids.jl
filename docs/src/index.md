@@ -4,6 +4,8 @@ CurrentModule = EquationsOfStateOfSolids
 
 # EquationsOfStateOfSolids
 
+Documentation for [EquationsOfStateOfSolids](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl).
+
 ## Package Features
 
 - Calculate energy, pressure, and bulk modulus of an EOS `Parameters` on a (an)

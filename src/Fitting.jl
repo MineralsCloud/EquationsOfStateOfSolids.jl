@@ -39,7 +39,9 @@ eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
 """
     linfit(eos::EnergyEquation{<:FiniteStrainParameters}, volumes, energies; kwargs...)
 
-# Keyword Arguments
+Fit an equation of state using linear algorithms.
+
+# Arguments
 - `maxiter::Integer=1000`: .
 - `conv_thr::AbstractFloat=1e-12`: .
 - `root_thr::AbstractFloat=1e-20`: .
@@ -153,7 +155,9 @@ end
 """
     nonlinfit(eos::EquationOfStateOfSolids, xs, ys; kwargs...)
 
-# Keyword Arguments
+Fit an equation of state using nonlinear algorithms.
+
+# Arguments
 - `xtol::AbstractFloat=1e-16`: .
 - `gtol::AbstractFloat=1e-16`: .
 - `maxiter::Integer=1000`: .

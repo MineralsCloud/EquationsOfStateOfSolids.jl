@@ -1,10 +1,12 @@
 using EquationsOfStateOfSolids
 using Documenter
 
+DocMeta.setdocmeta!(EquationsOfStateOfSolids, :DocTestSetup, :(using EquationsOfStateOfSolids); recursive=true)
+
 makedocs(;
     modules=[EquationsOfStateOfSolids],
     authors="Qi Zhang <singularitti@outlook.com>",
-    repo="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/{commit}{path}#L{line}",
+    repo="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/{commit}{path}#{line}",
     sitename="EquationsOfStateOfSolids.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
