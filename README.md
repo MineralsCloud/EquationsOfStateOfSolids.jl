@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/MineralsCloud/EquationsOfStateOfSolids.jl/master/docs/src/assets/logo.png" height="200"><br>
+  <img src="./docs/src/assets/logo.png" height="200"><br>
 </div>
 
 # EquationsOfStateOfSolids
@@ -13,6 +13,7 @@
 [![Build Status](https://api.cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl.svg)](https://cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl)
 [![Coverage](https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl)
 [![Coverage](https://coveralls.io/repos/github/MineralsCloud/EquationsOfStateOfSolids.jl/badge.svg?branch=master)](https://coveralls.io/github/MineralsCloud/EquationsOfStateOfSolids.jl?branch=master)
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/organization/repository)
 
 This package implements some _equations of state_ (EOS) of solids which are
 useful in research. It currently includes:
@@ -40,15 +41,13 @@ See its
 - [Julia version: `v1.0.0` to `v1.6.1`](https://julialang.org/downloads/)
 - Dependencies:
   - [`AutoHashEquals.jl`](https://github.com/andrewcooke/AutoHashEquals.jl) `v0.2.0` and above
-  - [`Compat.jl`](https://github.com/JuliaLang/Compat.jl) `v3.1.0` and above
-  - [`Configurations.jl`](https://github.com/Roger-luo/Configurations.jl) `v0.3.0` and above
   - [`ConstructionBase.jl`](https://github.com/JuliaObjects/ConstructionBase.jl) `v1.0` and above
   - [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl) `v4.0.0` and above
   - [`LsqFit.jl`](https://github.com/JuliaNLSolvers/LsqFit.jl) `v0.8.0` and above
   - [`PolynomialRoots.jl`](https://github.com/giordano/PolynomialRoots.jl) `v1.0.0` and above
   - [`Polynomials.jl`](https://github.com/JuliaMath/Polynomials.jl) `v0.8.0` and above
   - [`Roots.jl`](https://github.com/JuliaMath/Roots.jl) `v0.8.0` and above
-  - [`Roots.jl`](https://github.com/JuliaMath/Roots.jl) `v0.8.0` and above
+  - [`StaticArrays.jl`](https://github.com/JuliaArrays/StaticArrays.jl) `v0.8.3` and above
   - [`UnPack.jl`](https://github.com/mauro3/UnPack.jl) `v1.0.0` and above
   - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) `v0.18.0` and above
 - OS: macOS, Linux, Windows, and FreeBSD
@@ -57,3 +56,4 @@ See its
 ## References
 
 1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).](https://www.sciencedirect.com/science/article/pii/S0010465511001470)
+2. [R. J. Angel, M. Alvaro, J. Gonzalez-Platas, *Zeitschrift Für Kristallographie - Cryst Mater*. **229**, 405–419 (2014).](https://www.degruyter.com/document/doi/10.1515/zkri-2013-1711/html)
