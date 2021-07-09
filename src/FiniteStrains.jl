@@ -52,10 +52,13 @@ const FromEulerianStrain = FromStrain{EulerianStrain}
 const FromLagrangianStrain = FromStrain{LagrangianStrain}
 const FromNaturalStrain = FromStrain{NaturalStrain}
 const FromInfinitesimalStrain = FromStrain{InfinitesimalStrain}
-(x::FromEulerianStrain)(f::Real) =
-    f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
-    _FromEulerianStrain(x.v0, f)
-(x::FromEulerianStrain)(f) = _FromEulerianStrain(x.v0, f)  # For symbols, etc.
+# Eulerian strain
+function (x::FromEulerianStrain)(f)
+    if f < -1 / 2
+        @warn "strain $f < -0.5! Volume will be complex!"
+    end
+    return _FromEulerianStrain(x.v0, f)
+end
 function (x::FromEulerianStrain)(f::Complex)
     if isreal(f)
         return x(real(f))
