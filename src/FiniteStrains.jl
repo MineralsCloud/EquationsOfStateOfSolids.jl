@@ -70,10 +70,13 @@ function (x::FromEulerianStrain)(f::Complex)
     end
 end
 _FromEulerianStrain(v0, f) = v0 / (2f + 1)^_1½
-(x::FromLagrangianStrain)(f::Real) =
-    f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
-    _FromLagrangianStrain(x.v0, f)
-(x::FromLagrangianStrain)(f) = _FromLagrangianStrain(x.v0, f)
+# Lagrangian strain
+function (x::FromLagrangianStrain)(f)
+    if f < -1 / 2
+        @warn "strain $f < -0.5! Volume will be complex!"
+    end
+    return _FromLagrangianStrain(x.v0, f)
+end
 function (x::FromLagrangianStrain)(f::Complex)
     if isreal(f)
         return x(real(f))
