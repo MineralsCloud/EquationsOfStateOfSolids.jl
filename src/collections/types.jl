@@ -98,6 +98,10 @@ This equation of state can have units. The units are specified in
 - `b0`: the bulk modulus of solid at zero pressure.
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
+
+!!! note
+    The third-order equation (Equation (22)) becomes identical to the second-order equation
+    when ``b′0 = 4`` (not ``0``!).
 """
 @auto_hash_equals struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
     v0::T
@@ -120,6 +124,12 @@ This equation of state can have units. The units are specified in
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
+
+!!! note
+    The fourth-order equation becomes identical to the third-order equation when
+    ```math
+    b″0 = -\\frac{ 1 }{ 9b0 } (9b′0^2 - 63b′0 + 143).
+    ```
 """
 @auto_hash_equals struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
     v0::T
