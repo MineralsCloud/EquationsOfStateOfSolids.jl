@@ -1,7 +1,6 @@
 module Inverse
 
 using Chain: @chain
-using Configurations: from_kwargs, @option
 using PolynomialRoots: roots
 using Roots: find_zero, Order16
 using UnPack: @unpack
