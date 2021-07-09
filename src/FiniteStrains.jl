@@ -88,18 +88,17 @@ function (x::FromLagrangianStrain)(f::Complex)
     end
 end
 _FromLagrangianStrain(v0, f) = v0 * (2f + 1)^_1½
-(x::FromNaturalStrain)(f) = _FromNaturalStrain(x.v0, f)
+# Natural strain
+(x::FromNaturalStrain)(f) = x.v0 * exp(3f)
 function (x::FromNaturalStrain)(f::Complex)
-    if isreal(f)
-        return x(real(f))
-    elseif isinteger(rad2deg(angle(f)) / 60)  # `exp(3f)` is real for some complex `f`
-        return real(_FromInfinitesimalStrain(x.v0, f))
+    v = x.v0 * exp(3f)
+    if isreal(f) || isinteger(rad2deg(angle(f)) / 60)  # `exp(3f)` is real for some complex `f`
+        return real(v)
     else
         @warn "volume will be complex with strain $f."
-        return _FromNaturalStrain(x.v0, f)
+        return v
     end
 end
-_FromNaturalStrain(v0, f) = v0 * exp(3f)
 (x::FromInfinitesimalStrain)(f) = _FromInfinitesimalStrain(x.v0, f)
 function (x::FromInfinitesimalStrain)(f::Complex)
     if isreal(f)
