@@ -8,6 +8,17 @@ struct LagrangianStrain <: FiniteStrain end
 struct NaturalStrain <: FiniteStrain end
 struct InfinitesimalStrain <: FiniteStrain end
 
+"""
+    ToEulerianStrain(v0)(v)
+    ToLagrangianStrain(v0)(v)
+    ToNaturalStrain(v0)(v)
+    ToInfinitesimalStrain(v0)(v)
+
+Calculate the finite strain of `v` based on the reference volume `v0`.
+
+!!! info
+    See the formulae on the [`Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
+"""
 struct ToStrain{S<:FiniteStrain,T}
     v0::T
 end
@@ -22,27 +33,15 @@ const ToInfinitesimalStrain = ToStrain{InfinitesimalStrain}
 (x::ToInfinitesimalStrain)(v) = 1 - (x.v0 / v)^_⅓
 
 """
-    volume2strain(::EulerianStrain, v0)
-    volume2strain(::LagrangianStrain, v0)
-    volume2strain(::NaturalStrain, v0)
-    volume2strain(::InfinitesimalStrain, v0)
+    FromEulerianStrain(v0)(f)
+    FromLagrangianStrain(v0)(f)
+    FromNaturalStrain(v0)(f)
+    FromInfinitesimalStrain(v0)(f)
 
-Return a function of `v` that calculates the `FiniteStrain` from `v0`.
-
-!!! info
-    See the formulae on Ref. 1 Table 3.
-"""
-
-"""
-    strain2volume(::EulerianStrain, v0)
-    strain2volume(::LagrangianStrain, v0)
-    strain2volume(::NaturalStrain, v0)
-    strain2volume(::InfinitesimalStrain, v0)
-
-Return a function of `f` that calculates the corresponding volume from `v0`.
+Calculate the original volume `v` from the finite strain `f` based on the reference volume `v0`.
 
 !!! info
-    See the formulae on Ref. 1 Table 3.
+    See the formulae on the [`Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
 """
 struct FromStrain{S<:FiniteStrain,T}
     v0::T
