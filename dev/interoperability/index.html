@@ -6,7 +6,7 @@ In [2]: from julia.EquationsOfStateOfSolids import *
 In [3]: from julia.EquationsOfStateOfSolids.Fitting import *
 
 In [4]: Murnaghan(1, 2, 3.0, 4)
-Out[4]: &lt;PyCall.jlwrap EquationsOfStateOfSolids.Murnaghan{Float64}(1.0, 2.0, 3.0, 4.0)&gt;
+Out[4]: &lt;PyCall.jlwrap EquationsOfStateOfSolids.Murnaghan1st{Float64}(1.0, 2.0, 3.0, 4.0)&gt;
 
 In [5]: result = nonlinfit(
    ...:     PressureEquation(BirchMurnaghan3rd(1, 2, 3.0, 0)),
@@ -14,18 +14,18 @@ In [5]: result = nonlinfit(
    ...:     [5, 6, 9, 8, 7],
    ...: )
 
-In [6]: result.v0, result.b0, result.bp0
+In [6]: result.v0, result.b0, result.b′0
 Out[6]: (1.1024687826913997, 29.308616965851673, 12.689089874230556)
 
 In [7]: from julia import Main
 
-In [8]: volumes = Main.eval(&quot;data[:, 1] .* UnitfulAtomic.bohr^3&quot;)
+In [8]: volumes = Main.eval(&quot;data[:, 1] .* u\&quot;bohr^3\&quot;&quot;)
 
-In [9]: energies = Main.eval(&quot;data[:, 2] .* UnitfulAtomic.Ry&quot;)</code></pre><p>where <code>data</code> is copied from Julia:</p><pre><code class="language-python">In [1]: data = Main.eval(&quot;&quot;&quot;
+In [9]: energies = Main.eval(&quot;data[:, 2] .* u\&quot;Ry\&quot;&quot;)</code></pre><p>where <code>data</code> is copied from Julia:</p><pre><code class="language-python">In [1]: data = Main.eval(&quot;&quot;&quot;
    ...:    [
    ...:        159.9086 -323.4078898
                    ⋮          ⋮
    ...:        319.8173 -323.4105393
    ...:    ]
    ...:    &quot;&quot;&quot;
-   ...: )</code></pre></li></ol></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../portability/">« Portability</a><a class="docs-footer-nextpage" href="../plotting/">Plotting »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.3 on <span class="colophon-date" title="Friday 9 July 2021 07:59">Friday 9 July 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   ...: )</code></pre></li></ol></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../portability/">« Portability</a><a class="docs-footer-nextpage" href="../plotting/">Plotting »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.3 on <span class="colophon-date" title="Friday 9 July 2021 23:06">Friday 9 July 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
