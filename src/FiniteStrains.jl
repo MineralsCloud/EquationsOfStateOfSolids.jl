@@ -54,61 +54,23 @@ const FromNaturalStrain = FromStrain{NaturalStrain}
 const FromInfinitesimalStrain = FromStrain{InfinitesimalStrain}
 # Eulerian strain
 function (x::FromEulerianStrain)(f)
-    if f < -1 / 2
-        @warn "strain $f < -0.5! Volume will be complex!"
-    end
-    return _FromEulerianStrain(x.v0, f)
+    v = x.v0 / (2f + 1)^_1½
+    return isreal(v) ? real(v) : v
 end
-function (x::FromEulerianStrain)(f::Complex)
-    if isreal(f)
-        return x(real(f))
-    elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
-        return real(_FromEulerianStrain(x.v0, f))
-    else
-        @warn "volume will be complex with strain $f."
-        return _FromEulerianStrain(x.v0, f)
-    end
-end
-_FromEulerianStrain(v0, f) = v0 / (2f + 1)^_1½
 # Lagrangian strain
 function (x::FromLagrangianStrain)(f)
-    if f < -1 / 2
-        @warn "strain $f < -0.5! Volume will be complex!"
-    end
-    return _FromLagrangianStrain(x.v0, f)
+    v = x.v0 * (2f + 1)^_1½
+    return isreal(v) ? real(v) : v
 end
-function (x::FromLagrangianStrain)(f::Complex)
-    if isreal(f)
-        return x(real(f))
-    elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
-        return real(_FromLagrangianStrain(x.v0, f))
-    else
-        @warn "volume will be complex with strain $f."
-        return _FromLagrangianStrain(x.v0, f)
-    end
-end
-_FromLagrangianStrain(v0, f) = v0 * (2f + 1)^_1½
 # Natural strain
-(x::FromNaturalStrain)(f) = x.v0 * exp(3f)
-function (x::FromNaturalStrain)(f::Complex)
+function (x::FromNaturalStrain)(f)
     v = x.v0 * exp(3f)
-    if isreal(f) || isinteger(rad2deg(angle(f)) / 60)  # `exp(3f)` is real for some complex `f`
-        return real(v)
-    else
-        @warn "volume will be complex with strain $f."
-        return v
-    end
+    return isreal(v) ? real(v) : v
 end
 # Infinitesimal strain
-(x::FromInfinitesimalStrain)(f) = x.v0 / (1 - f)^3
-function (x::FromInfinitesimalStrain)(f::Complex)
+function (x::FromInfinitesimalStrain)(f)
     v = x.v0 / (1 - f)^3
-    if isreal(f) || isinteger(rad2deg(angle(1 - f)) / 60)  # `(1 - f)^3` is real for some complex `f`
-        return real(v)
-    else
-        @warn "volume will be complex with strain $f."
-        return v
-    end
+    return isreal(v) ? real(v) : v
 end
 
 """
