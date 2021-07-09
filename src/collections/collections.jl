@@ -4,7 +4,7 @@ using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, Natural
 
 import .FiniteStrains: straintype
 
-export getparam
+export getparam, orderof
 
 include("types.jl")
 include("ev.jl")
