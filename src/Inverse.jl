@@ -1,6 +1,5 @@
 module Inverse
 
-using Chain: @chain
 using PolynomialRoots: roots
 using Roots: find_zero, Order16
 using StaticArrays: MVector
@@ -175,13 +174,12 @@ function _strain2volume(
     rtol = sqrt(eps()),
 )
     @assert _ispositive(chop) && _ispositive(rtol) "either `chop` or `rtol` is less than 0!"
-    return @chain fs begin
-        map(FromEulerianStrain(v0), _)
-        filter(x -> abs(imag(x)) < chop * oneunit(imag(x)), _)  # If `x` has unit
-        @. real
-        filter(x -> isapprox(eos(x), y; rtol = rtol), _)
-        MVector(_...)
-    end
+    return fs |>
+           Base.Fix1(map, FromEulerianStrain(v0)) |>
+           Base.Fix1(filter, x -> abs(imag(x)) < chop * oneunit(imag(x))) .|>  # If `x` has unit
+           real |>
+           Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol)) |>
+           v -> MVector(v...)
 end
 
 # Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
