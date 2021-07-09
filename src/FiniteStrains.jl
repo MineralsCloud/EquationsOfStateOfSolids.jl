@@ -1,7 +1,5 @@
 module FiniteStrains
 
-using Unitful: AbstractQuantity, NoUnits
-
 using ..EquationsOfStateOfSolids: _⅔, _⅓, _1½
 
 abstract type FiniteStrain end
@@ -54,7 +52,6 @@ const FromEulerianStrain = FromStrain{EulerianStrain}
 const FromLagrangianStrain = FromStrain{LagrangianStrain}
 const FromNaturalStrain = FromStrain{NaturalStrain}
 const FromInfinitesimalStrain = FromStrain{InfinitesimalStrain}
-(x::FromStrain)(f::AbstractQuantity) = x(NoUnits(f))
 (x::FromEulerianStrain)(f::Real) =
     f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
     _FromEulerianStrain(x.v0, f)
