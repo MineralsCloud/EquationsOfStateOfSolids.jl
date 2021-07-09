@@ -27,6 +27,7 @@ using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
 export InversionOptions
 
+"Wrap an equation of state for inversions."
 struct Inverted{T<:EquationOfStateOfSolids}
     eos::T
 end
@@ -61,29 +62,35 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan2nd}})(p)
-    eos = eos⁻¹.eos
+function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan2nd}})(
+    p;
+    stopping_criterion = 1e-20,  # Unitless
+    chop = eps(),
+    rtol = sqrt(eps()),
+)
     @unpack v0, b0 = getparam(eos⁻¹.eos)
     # Solve f for (3 B0 f (2f + 1))^2 == p^2
-    fs = roots([-(p / 3b0)^2, 0, 1, 10, 40, 80, 80, 32]; polish = true)
-    return @chain fs begin
-        map(FromEulerianStrain(v0), _)
-        filter(x -> eos(x) ≈ p, _)
-        filter(x -> abs(imag(x)) < eps(real(oneunit(x))), _)  # If `x` has unit
-        @. real
-    end
+    fs = roots(
+        [-(p / 3b0)^2, 0, 1, 10, 40, 80, 80, 32];
+        polish = true,
+        epsilon = stopping_criterion,
+    )
+    return _strain2volume(eos⁻¹.eos, v0, fs, p, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}})(b)
-    eos = eos⁻¹.eos
+function (eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}})(
+    b;
+    stopping_criterion = 1e-20,  # Unitless
+    chop = eps(),
+    rtol = sqrt(eps()),
+)
     @unpack v0, b0 = getparam(eos⁻¹.eos)
     # Solve f for ((7f + 1) * (2f + 1)^(5/2))^2 == (b/b0)^2
-    fs = roots([1 - (b / b0)^2, 24, 229, 1130, 3160, 5072, 4368, 1568]; polish = true)
-    return @chain fs begin
-        map(FromEulerianStrain(v0), _)
-        filter(x -> eos(x) ≈ b, _)
-        filter(x -> abs(imag(x)) < eps(real(oneunit(x))), _)  # If `x` has unit
-        @. real
-    end
+    fs = roots(
+        [1 - (b / b0)^2, 24, 229, 1130, 3160, 5072, 4368, 1568];
+        polish = true,
+        epsilon = stopping_criterion,
+    )
+    return _strain2volume(eos⁻¹.eos, v0, fs, b, chop, rtol)
 end
 function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
     @unpack v0, b0, b′0, e0 = getparam(eos⁻¹.eos)
@@ -120,19 +127,20 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(e)
         end
     end
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(e)
+function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(
+    e;
+    stopping_criterion = 1e-20,  # Unitless
+    chop = eps(),
+    rtol = sqrt(eps()),
+)
     @unpack v0, b0, b′0, b″0, e0 = getparam(eos⁻¹.eos)
     h = b0 * b″0 + b′0^2
     fs = roots(
         [(e0 - e) / (3 / 8 * v0 * b0), 0, 12, 12(b′0 - 4), 143 - 63b′0 + 9h];
         polish = true,
+        epsilon = stopping_criterion,
     )
-    return @chain fs begin
-        map(FromEulerianStrain(v0), _)
-        filter(x -> eos⁻¹.eos(x) ≈ e, _)
-        filter(x -> abs(imag(x)) < eps(oneunit(real(x))), _)  # If `x` has unit
-        @. real
-    end
+    return _strain2volume(eos⁻¹.eos, v0, fs, e, chop, rtol)
 end
 function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
@@ -164,6 +172,23 @@ end
 function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, kwargs...)
     options = from_kwargs(InversionOptions; kwargs...)
     return eos⁻¹(y, options)
+end
+
+function _strain2volume(
+    eos::EquationOfStateOfSolids{<:BirchMurnaghan},
+    v0,
+    fs,
+    y,
+    chop = eps(),
+    rtol = sqrt(eps()),
+)
+    @assert _ispositive(chop) && _ispositive(rtol) "either `chop` or `rtol` is less than 0!"
+    return @chain fs begin
+        map(FromEulerianStrain(v0), _)
+        filter(x -> abs(imag(x)) < chop * oneunit(imag(x)), _)  # If `x` has unit
+        @. real
+        filter(x -> isapprox(eos(x), y; rtol = rtol), _)
+    end
 end
 
 # Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
