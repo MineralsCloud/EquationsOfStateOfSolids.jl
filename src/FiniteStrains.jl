@@ -1,7 +1,5 @@
 module FiniteStrains
 
-using Unitful: AbstractQuantity, NoUnits
-
 using ..EquationsOfStateOfSolids: _⅔, _⅓, _1½
 
 abstract type FiniteStrain end
@@ -54,61 +52,26 @@ const FromEulerianStrain = FromStrain{EulerianStrain}
 const FromLagrangianStrain = FromStrain{LagrangianStrain}
 const FromNaturalStrain = FromStrain{NaturalStrain}
 const FromInfinitesimalStrain = FromStrain{InfinitesimalStrain}
-(x::FromStrain)(f::AbstractQuantity) = x(NoUnits(f))
-(x::FromEulerianStrain)(f::Real) =
-    f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
-    _FromEulerianStrain(x.v0, f)
-(x::FromEulerianStrain)(f) = _FromEulerianStrain(x.v0, f)  # For symbols, etc.
-function (x::FromEulerianStrain)(f::Complex)
-    if isreal(f)
-        return x(real(f))
-    elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
-        return real(_FromEulerianStrain(x.v0, f))
-    else
-        @warn "volume will be complex with strain $f."
-        return _FromEulerianStrain(x.v0, f)
-    end
+# Eulerian strain
+function (x::FromEulerianStrain)(f)
+    v = x.v0 / (2f + 1)^_1½
+    return isreal(v) ? real(v) : v
 end
-_FromEulerianStrain(v0, f) = v0 / (2f + 1)^_1½
-(x::FromLagrangianStrain)(f::Real) =
-    f < -1 / 2 ? throw(DomainError("strain $f < -0.5! Volume will be complex!")) :
-    _FromLagrangianStrain(x.v0, f)
-(x::FromLagrangianStrain)(f) = _FromLagrangianStrain(x.v0, f)
-function (x::FromLagrangianStrain)(f::Complex)
-    if isreal(f)
-        return x(real(f))
-    elseif isinteger(rad2deg(angle(2f + 1)) / 120)  # `(2f + 1)^(3 / 2)` is real for some complex `f`
-        return real(_FromLagrangianStrain(x.v0, f))
-    else
-        @warn "volume will be complex with strain $f."
-        return _FromLagrangianStrain(x.v0, f)
-    end
+# Lagrangian strain
+function (x::FromLagrangianStrain)(f)
+    v = x.v0 * (2f + 1)^_1½
+    return isreal(v) ? real(v) : v
 end
-_FromLagrangianStrain(v0, f) = v0 * (2f + 1)^_1½
-(x::FromNaturalStrain)(f) = _FromNaturalStrain(x.v0, f)
-function (x::FromNaturalStrain)(f::Complex)
-    if isreal(f)
-        return x(real(f))
-    elseif isinteger(rad2deg(angle(f)) / 60)  # `exp(3f)` is real for some complex `f`
-        return real(_FromInfinitesimalStrain(x.v0, f))
-    else
-        @warn "volume will be complex with strain $f."
-        return _FromNaturalStrain(x.v0, f)
-    end
+# Natural strain
+function (x::FromNaturalStrain)(f)
+    v = x.v0 * exp(3f)
+    return isreal(v) ? real(v) : v
 end
-_FromNaturalStrain(v0, f) = v0 * exp(3f)
-(x::FromInfinitesimalStrain)(f) = _FromInfinitesimalStrain(x.v0, f)
-function (x::FromInfinitesimalStrain)(f::Complex)
-    if isreal(f)
-        return x(real(f))
-    elseif isinteger(rad2deg(angle(1 - f)) / 60)  # `(1 - f)^3` is real for some complex `f`
-        return real(_FromInfinitesimalStrain(x.v0, f))
-    else
-        @warn "volume will be complex with strain $f."
-        return _FromInfinitesimalStrain(x.v0, f)
-    end
+# Infinitesimal strain
+function (x::FromInfinitesimalStrain)(f)
+    v = x.v0 / (1 - f)^3
+    return isreal(v) ? real(v) : v
 end
-_FromInfinitesimalStrain(v0, f) = v0 / (1 - f)^3
 
 """
     Dⁿᵥf(s::EulerianStrain, deg, v0)
