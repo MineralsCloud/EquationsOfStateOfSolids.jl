@@ -1,6 +1,6 @@
-using AutoHashEquals: @auto_hash_equals
 using ConstructionBase: constructorof
 using EquationsOfState: Parameters, EquationOfState
+using StructHelpers: @batteries
 
 export Murnaghan,
     Murnaghan1st,
@@ -35,7 +35,7 @@ This equation of state can have units. The units are specified in
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-@auto_hash_equals struct Murnaghan1st{T} <: Murnaghan{T}
+struct Murnaghan1st{T} <: Murnaghan{T}
     v0::T
     b0::T
     b′0::T
@@ -57,7 +57,7 @@ This equation of state can have units. The units are specified in
 - `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-@auto_hash_equals struct Murnaghan2nd{T} <: Murnaghan{T}
+struct Murnaghan2nd{T} <: Murnaghan{T}
     v0::T
     b0::T
     b′0::T
@@ -79,7 +79,7 @@ This equation of state can have units. The units are specified in
 - `b0`: the bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-@auto_hash_equals struct BirchMurnaghan2nd{T} <: BirchMurnaghan{2,T}
+struct BirchMurnaghan2nd{T} <: BirchMurnaghan{2,T}
     v0::T
     b0::T
     e0::T
@@ -103,7 +103,7 @@ This equation of state can have units. The units are specified in
     The third-order equation (Equation (22)) becomes identical to the second-order equation
     when ``b′0 = 4`` (not ``0``!).
 """
-@auto_hash_equals struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
+struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
     v0::T
     b0::T
     b′0::T
@@ -131,7 +131,7 @@ This equation of state can have units. The units are specified in
     b″0 = -\\frac{ 1 }{ 9b0 } (9b′0^2 - 63b′0 + 143).
     ```
 """
-@auto_hash_equals struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
+struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
     v0::T
     b0::T
     b′0::T
@@ -153,7 +153,7 @@ This equation of state can have units. The units are specified in
 - `b0`: the bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-@auto_hash_equals struct PoirierTarantola2nd{T} <: PoirierTarantola{2,T}
+struct PoirierTarantola2nd{T} <: PoirierTarantola{2,T}
     v0::T
     b0::T
     e0::T
@@ -173,7 +173,7 @@ This equation of state can have units. The units are specified in
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-@auto_hash_equals struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
+struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
     v0::T
     b0::T
     b′0::T
@@ -195,7 +195,7 @@ This equation of state can have units. The units are specified in
 - `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-@auto_hash_equals struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
+struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
     v0::T
     b0::T
     b′0::T
@@ -218,21 +218,21 @@ This equation of state can have units. The units are specified in
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-@auto_hash_equals struct Vinet{T} <: Parameters{T}
+struct Vinet{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
     e0::T
     Vinet{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-@auto_hash_equals struct AntonSchmidt{T} <: Parameters{T}
+struct AntonSchmidt{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
     e∞::T
     AntonSchmidt{T}(v0, b0, b′0, e∞ = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e∞)
 end
-@auto_hash_equals struct Holzapfel{Z,T} <: Parameters{T}
+struct Holzapfel{Z,T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
@@ -242,6 +242,18 @@ end
         return new(v0, b0, b′0, e0)
     end
 end
+
+@batteries Murnaghan1st eq = true hash = true
+@batteries Murnaghan2nd eq = true hash = true
+@batteries BirchMurnaghan2nd eq = true hash = true
+@batteries BirchMurnaghan3rd eq = true hash = true
+@batteries BirchMurnaghan4th eq = true hash = true
+@batteries PoirierTarantola2nd eq = true hash = true
+@batteries PoirierTarantola3rd eq = true hash = true
+@batteries PoirierTarantola4th eq = true hash = true
+@batteries Vinet eq = true hash = true
+@batteries AntonSchmidt eq = true hash = true
+@batteries Holzapfel eq = true hash = true
 
 function (::Type{T})(args...) where {T<:Parameters}
     E = Base.promote_typeof(args...)
