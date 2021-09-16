@@ -11,6 +11,7 @@ PolynomialRoots = "3a141323-8675-5d76-9d11-e1df1406c778"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
 Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+StructHelpers = "4093c41a-2008-41fd-82b8-e3f9d02b504f"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
