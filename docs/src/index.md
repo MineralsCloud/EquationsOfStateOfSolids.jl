@@ -32,7 +32,7 @@ You are very welcome to contribute.
 
 ## Compatibility
 
-- [Julia version: `v1.0.0` to `v1.6.1`](https://julialang.org/downloads/)
+- [Julia version: above `v1.0.0`](https://julialang.org/downloads/)
 - Dependencies:
   - [`StructHelpers.jl`](https://github.com/jw3126/StructHelpers.jl) `v0.1.0` and above
   - [`ConstructionBase.jl`](https://github.com/JuliaObjects/ConstructionBase.jl) `v1.0` and above
