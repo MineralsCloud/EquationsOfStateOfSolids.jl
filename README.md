@@ -12,7 +12,6 @@
 [![Build Status](https://cloud.drone.io/api/badges/MineralsCloud/EquationsOfStateOfSolids.jl/status.svg)](https://cloud.drone.io/MineralsCloud/EquationsOfStateOfSolids.jl)
 [![Build Status](https://api.cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl.svg)](https://cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl)
 [![Coverage](https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl)
-[![Coverage](https://coveralls.io/repos/github/MineralsCloud/EquationsOfStateOfSolids.jl/badge.svg?branch=master)](https://coveralls.io/github/MineralsCloud/EquationsOfStateOfSolids.jl?branch=master)
 [![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/organization/repository)
 
 This package implements some _equations of state_ (EOS) of solids which are
@@ -38,9 +37,9 @@ See its
 
 ## Compatibility
 
-- [Julia version: `v1.0.0` to `v1.6.1`](https://julialang.org/downloads/)
+- [Julia version: above `v1.0.0`](https://julialang.org/downloads/)
 - Dependencies:
-  - [`AutoHashEquals.jl`](https://github.com/andrewcooke/AutoHashEquals.jl) `v0.2.0` and above
+  - [`StructHelpers.jl`](https://github.com/jw3126/StructHelpers.jl) `v0.1.0` and above
   - [`ConstructionBase.jl`](https://github.com/JuliaObjects/ConstructionBase.jl) `v1.0` and above
   - [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl) `v4.0.0` and above
   - [`LsqFit.jl`](https://github.com/JuliaNLSolvers/LsqFit.jl) `v0.8.0` and above
