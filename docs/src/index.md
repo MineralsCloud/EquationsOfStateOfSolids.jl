@@ -4,7 +4,8 @@ CurrentModule = EquationsOfStateOfSolids
 
 # EquationsOfStateOfSolids
 
-Documentation for [EquationsOfStateOfSolids](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl).
+Documentation for
+[EquationsOfStateOfSolids](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl).
 
 ## Package Features
 
@@ -20,29 +21,39 @@ Documentation for [EquationsOfStateOfSolids](https://github.com/MineralsCloud/Eq
 See the [Index](@ref main-index) for the complete list of documented functions
 and types.
 
-The old [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl)
-package has been superseded by `EquationsOfStateOfSolids.jl`.
-So please just use `EquationsOfStateOfSolids.jl`.
+The old
+[`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl)
+package has been superseded by `EquationsOfStateOfSolids.jl`. So please just use
+`EquationsOfStateOfSolids.jl`.
 
-The code is [hosted on GitHub](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
+The code is
+[hosted on GitHub](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
 with some continuous integration services to test its validity.
 
-This repository is created and maintained by [singularitti](https://github.com/singularitti).
-You are very welcome to contribute.
+This repository is created and maintained by
+[singularitti](https://github.com/singularitti). You are very welcome to
+contribute.
 
 ## Compatibility
 
 - [Julia version: above `v1.0.0`](https://julialang.org/downloads/)
 - Dependencies:
-  - [`StructHelpers.jl`](https://github.com/jw3126/StructHelpers.jl) `v0.1.0` and above
-  - [`ConstructionBase.jl`](https://github.com/JuliaObjects/ConstructionBase.jl) `v1.0` and above
-  - [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl) `v4.0.0` and above
-  - [`LsqFit.jl`](https://github.com/JuliaNLSolvers/LsqFit.jl) `v0.8.0` and above
-  - [`PolynomialRoots.jl`](https://github.com/giordano/PolynomialRoots.jl) `v1.0.0` and above
-  - [`Polynomials.jl`](https://github.com/JuliaMath/Polynomials.jl) `v0.8.0` and above
+  - [`StructHelpers.jl`](https://github.com/jw3126/StructHelpers.jl) `v0.1.0`
+    and above
+  - [`ConstructionBase.jl`](https://github.com/JuliaObjects/ConstructionBase.jl)
+    `v1.0` and above
+  - [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl)
+    `v4.0.0` and above
+  - [`LsqFit.jl`](https://github.com/JuliaNLSolvers/LsqFit.jl) `v0.8.0` and
+    above
+  - [`PolynomialRoots.jl`](https://github.com/giordano/PolynomialRoots.jl)
+    `v1.0.0` and above
+  - [`Polynomials.jl`](https://github.com/JuliaMath/Polynomials.jl) `v0.8.0` and
+    above
   - [`Roots.jl`](https://github.com/JuliaMath/Roots.jl) `v0.8.0` and above
   - [`UnPack.jl`](https://github.com/mauro3/UnPack.jl) `v1.0.0` and above
-  - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) `v0.18.0` and above
+  - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) `v0.18.0` and
+    above
 - OS: macOS, Linux, Windows, and FreeBSD
 - Architecture: x86, x64, ARM
 
@@ -65,4 +76,5 @@ Depth = 3
 ## [Index](@id main-index)
 
 ```@index
+
 ```

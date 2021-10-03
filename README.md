@@ -39,19 +39,26 @@ See its
 
 - [Julia version: above `v1.0.0`](https://julialang.org/downloads/)
 - Dependencies:
-  - [`StructHelpers.jl`](https://github.com/jw3126/StructHelpers.jl) `v0.1.0` and above
-  - [`ConstructionBase.jl`](https://github.com/JuliaObjects/ConstructionBase.jl) `v1.0` and above
-  - [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl) `v4.0.0` and above
-  - [`LsqFit.jl`](https://github.com/JuliaNLSolvers/LsqFit.jl) `v0.8.0` and above
-  - [`PolynomialRoots.jl`](https://github.com/giordano/PolynomialRoots.jl) `v1.0.0` and above
-  - [`Polynomials.jl`](https://github.com/JuliaMath/Polynomials.jl) `v0.8.0` and above
+  - [`StructHelpers.jl`](https://github.com/jw3126/StructHelpers.jl) `v0.1.0`
+    and above
+  - [`ConstructionBase.jl`](https://github.com/JuliaObjects/ConstructionBase.jl)
+    `v1.0` and above
+  - [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl)
+    `v4.0.0` and above
+  - [`LsqFit.jl`](https://github.com/JuliaNLSolvers/LsqFit.jl) `v0.8.0` and
+    above
+  - [`PolynomialRoots.jl`](https://github.com/giordano/PolynomialRoots.jl)
+    `v1.0.0` and above
+  - [`Polynomials.jl`](https://github.com/JuliaMath/Polynomials.jl) `v0.8.0` and
+    above
   - [`Roots.jl`](https://github.com/JuliaMath/Roots.jl) `v0.8.0` and above
   - [`UnPack.jl`](https://github.com/mauro3/UnPack.jl) `v1.0.0` and above
-  - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) `v0.18.0` and above
+  - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) `v0.18.0` and
+    above
 - OS: macOS, Linux, Windows, and FreeBSD
 - Architecture: x86, x64, ARM
 
 ## References
 
 1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).](https://www.sciencedirect.com/science/article/pii/S0010465511001470)
-2. [R. J. Angel, M. Alvaro, J. Gonzalez-Platas, *Zeitschrift Für Kristallographie - Cryst Mater*. **229**, 405–419 (2014).](https://www.degruyter.com/document/doi/10.1515/zkri-2013-1711/html)
+2. [R. J. Angel, M. Alvaro, J. Gonzalez-Platas, _Zeitschrift Für Kristallographie - Cryst Mater_. **229**, 405–419 (2014).](https://www.degruyter.com/document/doi/10.1515/zkri-2013-1711/html)
