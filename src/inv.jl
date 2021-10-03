@@ -153,15 +153,15 @@ end
 function solvev(
     eos::EquationOfStateOfSolids,
     y,
-    x0;
+    vᵢ;
     maxiter = 40,
     verbose = false,
     xrtol = eps(),
     rtol = 4eps(),
 )
     v = find_zero(
-        guess -> eos(guess) - y,
-        x0,
+        v -> eos(v) - y,
+        vᵢ,
         Order2();
         maxevals = maxiter,
         verbose = verbose,
@@ -170,13 +170,8 @@ function solvev(
     )
     return [v]
 end
-function solvev(eos::EnergyEquation, y, x0; kwargs...)
-    v = newton(
-        guess -> eos(guess) - y,
-        guess -> -PressureEquation(eos)(guess),
-        x0;
-        kwargs...,
-    )
+function solvev(eos::EnergyEquation, e, vᵢ; kwargs...)
+    v = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
     return [v]
 end
 
