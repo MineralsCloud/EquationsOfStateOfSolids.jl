@@ -177,7 +177,7 @@ function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, x0; maxiter = 40, ve
         maxevals = maxiter,
         verbose = verbose,
     )
-    return v
+    return [v]
 end
 
 function _strain2volume(
