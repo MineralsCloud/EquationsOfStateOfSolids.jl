@@ -159,20 +159,38 @@ function solvev(
     xrtol = eps(),
     rtol = 4eps(),
 )
-    v = find_zero(
-        v -> eos(v) - y,
-        vᵢ,
-        Order2();
-        maxevals = maxiter,
-        verbose = verbose,
-        xrtol = xrtol,
-        rtol = rtol,
-    )
-    return [v]
+    try
+        vᵣ = find_zero(
+            v -> eos(v) - y,
+            vᵢ,
+            Order2();
+            maxevals = maxiter,
+            verbose = verbose,
+            xrtol = xrtol,
+            rtol = rtol,
+        )
+    catch
+        @error "cannot find solution!"
+        return typeof(vᵢ)[]
+    end
+    if isa(vᵣ, AbstractArray)
+        return vᵣ
+    else
+        return [vᵣ]
+    end
 end
 function solvev(eos::EnergyEquation, e, vᵢ; kwargs...)
-    v = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
-    return [v]
+    try
+        vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
+    catch
+        @error "cannot find solution!"
+        return typeof(vᵢ)[]
+    end
+    if isa(vᵣ, AbstractArray)
+        return vᵣ
+    else
+        return [vᵣ]
+    end
 end
 
 function _strain2volume(
