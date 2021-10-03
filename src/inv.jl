@@ -149,13 +149,22 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, x0; maxiter = 40, verbose = false)
+function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
+    y,
+    x0;
+    maxiter = 40,
+    verbose = false,
+    xrtol = eps(),
+    rtol = 4eps(),
+)
     v = find_zero(
         guess -> eos⁻¹.eos(guess) - y,
         x0,
         Order2();
         maxevals = maxiter,
         verbose = verbose,
+        xrtol = xrtol,
+        rtol = rtol,
     )
     return [v]
 end
