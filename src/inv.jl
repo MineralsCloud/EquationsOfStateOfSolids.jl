@@ -3,25 +3,22 @@ using Roots: find_zero, Order2, newton
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-"Wrap an equation of state for inversions."
-struct Inverted{T<:EquationOfStateOfSolids}
-    eos::T
-end
+export solvev
 
-function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan1st}})(p)
-    @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
+function solvev(eos::PressureEquation{<:Murnaghan1st}, p)
+    @unpack v0, b0, b′0 = getparam(eos)
     return [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
 end
-function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}})(p)
-    @unpack v0, b0, b′0, b″0 = getparam(eos⁻¹.eos)
+function solvev(eos::PressureEquation{<:Murnaghan2nd}, p)
+    @unpack v0, b0, b′0, b″0 = getparam(eos)
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
     numerator = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
     return [numerator / denominator]
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
-    @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
+function solvev(eos::EnergyEquation{<:BirchMurnaghan2nd}, e)
+    @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -32,47 +29,49 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan2nd}})(
+function solvev(
+    eos::PressureEquation{<:BirchMurnaghan2nd},
     p;
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
     rtol = sqrt(eps()),
 )
-    @unpack v0, b0 = getparam(eos⁻¹.eos)
+    @unpack v0, b0 = getparam(eos)
     # Solve f for (3 B0 f (2f + 1))^2 == p^2
     fs = roots(
         [-(p / 3b0)^2, 0, 1, 10, 40, 80, 80, 32];
         polish = true,
         epsilon = stopping_criterion,
     )
-    return _strain2volume(eos⁻¹.eos, v0, fs, p, chop, rtol)
+    return _strain2volume(eos, v0, fs, p, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}})(
+function solvev(
+    eos::BulkModulusEquation{<:BirchMurnaghan2nd},
     b;
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
     rtol = sqrt(eps()),
 )
-    @unpack v0, b0 = getparam(eos⁻¹.eos)
+    @unpack v0, b0 = getparam(eos)
     # Solve f for ((7f + 1) * (2f + 1)^(5/2))^2 == (b/b0)^2
     fs = roots(
         [1 - (b / b0)^2, 24, 229, 1130, 3160, 5072, 4368, 1568];
         polish = true,
         epsilon = stopping_criterion,
     )
-    return _strain2volume(eos⁻¹.eos, v0, fs, b, chop, rtol)
+    return _strain2volume(eos, v0, fs, b, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(
+function solvev(
+    eos::EnergyEquation{<:BirchMurnaghan3rd},
     e;
     chop = eps(),
     rtol = sqrt(eps()),
 )
-    @unpack v0, b0, b′0, e0 = getparam(eos⁻¹.eos)
+    @unpack v0, b0, b′0, e0 = getparam(eos)
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
         @warn "`b′0 == 4` for a `BirchMurnaghan3rd` is just a `BirchMurnaghan2nd`!"
-        eos⁻¹ = EnergyEquation(BirchMurnaghan2nd(v0, b0, e0))^(-1)
-        return eos⁻¹(e)
+        return solvev(EnergyEquation(BirchMurnaghan2nd(v0, b0, e0)), e)
     else
         a = b′0 - 4
         r = 1 / 3a  # b = 1
@@ -93,16 +92,17 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(
         else
             @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
         end  # solutions are strains
-        return _strain2volume(eos⁻¹.eos, v0, fs, e, chop, rtol)
+        return _strain2volume(eos, v0, fs, e, chop, rtol)
     end
 end
-function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan3rd}})(
+function solvev(
+    eos::PressureEquation{<:BirchMurnaghan3rd},
     p;
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
     rtol = sqrt(eps()),
 )
-    @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
+    @unpack v0, b0, b′0 = getparam(eos)
     # Solve f for (f (2f + 1)^(5/2) [2 + 3f (b′0 - 4)])^2 - (p / (3b0/2))^2 = 0
     fs = roots(
         [
@@ -120,25 +120,26 @@ function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan3rd}})(
         polish = true,
         epsilon = stopping_criterion,
     )
-    return _strain2volume(eos⁻¹.eos, v0, fs, p, chop, rtol)
+    return _strain2volume(eos, v0, fs, p, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(
+function solvev(
+    eos::EnergyEquation{<:BirchMurnaghan4th},
     e;
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
     rtol = sqrt(eps()),
 )
-    @unpack v0, b0, b′0, b″0, e0 = getparam(eos⁻¹.eos)
+    @unpack v0, b0, b′0, b″0, e0 = getparam(eos)
     h = b0 * b″0 + b′0^2
     fs = roots(
         [(e0 - e) / (3 / 8 * v0 * b0), 0, 12, 12(b′0 - 4), 143 - 63b′0 + 9h];
         polish = true,
         epsilon = stopping_criterion,
     )
-    return _strain2volume(eos⁻¹.eos, v0, fs, e, chop, rtol)
+    return _strain2volume(eos, v0, fs, e, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
-    @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
+function solvev(eos::EnergyEquation{<:PoirierTarantola2nd}, e)
+    @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -149,33 +150,47 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
+function solvev(
+    eos::EquationOfStateOfSolids,
     y,
-    x0;
+    vᵢ;
     maxiter = 40,
     verbose = false,
     xrtol = eps(),
     rtol = 4eps(),
 )
-    v = find_zero(
-        guess -> eos⁻¹.eos(guess) - y,
-        x0,
-        Order2();
-        maxevals = maxiter,
-        verbose = verbose,
-        xrtol = xrtol,
-        rtol = rtol,
-    )
-    return [v]
+    try
+        vᵣ = find_zero(
+            v -> eos(v) - y,
+            vᵢ,
+            Order2();
+            maxevals = maxiter,
+            verbose = verbose,
+            xrtol = xrtol,
+            rtol = rtol,
+        )
+    catch
+        @error "cannot find solution!"
+        return typeof(vᵢ)[]
+    end
+    if isa(vᵣ, AbstractArray)
+        return vᵣ
+    else
+        return [vᵣ]
+    end
 end
-function (eos⁻¹::Inverted{<:EnergyEquation})(y, x0; kwargs...)
-    v = newton(
-        guess -> eos⁻¹.eos(guess) - y,
-        guess -> -PressureEquation(eos⁻¹.eos)(guess),
-        x0;
-        kwargs...,
-    )
-    return [v]
+function solvev(eos::EnergyEquation, e, vᵢ; kwargs...)
+    try
+        vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
+    catch
+        @error "cannot find solution!"
+        return typeof(vᵢ)[]
+    end
+    if isa(vᵣ, AbstractArray)
+        return vᵣ
+    else
+        return [vᵣ]
+    end
 end
 
 function _strain2volume(
@@ -193,6 +208,3 @@ function _strain2volume(
            real |>
            Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol))
 end
-
-# Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
-Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) = Inverted(eos)
