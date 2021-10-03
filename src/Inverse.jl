@@ -1,27 +1,8 @@
-module Inverse
-
 using PolynomialRoots: roots
 using Roots: find_zero, Order2
 using UnPack: @unpack
 
-using ..EquationsOfStateOfSolids:
-    _ispositive,
-    BulkModulusEquation,
-    PressureEquation,
-    EnergyEquation,
-    EquationOfStateOfSolids,
-    Murnaghan,
-    Murnaghan1st,
-    Murnaghan2nd,
-    BirchMurnaghan,
-    BirchMurnaghan2nd,
-    BirchMurnaghan3rd,
-    BirchMurnaghan4th,
-    PoirierTarantola,
-    PoirierTarantola2nd,
-    PoirierTarantola3rd,
-    getparam
-using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
+using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
 "Wrap an equation of state for inversions."
 struct Inverted{T<:EquationOfStateOfSolids}
@@ -198,5 +179,3 @@ end
 
 # Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
 Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) = Inverted(eos)
-
-end
