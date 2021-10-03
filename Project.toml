@@ -1,38 +1,38 @@
 name = "EquationsOfStateOfSolids"
 uuid = "1eaa2786-f833-4167-8397-974edad0881e"
 authors = ["Qi Zhang <singularitti@outlook.com>"]
-version = "0.2.2"
+version = "0.3.0"
 
 [deps]
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+StructHelpers = "4093c41a-2008-41fd-82b8-e3f9d02b504f"
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 EquationsOfState = "0438fec6-b81c-52d9-9651-d286848f50a8"
-LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"
 PolynomialRoots = "3a141323-8675-5d76-9d11-e1df1406c778"
-Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
+LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"
 Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-StructHelpers = "4093c41a-2008-41fd-82b8-e3f9d02b504f"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
-Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
-
-[compat]
-ConstructionBase = "1.0"
-EquationsOfState = "4.0"
-LsqFit = "0.8, 0.9, 0.10, 0.11, 0.12"
-PolynomialRoots = "1.0"
-Polynomials = "0.8, 1.0, 2.0"
-Roots = "0.8, 1.0"
-StructHelpers = "0.1"
-UnPack = "1.0"
-Unitful = "0.18, 1.0"
-julia = "1"
+Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
 
 [extras]
-GenericSVD = "01680d73-4ee2-5a08-a1aa-533608c188bb"
-Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
-SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 UnitfulAtomic = "a7773ee8-282e-5fa2-be4e-bd808c38a91a"
+GenericSVD = "01680d73-4ee2-5a08-a1aa-533608c188bb"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
+SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
+Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
+
+[compat]
+Unitful = "0.18, 1.0"
+julia = "1"
+StructHelpers = "0.1"
+ConstructionBase = "1.0"
+EquationsOfState = "4.0"
+PolynomialRoots = "1.0"
+LsqFit = "0.8, 0.9, 0.10, 0.11, 0.12"
+Roots = "0.8, 1.0"
+UnPack = "1.0"
+Polynomials = "0.8, 1.0, 2.0"
 
 [targets]
 test = ["Test", "GenericSVD", "Measurements", "SymEngine", "YAML", "UnitfulAtomic"]
