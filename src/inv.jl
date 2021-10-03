@@ -5,11 +5,6 @@ using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
 export solve
 
-"Wrap an equation of state for inversions."
-struct Inverted{T<:EquationOfStateOfSolids}
-    eos::T
-end
-
 function solve(eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan1st}}, p)
     @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
     return [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
@@ -201,6 +196,3 @@ function _strain2volume(
            real |>
            Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol))
 end
-
-# Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
-Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) = Inverted(eos)
