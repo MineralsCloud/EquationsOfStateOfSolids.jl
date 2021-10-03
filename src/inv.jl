@@ -3,16 +3,18 @@ using Roots: find_zero, Order2, newton
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
+export solve
+
 "Wrap an equation of state for inversions."
 struct Inverted{T<:EquationOfStateOfSolids}
     eos::T
 end
 
-function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan1st}})(p)
+function solve(eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan1st}}, p)
     @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
     return [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
 end
-function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}})(p)
+function solve(eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}}, p)
     @unpack v0, b0, b′0, b″0 = getparam(eos⁻¹.eos)
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
@@ -20,7 +22,7 @@ function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
     return [numerator / denominator]
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
+function solve(eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}}, e)
     @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -32,7 +34,8 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan2nd}})(
+function solve(
+    eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan2nd}},
     p;
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
@@ -47,7 +50,8 @@ function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan2nd}})(
     )
     return _strain2volume(eos⁻¹.eos, v0, fs, p, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}})(
+function solve(
+    eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}},
     b;
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
@@ -62,7 +66,8 @@ function (eos⁻¹::Inverted{<:BulkModulusEquation{<:BirchMurnaghan2nd}})(
     )
     return _strain2volume(eos⁻¹.eos, v0, fs, b, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(
+function solve(
+    eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}},
     e;
     chop = eps(),
     rtol = sqrt(eps()),
@@ -96,7 +101,8 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(
         return _strain2volume(eos⁻¹.eos, v0, fs, e, chop, rtol)
     end
 end
-function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan3rd}})(
+function solve(
+    eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan3rd}},
     p;
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
@@ -122,7 +128,8 @@ function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan3rd}})(
     )
     return _strain2volume(eos⁻¹.eos, v0, fs, p, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(
+function solve(
+    eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}},
     e;
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
@@ -137,7 +144,7 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(
     )
     return _strain2volume(eos⁻¹.eos, v0, fs, e, chop, rtol)
 end
-function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
+function solve(eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}}, e)
     @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -149,7 +156,8 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
+function solve(
+    eos⁻¹::Inverted{<:EquationOfStateOfSolids},
     y,
     x0;
     maxiter = 40,
@@ -168,7 +176,7 @@ function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
     )
     return [v]
 end
-function (eos⁻¹::Inverted{<:EnergyEquation})(y, x0; kwargs...)
+function solve(eos⁻¹::Inverted{<:EnergyEquation}, y, x0; kwargs...)
     v = newton(
         guess -> eos⁻¹.eos(guess) - y,
         guess -> -PressureEquation(eos⁻¹.eos)(guess),
