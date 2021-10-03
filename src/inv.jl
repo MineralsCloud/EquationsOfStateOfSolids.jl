@@ -3,13 +3,13 @@ using Roots: find_zero, Order2, newton
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export solve
+export solvev
 
-function solve(eos::PressureEquation{<:Murnaghan1st}, p)
+function solvev(eos::PressureEquation{<:Murnaghan1st}, p)
     @unpack v0, b0, b′0 = getparam(eos)
     return [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
 end
-function solve(eos::PressureEquation{<:Murnaghan2nd}, p)
+function solvev(eos::PressureEquation{<:Murnaghan2nd}, p)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
@@ -17,7 +17,7 @@ function solve(eos::PressureEquation{<:Murnaghan2nd}, p)
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
     return [numerator / denominator]
 end
-function solve(eos::EnergyEquation{<:BirchMurnaghan2nd}, e)
+function solvev(eos::EnergyEquation{<:BirchMurnaghan2nd}, e)
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -29,7 +29,7 @@ function solve(eos::EnergyEquation{<:BirchMurnaghan2nd}, e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function solve(
+function solvev(
     eos::PressureEquation{<:BirchMurnaghan2nd},
     p;
     stopping_criterion = 1e-20,  # Unitless
@@ -45,7 +45,7 @@ function solve(
     )
     return _strain2volume(eos, v0, fs, p, chop, rtol)
 end
-function solve(
+function solvev(
     eos::BulkModulusEquation{<:BirchMurnaghan2nd},
     b;
     stopping_criterion = 1e-20,  # Unitless
@@ -61,7 +61,7 @@ function solve(
     )
     return _strain2volume(eos, v0, fs, b, chop, rtol)
 end
-function solve(
+function solvev(
     eos::EnergyEquation{<:BirchMurnaghan3rd},
     e;
     chop = eps(),
@@ -71,7 +71,7 @@ function solve(
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
         @warn "`b′0 == 4` for a `BirchMurnaghan3rd` is just a `BirchMurnaghan2nd`!"
-        return solve(EnergyEquation(BirchMurnaghan2nd(v0, b0, e0)), e)
+        return solvev(EnergyEquation(BirchMurnaghan2nd(v0, b0, e0)), e)
     else
         a = b′0 - 4
         r = 1 / 3a  # b = 1
@@ -95,7 +95,7 @@ function solve(
         return _strain2volume(eos, v0, fs, e, chop, rtol)
     end
 end
-function solve(
+function solvev(
     eos::PressureEquation{<:BirchMurnaghan3rd},
     p;
     stopping_criterion = 1e-20,  # Unitless
@@ -122,7 +122,7 @@ function solve(
     )
     return _strain2volume(eos, v0, fs, p, chop, rtol)
 end
-function solve(
+function solvev(
     eos::EnergyEquation{<:BirchMurnaghan4th},
     e;
     stopping_criterion = 1e-20,  # Unitless
@@ -138,7 +138,7 @@ function solve(
     )
     return _strain2volume(eos, v0, fs, e, chop, rtol)
 end
-function solve(eos::EnergyEquation{<:PoirierTarantola2nd}, e)
+function solvev(eos::EnergyEquation{<:PoirierTarantola2nd}, e)
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -150,7 +150,7 @@ function solve(eos::EnergyEquation{<:PoirierTarantola2nd}, e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function solve(
+function solvev(
     eos::EquationOfStateOfSolids,
     y,
     x0;
@@ -170,7 +170,7 @@ function solve(
     )
     return [v]
 end
-function solve(eos::EnergyEquation, y, x0; kwargs...)
+function solvev(eos::EnergyEquation, y, x0; kwargs...)
     v = newton(
         guess -> eos(guess) - y,
         guess -> -PressureEquation(eos)(guess),
