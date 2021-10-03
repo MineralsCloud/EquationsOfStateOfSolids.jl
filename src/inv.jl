@@ -1,6 +1,5 @@
 using PolynomialRoots: roots
 using Roots: find_zero, Order2
-using UnPack: @unpack
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
