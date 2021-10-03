@@ -1,5 +1,5 @@
 using PolynomialRoots: roots
-using Roots: find_zero, Order2
+using Roots: find_zero, Order2, newton
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
@@ -165,6 +165,15 @@ function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
         verbose = verbose,
         xrtol = xrtol,
         rtol = rtol,
+    )
+    return [v]
+end
+function (eos⁻¹::Inverted{<:EnergyEquation})(y, x0; kwargs...)
+    v = newton(
+        guess -> eos⁻¹.eos(guess) - y,
+        guess -> -PressureEquation(eos⁻¹.eos)(guess),
+        x0;
+        kwargs...,
     )
     return [v]
 end
