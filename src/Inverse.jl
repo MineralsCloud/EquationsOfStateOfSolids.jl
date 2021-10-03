@@ -2,7 +2,6 @@ module Inverse
 
 using PolynomialRoots: roots
 using Roots: find_zero, Order2
-using StaticArrays: MVector
 using UnPack: @unpack
 
 using ..EquationsOfStateOfSolids:
@@ -31,7 +30,7 @@ end
 
 function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan1st}})(p)
     @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
-    return MVector(v0 * (1 + b′0 / b0 * p)^(-1 / b′0))
+    return [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
 end
 function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     @unpack v0, b0, b′0, b″0 = getparam(eos⁻¹.eos)
@@ -39,16 +38,16 @@ function (eos⁻¹::Inverted{<:PressureEquation{<:Murnaghan2nd}})(p)
     k = b″0 * p + b′0
     numerator = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
-    return MVector(numerator / denominator)
+    return [numerator / denominator]
 end
 function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos⁻¹.eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        return map(FromEulerianStrain(v0), MVector(f, -f))
+        return map(FromEulerianStrain(v0), [f, -f])
     elseif Δ < 0
-        return MVector{0,typeof(v0)}()  # Complex strains
+        return typeof(v0)[]  # Complex strains
     else
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
@@ -101,15 +100,15 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(
         p, q = -r^3 - d / 2a, -r^2
         Δ = p^2 + q^3
         fs = -r .+ if Δ > 0
-            MVector(cbrt(p + √Δ) + cbrt(p - √Δ))  # Only 1 real solution
+            [cbrt(p + √Δ) + cbrt(p - √Δ)]  # Only 1 real solution
         elseif Δ < 0
             SIN, COS = sincos(acos(p / abs(r)^3) / 3)
-            MVector(2COS, -COS - √3 * SIN, -COS + √3 * SIN) .* abs(r)  # Verified
+            [2COS, -COS - √3 * SIN, -COS + √3 * SIN] .* abs(r)  # Verified
         elseif Δ == 0
             if p == q == 0
-                MVector(0)  # 3 reals are equal
+                [0]  # 3 reals are equal
             else  # p == -q != 0
-                MVector(2cbrt(p), -cbrt(p))  # 2 real roots are equal, leaving 2 solutions
+                [2cbrt(p), -cbrt(p)]  # 2 real roots are equal, leaving 2 solutions
             end
         else
             @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
@@ -163,9 +162,9 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        return map(FromNaturalStrain(v0), MVector(f, -f))
+        return map(FromNaturalStrain(v0), [f, -f])
     elseif Δ < 0
-        return MVector{0,typeof(v0)}()  # Complex strains
+        return typeof(v0)[]  # Complex strains
     else
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
@@ -178,7 +177,7 @@ function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, x0; maxiter = 40, ve
         maxevals = maxiter,
         verbose = verbose,
     )
-    return MVector(v...)
+    return v
 end
 
 function _strain2volume(
@@ -194,8 +193,7 @@ function _strain2volume(
            Base.Fix1(map, FromEulerianStrain(v0)) |>
            Base.Fix1(filter, x -> abs(imag(x)) < chop * oneunit(imag(x))) .|>  # If `x` has unit
            real |>
-           Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol)) |>
-           v -> MVector(v...)
+           Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol))
 end
 
 # Idea from https://discourse.julialang.org/t/functional-inverse/10959/6

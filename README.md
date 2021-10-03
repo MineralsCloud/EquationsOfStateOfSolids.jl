@@ -46,7 +46,6 @@ See its
   - [`PolynomialRoots.jl`](https://github.com/giordano/PolynomialRoots.jl) `v1.0.0` and above
   - [`Polynomials.jl`](https://github.com/JuliaMath/Polynomials.jl) `v0.8.0` and above
   - [`Roots.jl`](https://github.com/JuliaMath/Roots.jl) `v0.8.0` and above
-  - [`StaticArrays.jl`](https://github.com/JuliaArrays/StaticArrays.jl) `v0.8.3` and above
   - [`UnPack.jl`](https://github.com/mauro3/UnPack.jl) `v1.0.0` and above
   - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) `v0.18.0` and above
 - OS: macOS, Linux, Windows, and FreeBSD
