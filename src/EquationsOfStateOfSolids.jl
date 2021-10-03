@@ -38,6 +38,6 @@ _isnegative(x) = x < zero(x)  # Do not export!
 include("FiniteStrains.jl")
 include("collections/collections.jl")
 include("Fitting.jl")
-include("Inverse.jl")
+include("inv.jl")
 
 end
