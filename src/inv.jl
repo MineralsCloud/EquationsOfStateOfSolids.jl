@@ -1,27 +1,7 @@
-module Inverse
-
 using PolynomialRoots: roots
-using Roots: find_zero, Order2
-using UnPack: @unpack
+using Roots: find_zero, Order2, newton
 
-using ..EquationsOfStateOfSolids:
-    _ispositive,
-    BulkModulusEquation,
-    PressureEquation,
-    EnergyEquation,
-    EquationOfStateOfSolids,
-    Murnaghan,
-    Murnaghan1st,
-    Murnaghan2nd,
-    BirchMurnaghan,
-    BirchMurnaghan2nd,
-    BirchMurnaghan3rd,
-    BirchMurnaghan4th,
-    PoirierTarantola,
-    PoirierTarantola2nd,
-    PoirierTarantola3rd,
-    getparam
-using ..FiniteStrains: FromEulerianStrain, FromNaturalStrain
+using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
 "Wrap an equation of state for inversions."
 struct Inverted{T<:EquationOfStateOfSolids}
@@ -169,13 +149,31 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(y, x0; maxiter = 40, verbose = false)
+function (eos⁻¹::Inverted{<:EquationOfStateOfSolids})(
+    y,
+    x0;
+    maxiter = 40,
+    verbose = false,
+    xrtol = eps(),
+    rtol = 4eps(),
+)
     v = find_zero(
         guess -> eos⁻¹.eos(guess) - y,
         x0,
         Order2();
         maxevals = maxiter,
         verbose = verbose,
+        xrtol = xrtol,
+        rtol = rtol,
+    )
+    return [v]
+end
+function (eos⁻¹::Inverted{<:EnergyEquation})(y, x0; kwargs...)
+    v = newton(
+        guess -> eos⁻¹.eos(guess) - y,
+        guess -> -PressureEquation(eos⁻¹.eos)(guess),
+        x0;
+        kwargs...,
     )
     return [v]
 end
@@ -198,5 +196,3 @@ end
 
 # Idea from https://discourse.julialang.org/t/functional-inverse/10959/6
 Base.literal_pow(::typeof(^), eos::EquationOfStateOfSolids, ::Val{-1}) = Inverted(eos)
-
-end
