@@ -117,6 +117,32 @@ function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan3rd}})(
         return _strain2volume(eos⁻¹.eos, v0, fs, e, chop, rtol)
     end
 end
+function (eos⁻¹::Inverted{<:PressureEquation{<:BirchMurnaghan3rd}})(
+    p;
+    stopping_criterion = 1e-20,  # Unitless
+    chop = eps(),
+    rtol = sqrt(eps()),
+)
+    @unpack v0, b0, b′0 = getparam(eos⁻¹.eos)
+    # Solve f for (f (2f + 1)^(5/2) [2 + 3f (b′0 - 4)])^2 - (p / (3b0/2))^2 = 0
+    fs = roots(
+        [
+            -(2p / 3 / b0)^2,
+            0,
+            4,
+            12b′0 - 8,
+            9b′0^2 + 48b′0 - 176,
+            90b′0^2 - 80(2 + 3b′0),
+            360b′0^2 + 320(7 - 6b′0),
+            720b′0^2 + 64(122 - 75b′0),
+            720b′0^2 + 768(13 - 7b′0),
+            288b′0^2 + 2304(2 - b′0),
+        ];
+        polish = true,
+        epsilon = stopping_criterion,
+    )
+    return _strain2volume(eos⁻¹.eos, v0, fs, p, chop, rtol)
+end
 function (eos⁻¹::Inverted{<:EnergyEquation{<:BirchMurnaghan4th}})(
     e;
     stopping_criterion = 1e-20,  # Unitless
