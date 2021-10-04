@@ -8,18 +8,16 @@ export solvev
 function solvev(
     eos::PressureEquation{<:Murnaghan1st},
     p;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, b′0 = getparam(eos)
     soln = [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
-    return _clamp(soln, lo, hi)
+    return _clamp(soln, bounds)
 end
 function solvev(
     eos::PressureEquation{<:Murnaghan2nd},
     p;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     h = sqrt(2b0 * b″0 - b′0^2)
@@ -27,20 +25,19 @@ function solvev(
     numerator = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
     soln = [numerator / denominator]
-    return _clamp(soln, lo, hi)
+    return _clamp(soln, bounds)
 end
 function solvev(
     eos::EnergyEquation{<:BirchMurnaghan2nd},
     e;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
         soln = map(FromEulerianStrain(v0), [f, -f])
-        return _clamp(soln, lo, hi)
+        return _clamp(soln, bounds)
     elseif Δ < 0
         return typeof(v0)[]  # Complex strains
     else
@@ -50,8 +47,7 @@ end
 function solvev(
     eos::PressureEquation{<:BirchMurnaghan2nd},
     p;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
     rtol = sqrt(eps()),
@@ -64,13 +60,12 @@ function solvev(
         epsilon = stopping_criterion,
     )
     soln = _strain2volume(eos, v0, fs, p, chop, rtol)
-    return _clamp(soln, lo, hi)
+    return _clamp(soln, bounds)
 end
 function solvev(
     eos::BulkModulusEquation{<:BirchMurnaghan2nd},
     b;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
     rtol = sqrt(eps()),
@@ -83,13 +78,12 @@ function solvev(
         epsilon = stopping_criterion,
     )
     soln = _strain2volume(eos, v0, fs, b, chop, rtol)
-    return _clamp(soln, lo, hi)
+    return _clamp(soln, bounds)
 end
 function solvev(
     eos::EnergyEquation{<:BirchMurnaghan3rd},
     e;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     chop = eps(),
     rtol = sqrt(eps()),
 )
@@ -97,7 +91,7 @@ function solvev(
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
         @warn "`b′0 == 4` for a `BirchMurnaghan3rd` is just a `BirchMurnaghan2nd`!"
-        return solvev(EnergyEquation(BirchMurnaghan2nd(v0, b0, e0)), e; lo = lo, hi = hi)
+        return solvev(EnergyEquation(BirchMurnaghan2nd(v0, b0, e0)), e; bounds = bounds)
     else
         a = b′0 - 4
         r = 1 / 3a  # b = 1
@@ -119,14 +113,13 @@ function solvev(
             @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
         end  # solutions are strains
         soln = _strain2volume(eos, v0, fs, e, chop, rtol)
-        return _clamp(soln, lo, hi)
+        return _clamp(soln, bounds)
     end
 end
 function solvev(
     eos::PressureEquation{<:BirchMurnaghan3rd},
     p;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
     rtol = sqrt(eps()),
@@ -150,13 +143,12 @@ function solvev(
         epsilon = stopping_criterion,
     )
     soln = _strain2volume(eos, v0, fs, p, chop, rtol)
-    return _clamp(soln, lo, hi)
+    return _clamp(soln, bounds)
 end
 function solvev(
     eos::EnergyEquation{<:BirchMurnaghan4th},
     e;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     stopping_criterion = 1e-20,  # Unitless
     chop = eps(),
     rtol = sqrt(eps()),
@@ -169,20 +161,19 @@ function solvev(
         epsilon = stopping_criterion,
     )
     soln = _strain2volume(eos, v0, fs, e, chop, rtol)
-    return _clamp(soln, lo, hi)
+    return _clamp(soln, bounds)
 end
 function solvev(
     eos::EnergyEquation{<:PoirierTarantola2nd},
     e;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
         soln = map(FromNaturalStrain(v0), [f, -f])
-        return _clamp(soln, lo, hi)
+        return _clamp(soln, bounds)
     elseif Δ < 0
         return typeof(v0)[]  # Complex strains
     else
@@ -193,8 +184,7 @@ function solvev(
     eos::EquationOfStateOfSolids,
     y,
     vᵢ;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     maxiter = 40,
     verbose = false,
     xrtol = eps(),
@@ -211,7 +201,7 @@ function solvev(
             rtol = rtol,
         )
         soln = isa(vᵣ, AbstractArray) ? vᵣ : [vᵣ]
-        return _clamp(soln, lo, hi)
+        return _clamp(soln, bounds)
     catch
         @error "cannot find solution!"
         return typeof(vᵢ)[]
@@ -221,14 +211,13 @@ function solvev(
     eos::EnergyEquation,
     e,
     vᵢ;
-    lo = zero(eos.param.v0),
-    hi = Inf * eos.param.v0,
+    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     kwargs...,
 )
     try
         vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
         soln = isa(vᵣ, AbstractArray) ? vᵣ : [vᵣ]
-        return _clamp(soln, lo, hi)
+        return _clamp(soln, bounds)
     catch
         @error "cannot find solution!"
         return typeof(vᵢ)[]
@@ -251,4 +240,7 @@ function _strain2volume(
            Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol))
 end
 
-_clamp(arr, lo, hi) = filter(v -> lo <= v <= hi, arr)
+function _clamp(soln, bounds)
+    low, high = extrema(bounds)
+    return filter(v -> low <= v <= high, soln)
+end
