@@ -1,5 +1,5 @@
 using PolynomialRoots: roots
-using Roots: find_zero, Order2, Newton, newton, find_zeros
+using Roots: Order2, Newton, newton, find_zeros, find_zero
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
