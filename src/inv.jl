@@ -203,8 +203,8 @@ function solvev(
         )
         soln = isa(vᵣ, AbstractArray) ? vᵣ : [vᵣ]
         return _clamp(soln, bounds)
-    catch
-        @error "cannot find solution!"
+    catch e
+        @error "cannot find solution! Come across `$e`!"
         return typeof(vᵢ)[]
     end
 end
@@ -220,8 +220,8 @@ function solvev(
         vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
         soln = isa(vᵣ, AbstractArray) ? vᵣ : [vᵣ]
         return _clamp(soln, bounds)
-    catch
-        @error "cannot find solution!"
+    catch e
+        @error "cannot find solution! Come across `$e`!"
         return typeof(vᵢ)[]
     end
 end
