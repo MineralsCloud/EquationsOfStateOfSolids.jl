@@ -1,5 +1,5 @@
 using PolynomialRoots: roots
-using Roots: find_zero, Order2, Newton, newton
+using Roots: Order2, Newton, newton, find_zeros, find_zero
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
@@ -178,6 +178,21 @@ function solvev(
         return typeof(v0)[]  # Complex strains
     else
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
+    end
+end
+function solvev(
+    eos::EquationOfStateOfSolids,
+    y;
+    bounds = (zero(eos.param.v0), 4 * eos.param.v0),
+    xrtol = eps(),
+    rtol = 4eps(),
+)
+    # Bisection method
+    try
+        return find_zeros(v -> eos(v) - y, bounds; xrtol = xrtol, rtol = rtol)
+    catch e
+        @error "cannot find solution! Come across `$e`!"
+        return typeof(eos.param.v0)[]
     end
 end
 function solvev(
