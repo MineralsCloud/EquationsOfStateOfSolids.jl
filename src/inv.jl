@@ -1,5 +1,5 @@
 using PolynomialRoots: roots
-using Roots: find_zero, Order2, newton
+using Roots: find_zero, Order2, Newton, newton
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
@@ -183,7 +183,8 @@ end
 function solvev(
     eos::EquationOfStateOfSolids,
     y,
-    vᵢ;
+    vᵢ,
+    method = Order2();
     bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     maxiter = 40,
     verbose = false,
@@ -194,7 +195,7 @@ function solvev(
         vᵣ = find_zero(
             v -> eos(v) - y,
             vᵢ,
-            Order2();
+            method;
             maxevals = maxiter,
             verbose = verbose,
             xrtol = xrtol,
@@ -210,7 +211,8 @@ end
 function solvev(
     eos::EnergyEquation,
     e,
-    vᵢ;
+    vᵢ,
+    ::Newton;
     bounds = (zero(eos.param.v0), Inf * eos.param.v0),
     kwargs...,
 )
