@@ -216,8 +216,7 @@ function vsolve(
             xrtol = xrtol,
             rtol = rtol,
         )
-        soln = isa(vᵣ, AbstractArray) ? vᵣ : [vᵣ]
-        return _clamp(soln, bounds)
+        return _clamp([vᵣ], bounds)
     catch e
         @error "cannot find solution! Come across `$e`!"
         return typeof(vᵢ)[]
@@ -233,8 +232,7 @@ function vsolve(
 )
     try
         vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
-        soln = isa(vᵣ, AbstractArray) ? vᵣ : [vᵣ]
-        return _clamp(soln, bounds)
+        return _clamp([vᵣ], bounds)
     catch e
         @error "cannot find solution! Come across `$e`!"
         return typeof(vᵢ)[]
