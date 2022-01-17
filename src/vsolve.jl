@@ -252,7 +252,8 @@ function _strain2volume(
            Base.Fix1(map, FromEulerianStrain(v0)) |>
            Base.Fix1(filter, x -> abs(imag(x)) < chop * oneunit(imag(x))) .|>  # If `x` has unit
            real |>
-           Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol))
+           Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol)) |>  # In case of duplicate values
+           unique
 end
 
 function _clamp(soln, bounds)
