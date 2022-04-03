@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(EquationsOfStateOfSolids, :DocTestSetup, :(using EquationsOf
 
 makedocs(;
     modules=[EquationsOfStateOfSolids],
-    authors="Qi Zhang <singularitti@outlook.com>",
+    authors="Reno <singularitti@outlook.com>",
     repo="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/{commit}{path}#{line}",
     sitename="EquationsOfStateOfSolids.jl",
     format=Documenter.HTML(;
