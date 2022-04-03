@@ -9,10 +9,10 @@
 [![Build Status](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/workflows/CI/badge.svg)](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/actions)
 [![pipeline status](https://gitlab.com/singularitti/equationsofstateofsolids.jl/badges/master/pipeline.svg)](https://gitlab.com/singularitti/equationsofstateofsolids.jl/-/pipelines)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/MineralsCloud/EquationsOfStateOfSolids.jl?svg=true)](https://ci.appveyor.com/project/singularitti/EquationsOfStateOfSolids-jl)
-[![Build Status](https://cloud.drone.io/api/badges/MineralsCloud/EquationsOfStateOfSolids.jl/status.svg)](https://cloud.drone.io/MineralsCloud/EquationsOfStateOfSolids.jl)
 [![Build Status](https://api.cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl.svg)](https://cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl)
 [![Coverage](https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl)
-[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/organization/repository)
+[![PkgEval](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/E/EquationsOfStateOfSolids.svg)](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/report.html)
+[![GitHub license](https://img.shields.io/github/license/MineralsCloud/EquationsOfStateOfSolids.jl)](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/master/LICENSE)
 
 This package implements some _equations of state_ (EOS) of solids which are
 useful in research. It currently includes:
@@ -46,7 +46,6 @@ See its
   - [`PolynomialRoots.jl`](https://github.com/giordano/PolynomialRoots.jl) `v1.0.0` and above
   - [`Polynomials.jl`](https://github.com/JuliaMath/Polynomials.jl) `v0.8.0` and above
   - [`Roots.jl`](https://github.com/JuliaMath/Roots.jl) `v0.8.0` and above
-  - [`StaticArrays.jl`](https://github.com/JuliaArrays/StaticArrays.jl) `v0.8.3` and above
   - [`UnPack.jl`](https://github.com/mauro3/UnPack.jl) `v1.0.0` and above
   - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl) `v0.18.0` and above
 - OS: macOS, Linux, Windows, and FreeBSD
