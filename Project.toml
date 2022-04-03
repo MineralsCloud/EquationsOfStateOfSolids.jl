@@ -1,7 +1,7 @@
 name = "EquationsOfStateOfSolids"
 uuid = "1eaa2786-f833-4167-8397-974edad0881e"
 authors = ["Qi Zhang <singularitti@outlook.com>"]
-version = "0.4.1"
+version = "0.4.2"
 
 [deps]
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
