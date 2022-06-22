@@ -1,3 +1,7 @@
+using Unitful: ħ, me
+
+const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
+
 function (eos::PressureEquation{<:Murnaghan1st})(v)
     @unpack v0, b0, b′0 = getparam(eos)
     return b0 / b′0 * ((v0 / v)^b′0 - 1)

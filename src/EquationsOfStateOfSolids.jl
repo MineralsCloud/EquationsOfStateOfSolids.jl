@@ -1,8 +1,6 @@
 module EquationsOfStateOfSolids
 
-using Unitful: AbstractQuantity, NoUnits, ħ, me
-
-const FERMI_GAS_CONSTANT = (3π^2)^(2 / 3) * ħ^2 / 5 / me
+using Unitful: AbstractQuantity, NoUnits
 
 # See https://discourse.julialang.org/t/is-there-a-way-to-include-in-function-name/45378/3
 abstract type Power end
