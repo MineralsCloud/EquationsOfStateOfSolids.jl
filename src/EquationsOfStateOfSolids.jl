@@ -19,21 +19,21 @@ const _1½ = ThreeHalves()
 Base.:^(x, ::TwoThirds) = x^(2 // 3)
 Base.:^(x::Union{Complex,AbstractQuantity{<:Complex}}, ::TwoThirds) = x^(2 / 3)
 Base.:^(x::Union{Real,AbstractQuantity{<:Real}}, ::TwoThirds) =
-    _isnegative(x) ? complex(x)^(2 / 3) : x^(2 / 3)
+    isnegative(x) ? complex(x)^(2 / 3) : x^(2 / 3)
 Base.:^(x, ::OneThird) = x^(1 // 3)
 Base.:^(x::Union{Complex,AbstractQuantity{<:Complex}}, ::OneThird) = x^(1 / 3)
 Base.:^(x::Union{Real,AbstractQuantity{<:Real}}, ::OneThird) =
-    _isnegative(x) ? complex(x)^(1 / 3) : x^(1 / 3)
+    isnegative(x) ? complex(x)^(1 / 3) : x^(1 / 3)
 Base.:^(x, ::FiveHalves) = x^(5 // 2)
 Base.:^(x::Union{Complex,AbstractQuantity{<:Complex}}, ::FiveHalves) = sqrt(x^5)
 Base.:^(x::Union{Real,AbstractQuantity{<:Real}}, ::FiveHalves) =
-    _isnegative(x) ? sqrt(complex(x^5)) : sqrt(x^5)
+    isnegative(x) ? sqrt(complex(x^5)) : sqrt(x^5)
 Base.:^(x, ::ThreeHalves) = x^(3 // 2)
 Base.:^(x::Union{Complex,AbstractQuantity{<:Complex}}, ::ThreeHalves) = sqrt(x^3)
 Base.:^(x::Union{Real,AbstractQuantity{<:Real}}, ::ThreeHalves) =
-    _isnegative(x) ? sqrt(complex(x^3)) : sqrt(x^3)
+    isnegative(x) ? sqrt(complex(x^3)) : sqrt(x^3)
 
-_isnegative(x) = x < zero(x)  # Do not export!
+isnegative(x) = x < zero(x)  # Do not export!
 
 include("FiniteStrains.jl")
 include("collections/collections.jl")
