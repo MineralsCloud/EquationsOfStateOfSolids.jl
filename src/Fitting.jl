@@ -60,7 +60,7 @@ function linfit(
     conv_thr = 1e-12,
     root_thr = 1e-20,
     verbose = false,
-)::FiniteStrainParameters
+)
     deg = orderof(getparam(eos))
     S = straintype(getparam(eos))
     v0 = iszero(getparam(eos).v0) ? volumes[findmin(energies)[2]] : getparam(eos).v0  # Initial v0
@@ -84,7 +84,7 @@ function linfit(
             fᵥ = map(deg -> Dⁿᵥf(S(), deg, v0)(v0), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
             b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
-            return _update(
+            param = _update(
                 getparam(eos);
                 v0 = v0 * uv,
                 b0 = b0(v0) * ue / uv,
@@ -92,6 +92,7 @@ function linfit(
                 b″0 = b″0(v0) * uv / ue,
                 e0 = e0 * ue,
             )
+            return constructorof(typeof(eos))(param)
         end
     end
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
@@ -175,7 +176,7 @@ function nonlinfit(
     min_step_quality = 1e-16,
     good_step_quality = 0.75,
     verbose = false,
-)::Parameters
+)
     model = buildmodel(eos)
     p0, xdata, ydata = _preprocess(eos, xdata, ydata)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
@@ -191,9 +192,9 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        result = _postprocess(coef(fit), getparam(eos))
-        checkresult(result)
-        return result
+        param = _postprocess(coef(fit), getparam(eos))
+        checkresult(param)
+        return constructorof(typeof(eos))(param)
     else
         throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
     end
