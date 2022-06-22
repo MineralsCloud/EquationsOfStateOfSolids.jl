@@ -65,7 +65,6 @@ function linfit(
     S = straintype(getparam(eos))
     v0 = iszero(getparam(eos).v0) ? volumes[findmin(energies)[2]] : getparam(eos).v0  # Initial v0
     uv, ue = unit(v0), unit(energies[1])
-    uvrule = uconvert(unit(volumes[1]), 1 * uv)
     v0 = ustrip(v0)
     volumes = collect(map(x -> ustrip(uv, x), volumes))  # `parent` is needed to unwrap `DimArray`
     energies = collect(map(x -> ustrip(ue, x), energies))
