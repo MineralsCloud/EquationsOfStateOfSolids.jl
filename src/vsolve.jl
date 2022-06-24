@@ -247,7 +247,7 @@ function _strain2volume(
     chop = eps(),
     rtol = sqrt(eps()),
 )
-    @assert _ispositive(chop) && _ispositive(rtol) "either `chop` or `rtol` is less than 0!"
+    @assert !isnegative(chop) && !isnegative(rtol) "either `chop` or `rtol` is less than 0!"
     return fs |>
            Base.Fix1(map, FromEulerianStrain(v0)) |>
            Base.Fix1(filter, x -> abs(imag(x)) < chop * oneunit(imag(x))) .|>  # If `x` has unit

@@ -12,8 +12,6 @@ include("ev.jl")
 include("pv.jl")
 include("bv.jl")
 
-_ispositive(x) = x > zero(x)  # Do not export!
-
 # Ref: https://github.com/JuliaLang/julia/blob/4a2830a/base/array.jl#L125
 """
     orderof(x::FiniteStrainParameters)
