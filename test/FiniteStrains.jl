@@ -8,7 +8,11 @@ using EquationsOfStateOfSolids.FiniteStrains: ToEulerianStrain
 @testset "Test `ToEulerianStrain`" begin
     v = 17.789658
     v0 = 19.361802843683524
-    @test ToEulerianStrain(v0)(v) == 0.029040354449144323
+    if VERSION >= v"1.8.0-beta1"
+        @test ToEulerianStrain(v0)(v) == 0.029040354449144323
+    else
+        @test ToEulerianStrain(v0)(v) == 0.029040354449144212
+    end
 end
 
 end
