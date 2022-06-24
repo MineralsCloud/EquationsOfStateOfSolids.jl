@@ -4,18 +4,10 @@ using ConstructionBase: constructorof, setproperties
 using LsqFit: curve_fit, coef
 using PolynomialRoots: roots
 using Polynomials: fit, derivative, coeffs, derivative
-using Unitful: AbstractQuantity, NoUnits, ustrip, unit, uconvert
+using Unitful: AbstractQuantity, ustrip, unit, uconvert
 
 using ..EquationsOfStateOfSolids:
-    EquationOfStateOfSolids,
-    FiniteStrainParameters,
-    Parameters,
-    PressureEquation,
-    EnergyEquation,
-    BulkModulusEquation,
-    orderof,
-    _ispositive,
-    getparam
+    FiniteStrainParameters, Parameters, EnergyEquation, orderof
 using ..FiniteStrains: FiniteStrain, ToStrain, FromStrain, Dⁿᵥf, straintype
 
 export fiteos, linfit, nonlinfit
@@ -38,9 +30,9 @@ linfit(eos::EnergyEquation, volumes, energies; kwargs...) =
     EnergyEquation(fiteos(volumes, energies, eos.param, LinearFitting(); kwargs...))
 
 """
-    linfit(eos::EnergyEquation{<:FiniteStrainParameters}, volumes, energies; kwargs...)
+    fiteos(volumes, energies, initial_params::FiniteStrainParameters, LinearFitting(); kwargs...)
 
-Fit an equation of state using linear algorithms.
+Fit an equation of state ``E(V)`` using linear algorithms.
 
 # Arguments
 - `maxiter::Integer=1000`: .
@@ -50,8 +42,8 @@ Fit an equation of state using linear algorithms.
 
 !!! note
     If you want to fit with `BigFloat` data, you need to install
-    [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using
-    GenericSVD` before fittting!
+    [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using GenericSVD`
+    before fittting!
 """
 function fiteos(
     volumes,
@@ -99,8 +91,8 @@ function fiteos(
 end
 
 function islocalmin(x, y)  # `x` & `y` are both real
-    y″ₓ = derivative(y, 2)(x)  # Must be real
-    return _ispositive(real(y″ₓ))  # If 2nd derivative at x > 0, (x, y(x)) is a local minimum
+    y″ₓ = real(derivative(y, 2)(x))  # Must be real
+    return y″ₓ > zero(y″ₓ)  # If 2nd derivative at x > 0, (x, y(x)) is a local minimum
 end
 
 function localmin(y, root_thr = 1e-20)  # `y` is a polynomial (could be complex)
@@ -157,9 +149,9 @@ nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...) =
     EnergyEquation(fiteos(volumes, energies, eos.param, NonLinearFitting(); kwargs...))
 
 """
-    nonlinfit(eos::EquationOfStateOfSolids, xs, ys; kwargs...)
+    nonlinfit(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
 
-Fit an equation of state using nonlinear algorithms.
+Fit an equation of state ``E(V)`` using nonlinear algorithms.
 
 # Arguments
 - `xtol::AbstractFloat=1e-16`: .
@@ -224,11 +216,10 @@ function preprocess(volumes, energies, params)  # Do not export!
     return map(collect, (float.(volumes), float.(energies), float.(params)))
 end
 
-unormalize(params::Parameters) =
-    collect(getfield(params, f) for f in fieldnames(typeof(params)))
+unormalize(params::Parameters) = (getfield(params, f) for f in fieldnames(typeof(params)))
 function unormalize(params::Parameters{<:AbstractQuantity})  # Normalize units of `params`
     up = unit(params.e0) / unit(params.v0)  # Pressure/bulk modulus unit
-    return map(fieldnames(typeof(params))) do f
+    return Iterators.map(fieldnames(typeof(params))) do f
         x = getfield(params, f)
         if f == :b0
             x |> up
@@ -247,7 +238,7 @@ end
 reconstruct_params(p, p0::Parameters) = constructorof(typeof(p0))(p...)
 function reconstruct_params(p, p0::Parameters{<:AbstractQuantity})
     up = unit(p0.e0) / unit(p0.v0)  # Pressure/bulk modulus unit
-    param = map(enumerate(fieldnames(typeof(p0)))) do (i, f)
+    params = Iterators.map(enumerate(fieldnames(typeof(p0)))) do (i, f)
         x = p[i]
         u = unit(getfield(p0, f))
         if f == :b0
@@ -262,7 +253,7 @@ function reconstruct_params(p, p0::Parameters{<:AbstractQuantity})
             error("unknown field `$f`!")
         end
     end
-    return constructorof(typeof(p0))(param...)
+    return constructorof(typeof(p0))(params...)
 end
 
 end
