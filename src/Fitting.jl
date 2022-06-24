@@ -4,23 +4,13 @@ using ConstructionBase: constructorof, setproperties
 using LsqFit: curve_fit, coef
 using PolynomialRoots: roots
 using Polynomials: fit, derivative, coeffs, derivative
-using Unitful: AbstractQuantity, NoUnits, ustrip, unit, uconvert
+using Unitful: AbstractQuantity, ustrip, unit, uconvert
 
 using ..EquationsOfStateOfSolids:
-    EquationOfStateOfSolids,
-    FiniteStrainParameters,
-    Parameters,
-    PressureEquation,
-    EnergyEquation,
-    BulkModulusEquation,
-    orderof,
-    _ispositive,
-    getparam
+    FiniteStrainParameters, Parameters, EnergyEquation, orderof
 using ..FiniteStrains: FiniteStrain, ToStrain, FromStrain, Dⁿᵥf, straintype
 
-import Unitful
-
-export linfit, nonlinfit, eosfit
+export fiteos, linfit, nonlinfit
 
 # See https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
 struct ConvergenceFailed
@@ -31,15 +21,18 @@ struct CriterionNotMet
     msg::String
 end
 
-eosfit(eos::EnergyEquation{<:FiniteStrainParameters}, volumes, energies; kwargs...) =
-    linfit(eos, volumes, energies; kwargs...)
-eosfit(eos, xs, ys; kwargs...) = nonlinfit(eos, xs, ys; kwargs...)
+abstract type FittingMethod end
+struct LinearFitting <: FittingMethod end
+struct NonLinearFitting <: FittingMethod end
 
 # ================================== Linear fitting ==================================
-"""
-    linfit(eos::EnergyEquation{<:FiniteStrainParameters}, volumes, energies; kwargs...)
+linfit(eos::EnergyEquation, volumes, energies; kwargs...) =
+    EnergyEquation(fiteos(volumes, energies, eos.param, LinearFitting(); kwargs...))
 
-Fit an equation of state using linear algorithms.
+"""
+    fiteos(volumes, energies, initial_params::FiniteStrainParameters, LinearFitting(); kwargs...)
+
+Fit an equation of state ``E(V)`` using linear algorithms.
 
 # Arguments
 - `maxiter::Integer=1000`: .
@@ -49,21 +42,21 @@ Fit an equation of state using linear algorithms.
 
 !!! note
     If you want to fit with `BigFloat` data, you need to install
-    [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using
-    GenericSVD` before fittting!
+    [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using GenericSVD`
+    before fittting!
 """
-function linfit(
-    eos::EnergyEquation{<:FiniteStrainParameters},
+function fiteos(
     volumes,
-    energies;
+    energies,
+    initial_params::FiniteStrainParameters,
+    ::LinearFitting;
     maxiter = 1000,
     conv_thr = 1e-12,
     root_thr = 1e-20,
     verbose = false,
 )
-    deg = orderof(getparam(eos))
-    S = straintype(getparam(eos))
-    v0 = iszero(getparam(eos).v0) ? volumes[findmin(energies)[2]] : getparam(eos).v0  # Initial v0
+    deg, S = orderof(initial_params), straintype(initial_params)
+    v0 = iszero(initial_params.v0) ? volumes[findmin(energies)[2]] : initial_params.v0  # Initial v0
     uv, ue = unit(v0), unit(energies[1])
     v0 = ustrip(v0)
     volumes = collect(map(x -> ustrip(uv, x), volumes))  # `parent` is needed to unwrap `DimArray`
@@ -74,7 +67,7 @@ function linfit(
             throw(DomainError("the strains or the energies are complex!"))
         end
         poly = fit(real(strains), real(energies), deg)
-        f0, e0 = _minofmin(poly, root_thr)
+        f0, e0 = min_of_min(poly, root_thr)
         v0_prev, v0 = v0, FromStrain{S}(v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
             if verbose
@@ -82,34 +75,34 @@ function linfit(
             end
             fᵥ = map(deg -> Dⁿᵥf(S(), deg, v0)(v0), 1:4)
             e_f = map(deg -> derivative(poly, deg)(f0), 1:4)
-            b0, b′0, b″0 = _Dₚb(fᵥ, e_f)
-            param = _update(
-                getparam(eos);
+            b0, b′0, b″0 = Dₚb(fᵥ, e_f)
+            param = update(
+                initial_params;
                 v0 = v0 * uv,
                 b0 = b0(v0) * ue / uv,
                 b′0 = b′0(v0),
                 b″0 = b″0(v0) * uv / ue,
                 e0 = e0 * ue,
             )
-            return constructorof(typeof(eos))(param)
+            return param
         end
     end
     throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
 end
 
-function _islocalmin(x, y)  # `x` & `y` are both real
-    y″ₓ = derivative(y, 2)(x)  # Must be real
-    return _ispositive(real(y″ₓ))  # If 2nd derivative at x > 0, (x, y(x)) is a local minimum
+function islocalmin(x, y)  # `x` & `y` are both real
+    y″ₓ = real(derivative(y, 2)(x))  # Must be real
+    return y″ₓ > zero(y″ₓ)  # If 2nd derivative at x > 0, (x, y(x)) is a local minimum
 end
 
-function _localmin(y, root_thr = 1e-20)  # `y` is a polynomial (could be complex)
+function localmin(y, root_thr = 1e-20)  # `y` is a polynomial (could be complex)
     y′ = derivative(y, 1)
     pool = roots(coeffs(y′); polish = true, epsilon = root_thr)
     real_roots = real(filter(isreal, pool))  # Complex volumes are meaningless
     if isempty(real_roots)
         throw(CriterionNotMet("no real extrema found! Consider changing `root_thr`!"))  # For some polynomials, could be all complex
     else
-        localminima = filter(x -> _islocalmin(x, y), real_roots)
+        localminima = filter(x -> islocalmin(x, y), real_roots)
         if isempty(localminima)
             throw(CriterionNotMet("no local minima found!"))
         else
@@ -119,43 +112,46 @@ function _localmin(y, root_thr = 1e-20)  # `y` is a polynomial (could be complex
 end
 
 # https://stackoverflow.com/a/21367608/3260253
-function _minofmin(y, root_thr = 1e-20)  # Find the minimum of the local minima
-    localminima = _localmin(y, root_thr)
+function min_of_min(y, root_thr = 1e-20)  # Find the minimum of the local minima
+    localminima = localmin(y, root_thr)
     y0, i = findmin(map(y, localminima))  # `y0` must be real, or `findmap` will error
     x0 = localminima[i]
     return x0, y0
 end
 
 # See Eq. (55) - (57) in Ref. 1.
-function _Dₚb(fᵥ, e_f)  # Bulk modulus & its derivatives
-    e″ᵥ = _D²ᵥe(fᵥ, e_f)
-    e‴ᵥ = _D³ᵥe(fᵥ, e_f)
+function Dₚb(fᵥ, e_f)  # Bulk modulus & its derivatives
+    e″ᵥ = D²ᵥe(fᵥ, e_f)
+    e‴ᵥ = D³ᵥe(fᵥ, e_f)
     b0 = v -> v * e″ᵥ
     b′0 = v -> -v * e‴ᵥ / e″ᵥ - 1
-    b″0 = v -> (v * (_D⁴ᵥe(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
+    b″0 = v -> (v * (D⁴ᵥe(fᵥ, e_f) * e″ᵥ - e‴ᵥ^2) + e‴ᵥ * e″ᵥ) / e″ᵥ^3
     return b0, b′0, b″0  # 3 lazy functions
 end
 
+function update(x::FiniteStrainParameters; kwargs...)
+    patch = (; (f => kwargs[f] for f in propertynames(x))...)
+    return setproperties(x, patch)
+end
+
 # Energy-volume derivatives, see Eq. (50) - (53) in Ref. 1.
-_D¹ᵥe(fᵥ, e_f) = e_f[1] * fᵥ[1]
-_D²ᵥe(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
-_D³ᵥe(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
-_D⁴ᵥe(fᵥ, e_f) =
+D¹ᵥe(fᵥ, e_f) = e_f[1] * fᵥ[1]
+D²ᵥe(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
+D³ᵥe(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
+D⁴ᵥe(fᵥ, e_f) =
     e_f[4] * fᵥ[1]^4 +
     6fᵥ[1]^2 * fᵥ[2] * e_f[3] +
     (4fᵥ[1] * fᵥ[3] + 3fᵥ[3]^2) * e_f[2] +
     e_f[1] * fᵥ[4]
 
-function _update(x::FiniteStrainParameters; kwargs...)
-    patch = (; (f => kwargs[f] for f in propertynames(x))...)
-    return setproperties(x, patch)
-end
-
 # ================================== Nonlinear fitting ==================================
-"""
-    nonlinfit(eos::EquationOfStateOfSolids, xs, ys; kwargs...)
+nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...) =
+    EnergyEquation(fiteos(volumes, energies, eos.param, NonLinearFitting(); kwargs...))
 
-Fit an equation of state using nonlinear algorithms.
+"""
+    nonlinfit(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
+
+Fit an equation of state ``E(V)`` using nonlinear algorithms.
 
 # Arguments
 - `xtol::AbstractFloat=1e-16`: .
@@ -165,23 +161,24 @@ Fit an equation of state using nonlinear algorithms.
 - `good_step_quality::AbstractFloat=0.75`: .
 - `verbose::Bool=false`: .
 """
-function nonlinfit(
-    eos::EquationOfStateOfSolids,
-    xdata,
-    ydata;
+function fiteos(
+    volumes,
+    energies,
+    initial_params::T,
+    ::NonLinearFitting;
     xtol = 1e-16,
     gtol = 1e-16,
     maxiter = 1000,
     min_step_quality = 1e-16,
     good_step_quality = 0.75,
     verbose = false,
-)
-    model = buildmodel(eos)
-    p0, xdata, ydata = _preprocess(eos, xdata, ydata)
+) where {T<:Parameters}
+    model = (volume, params) -> EnergyEquation(constructorof(T)(params...)).(volume)
+    x, y, p0 = preprocess(volumes, energies, initial_params)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
-        xdata,
-        ydata,
+        x,
+        y,
         p0;
         x_tol = xtol,
         g_tol = gtol,
@@ -191,47 +188,39 @@ function nonlinfit(
         show_trace = verbose,
     )
     if fit.converged
-        param = _postprocess(coef(fit), getparam(eos))
-        checkresult(param)
-        return constructorof(typeof(eos))(param)
+        params = reconstruct_params(coef(fit), initial_params)
+        checkresult(params)
+        return params
     else
         throw(ConvergenceFailed("convergence not reached after $maxiter steps!"))
     end
 end
 
-# Do not export!
-buildmodel(eos::EquationOfStateOfSolids{T}) where {T} =
-    (x, p) -> constructorof(typeof(eos))(constructorof(T)(p...)).(x)
-
-function checkresult(x::Parameters)  # Do not export!
-    if x.v0 <= zero(x.v0) || x.b0 <= zero(x.b0)
-        @error "either v0 ($(x.v0)) or b0 ($(x.b0)) is not positive!"
+function checkresult(params::Parameters)  # Do not export!
+    if params.v0 <= zero(params.v0)
+        @info "V₀ ($(params.v0)) is not positive!"
     end
-    if PressureEquation(x)(x.v0) >= x.b0 && x isa FiniteStrainParameters
-        @warn "consider using higher order EOS!"
+    if params.b0 <= zero(params.b0)
+        @info "B₀ ($(params.b0)) is not positive!"
     end
 end
 
-function _preprocess(eos, xdata, ydata)  # Do not export!
-    p = getparam(eos)
-    if eos isa EnergyEquation && iszero(p.e0)
-        eos = EnergyEquation(setproperties(p; e0 = uconvert(unit(p.e0), minimum(ydata))))  # Energy minimum as e0, `uconvert` is important to keep the unit right!
+function preprocess(volumes, energies, params)  # Do not export!
+    volumes = ustrip.(unit(params.v0), volumes)  # Unify units of data
+    if iszero(params.e0)
+        # Energy minimum as e0, `uconvert` is important to keep the unit right!
+        params = setproperties(params; e0 = uconvert(unit(params.e0), minimum(energies)))
     end
-    return map(_float_collect, _unify(eos, xdata, ydata))  # `xs` & `ys` may not be arrays
+    energies = ustrip.(unit(params.e0), energies)
+    params = ustrip.(unormalize(params))
+    return map(collect, (float.(volumes), float.(energies), float.(params)))
 end
 
-function _unify(eos, xdata, ydata)  # Unify units of data
-    p = getparam(eos)
-    uy(eos::EnergyEquation) = unit(p.e0)
-    uy(eos::Union{PressureEquation,BulkModulusEquation}) = unit(p.e0) / unit(p.v0)
-    return ustrip.(_unormal(p)), ustrip.(unit(p.v0), xdata), ustrip.(uy(eos), ydata)
-end
-
-_unormal(p::Parameters) = collect(getfield(p, i) for i in 1:nfields(p))
-function _unormal(p::Parameters{<:AbstractQuantity})  # Normalize units of `p`
-    up = unit(p.e0) / unit(p.v0)  # Pressure/bulk modulus unit
-    return map(fieldnames(typeof(p))) do f
-        x = getfield(p, f)
+unormalize(params::Parameters) = (getfield(params, f) for f in fieldnames(typeof(params)))
+function unormalize(params::Parameters{<:AbstractQuantity})  # Normalize units of `params`
+    up = unit(params.e0) / unit(params.v0)  # Pressure/bulk modulus unit
+    return Iterators.map(fieldnames(typeof(params))) do f
+        x = getfield(params, f)
         if f == :b0
             x |> up
         elseif f == :b″0
@@ -246,10 +235,10 @@ function _unormal(p::Parameters{<:AbstractQuantity})  # Normalize units of `p`
     end
 end
 
-_postprocess(p, p0::Parameters) = constructorof(typeof(p0))(p...)
-function _postprocess(p, p0::Parameters{<:AbstractQuantity})
+reconstruct_params(p, p0::Parameters) = constructorof(typeof(p0))(p...)
+function reconstruct_params(p, p0::Parameters{<:AbstractQuantity})
     up = unit(p0.e0) / unit(p0.v0)  # Pressure/bulk modulus unit
-    param = map(enumerate(fieldnames(typeof(p0)))) do (i, f)
+    params = Iterators.map(enumerate(fieldnames(typeof(p0)))) do (i, f)
         x = p[i]
         u = unit(getfield(p0, f))
         if f == :b0
@@ -264,27 +253,7 @@ function _postprocess(p, p0::Parameters{<:AbstractQuantity})
             error("unknown field `$f`!")
         end
     end
-    return constructorof(typeof(p0))(param...)
+    return constructorof(typeof(p0))(params...)
 end
-
-_float_collect(x) = collect(float.(x))  # Do not export!
-
-_fmap(f, x) = constructorof(typeof(x))((f(getfield(x, i)) for i in 1:nfields(x))...)  # Do not export!
-
-"Convert all elements of a `Parameters` to floating point data types."
-Base.float(p::Parameters) = _fmap(float, p)  # Not used here but may be useful
-
-"Test whether all `p`'s elements are numerically equal to some real number."
-Base.isreal(p::Parameters) = all(isreal(getfield(p, i)) for i in 1:nfields(p))  # Not used here but may be useful
-
-"Construct a real `Parameters` from the real parts of the elements of p."
-Base.real(p::Parameters) = _fmap(real, p)  # Not used here but may be useful
-
-"""
-    ustrip(p::Parameters)
-
-Strip units from a `Parameters`.
-"""
-Unitful.ustrip(p::Parameters) = _fmap(ustrip, p)
 
 end
