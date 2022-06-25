@@ -23,7 +23,7 @@ makedocs(;
             "Interoperability" => "interoperability.md",
             "Plotting" => "plotting.md",
         ],
-        "FAQ" => "faq.md",
+        "Troubleshooting" => "troubleshooting.md",
     ],
 )
 

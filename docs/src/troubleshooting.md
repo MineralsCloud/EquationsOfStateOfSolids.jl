@@ -1,4 +1,4 @@
-# FAQ
+# Troubleshooting
 
 ## How to make a `Vector` from a `Parameters`?
 
