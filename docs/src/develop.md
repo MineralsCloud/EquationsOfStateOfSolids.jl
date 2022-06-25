@@ -2,7 +2,7 @@
 
 ## Download the project
 
-Similar to section "[Installation](@ref)", run
+Similar to section "[Installation guide](@ref)", run
 
 ```@repl
 using Pkg
