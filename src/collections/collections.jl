@@ -28,15 +28,34 @@ true
 orderof(::Type{<:FiniteStrainParameters{N}}) where {N} = N
 orderof(x::FiniteStrainParameters) = orderof(typeof(x))
 
-function Base.show(io::IO, param::Parameters)  # Ref: https://github.com/mauro3/Parameters.jl/blob/3c1d72b/src/Parameters.jl#L542-L549
-    if get(io, :compact, false)
-        Base.show_default(IOContext(io, :limit => true), param)
+function Base.show(io::IO, params::Parameters)  # See https://github.com/mauro3/Parameters.jl/blob/ecbf8df/src/Parameters.jl#L556
+    if get(io, :compact, false) || get(io, :typeinfo, nothing) == typeof(params)
+        print(io, typeof(params), "(  ")
+        for f in propertynames(params)
+            print(io, f, " = ", getproperty(params, f), "  ")
+        end
+        print(io, ')')
     else
         # just dumping seems to give ok output, in particular for big data-sets:
-        T = typeof(param)
-        println(io, T)
-        for f in propertynames(param)
-            println(io, " ", f, " = ", getproperty(param, f))
+        println(io, typeof(params))
+        for f in propertynames(params)
+            println(io, " ", f, " = ", getproperty(params, f))
+        end
+    end
+end
+function Base.show(io::IO, eos::EquationOfStateOfSolids)
+    params = getparam(eos)
+    if get(io, :compact, false) || get(io, :typeinfo, nothing) == typeof(eos)
+        print(io, typeof(eos), "(  ")
+        for f in propertynames(params)
+            print(io, f, " = ", getproperty(params, f), "  ")
+        end
+        print(io, ')')
+    else
+        # just dumping seems to give ok output, in particular for big data-sets:
+        println(io, typeof(eos))
+        for f in propertynames(params)
+            println(io, " ", f, " = ", getproperty(params, f))
         end
     end
 end
