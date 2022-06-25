@@ -2,7 +2,13 @@
 CurrentModule = EquationsOfStateOfSolids.Fitting
 ```
 
-# Nonlinear fitting
+# Fitting
+
+```@contents
+Pages = ["fitting.md"]
+```
+
+## Nonlinear fitting
 
 From Ref. 1,
 
@@ -25,11 +31,15 @@ _Levenberg–Marquardt algorithm_ for non-linear fitting. See its
 [documentation](https://github.com/JuliaNLSolvers/LsqFit.jl/blob/master/README.md)
 for more information.
 
+## Linear fitting
+
+The linear fitting
+
 ## Usage
 
-We provide API `nonlinfit` currently.
 
-```julia
+
+```@repl
 using EquationsOfStateOfSolids
 using EquationsOfStateOfSolids.Fitting
 
@@ -93,43 +103,33 @@ energies = [
     -9.86535084973,
     -9.73155247952,
 ];
-```
 
-```julia
-nonlinfit(EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4, 0)), volumes, energies)
-# BirchMurnaghan3rd{Float64}
-#  v0 = 40.98926572792904
-#  b0 = 0.5369258245610551
-#  b′0 = 4.178644231924164
-#  e0 = -10.84280390829923
+nonlinfit(EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies)
 
-nonlinfit(EnergyEquation(Murnaghan(41, 0.5, 4, 0)), volumes, energies)
-# Murnaghan1st{Float64}
-#  v0 = 41.137579246216546
-#  b0 = 0.5144967654207855
-#  b′0 = 3.9123863218932553
-#  e0 = -10.836794510856276
+nonlinfit(EnergyEquation(Murnaghan(41, 0.5, 4)), volumes, energies)
 
-nonlinfit(EnergyEquation(PoirierTarantola3rd(41, 0.5, 4, 0)), volumes, energies)
-# PoirierTarantola3rd{Float64}
-#  v0 = 40.86770643566912
-#  b0 = 0.5667729960007934
-#  b′0 = 4.331688934950856
-#  e0 = -10.851486685029291
+nonlinfit(EnergyEquation(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies)
 
-nonlinfit(EnergyEquation(Vinet(41, 0.5, 4, 0)), volumes, energies)
-# Vinet{Float64}
-#  v0 = 40.91687567401044
-#  b0 = 0.5493839427843428
-#  b′0 = 4.305192949379345
-#  e0 = -10.846160810983534
+nonlinfit(EnergyEquation(Vinet(41, 0.5, 4)), volumes, energies)
 ```
 
 Then 4 different equations of state will be fitted.
 
+They just work as well with units:
+
+```@repl
+using Unitful
+
+volumes = volumes * u"angstrom^3"
+energies = energies * u"eV"
+
+nonlinfit(EnergyEquation(BirchMurnaghan3rd(40u"angstrom^3", 1u"GPa", 4)), volumes, energies)
+```
+
 ## Public interfaces
 
 ```@docs
+fiteos
 linfit
 nonlinfit
 ```

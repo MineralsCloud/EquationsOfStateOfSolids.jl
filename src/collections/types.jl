@@ -128,7 +128,7 @@ This equation of state can have units. The units are specified in
 !!! note
     The fourth-order equation becomes identical to the third-order equation when
     ```math
-    b″0 = -\\frac{ 1 }{ 9b0 } (9b′0^2 - 63b′0 + 143).
+    B''_0 = -\\frac{ 1 }{ 9B_0 } (9B'_0^2 - 63B'_0 + 143).
     ```
 """
 struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}

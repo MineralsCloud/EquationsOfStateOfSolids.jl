@@ -26,6 +26,17 @@ struct LinearFitting <: FittingMethod end
 struct NonLinearFitting <: FittingMethod end
 
 # ================================== Linear fitting ==================================
+"""
+    linfit(eos::EnergyEquation, volumes, energies; kwargs...)
+
+A wrapper for `fiteos` with linear fitting method.
+
+# Arguments
+- `maxiter::Integer=1000`: .
+- `conv_thr::AbstractFloat=1e-12`: .
+- `root_thr::AbstractFloat=1e-20`: .
+- `verbose::Bool=false`: .
+"""
 linfit(eos::EnergyEquation, volumes, energies; kwargs...) =
     EnergyEquation(fiteos(volumes, energies, eos.param, LinearFitting(); kwargs...))
 
@@ -145,11 +156,24 @@ D⁴ᵥe(fᵥ, e_f) =
     e_f[1] * fᵥ[4]
 
 # ================================== Nonlinear fitting ==================================
+"""
+    nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...)
+
+A wrapper for `fiteos` with nonlinear fitting method.
+
+# Arguments
+- `xtol::AbstractFloat=1e-16`: .
+- `gtol::AbstractFloat=1e-16`: .
+- `maxiter::Integer=1000`: .
+- `min_step_quality::AbstractFloat=1e-16`: .
+- `good_step_quality::AbstractFloat=0.75`: .
+- `verbose::Bool=false`: .
+"""
 nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...) =
     EnergyEquation(fiteos(volumes, energies, eos.param, NonLinearFitting(); kwargs...))
 
 """
-    nonlinfit(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
+    fiteos(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
 
 Fit an equation of state ``E(V)`` using nonlinear algorithms.
 
