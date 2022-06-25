@@ -6,6 +6,7 @@ version = "0.4.2"
 [deps]
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 EquationsOfState = "0438fec6-b81c-52d9-9651-d286848f50a8"
+Functors = "d9f16b24-f501-4c13-a1f2-28368ffc5196"
 LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"
 PolynomialRoots = "3a141323-8675-5d76-9d11-e1df1406c778"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
