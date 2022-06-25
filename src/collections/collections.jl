@@ -1,3 +1,4 @@
+using Functors: fmap
 using UnPack: @unpack
 
 using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, NaturalStrain
@@ -58,7 +59,7 @@ Base.eltype(::Type{<:Parameters{T}}) where {T} = T
 
 Convert all elements of a `Parameters` to floating point data types.
 """
-Base.float(p::Parameters) = _fmap(float, p)  # Not used but may be useful
+Base.float(p::Parameters) = fmap(float, p)  # Not used but may be useful
 
 """
     isreal(p::Parameters)
@@ -72,13 +73,11 @@ Base.isreal(p::Parameters) = all(isreal(getfield(p, i)) for i in 1:nfields(p))  
 
 Construct a real `Parameters` from the real parts of the elements of p.
 """
-Base.real(p::Parameters) = _fmap(real, p)  # Not used but may be useful
+Base.real(p::Parameters) = fmap(real, p)  # Not used but may be useful
 
 """
     ustrip(p::Parameters)
 
 Strip units from a `Parameters`.
 """
-ustrip(p::Parameters) = _fmap(ustrip, p)
-
-_fmap(f, x) = constructorof(typeof(x))((f(getfield(x, i)) for i in 1:nfields(x))...)  # Do not export!
+ustrip(p::Parameters) = fmap(ustrip, p)
