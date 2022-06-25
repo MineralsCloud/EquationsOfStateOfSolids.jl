@@ -53,13 +53,25 @@ straintype(x::FiniteStrainParameters) = straintype(typeof(x))
 
 Base.eltype(::Type{<:Parameters{T}}) where {T} = T
 
-"Convert all elements of a `Parameters` to floating point data types."
+"""
+    float(p::Parameters)
+
+Convert all elements of a `Parameters` to floating point data types.
+"""
 Base.float(p::Parameters) = _fmap(float, p)  # Not used but may be useful
 
-"Test whether all `p`'s elements are numerically equal to some real number."
+"""
+    isreal(p::Parameters)
+
+Test whether all `p`'s elements are numerically equal to some real number.
+"""
 Base.isreal(p::Parameters) = all(isreal(getfield(p, i)) for i in 1:nfields(p))  # Not used but may be useful
 
-"Construct a real `Parameters` from the real parts of the elements of p."
+"""
+    real(p::Parameters)
+
+Construct a real `Parameters` from the real parts of the elements of p.
+"""
 Base.real(p::Parameters) = _fmap(real, p)  # Not used but may be useful
 
 """

@@ -4,10 +4,9 @@
 
 Similar to section "[Installation](@ref)", run
 
-```julia
-julia> using Pkg
-
-julia> pkg"dev EquationsOfStateOfSolids"
+```@repl
+using Pkg
+pkg"dev EquationsOfStateOfSolids"
 ```
 
 in Julia REPL.
@@ -21,8 +20,9 @@ on how to do this.) In the following text, we will call it `PKGROOT`.
 
 Go to `PKGROOT`, start a new Julia session and run
 
-```julia
-julia> using Pkg; Pkg.instantiate()
+```@repl
+using Pkg
+Pkg.instantiate()
 ```
 
 ## How to build docs
@@ -34,7 +34,7 @@ where users need to build the doc themselves.
 After [instantiating](@ref) the project, go to `PKGROOT`, run (without the `$` prompt)
 
 ```bash
-$ julia --color=yes docs/make.jl
+julia --color=yes docs/make.jl
 ```
 
 in your terminal. In a while a folder `PKGROOT/docs/build` will appear. Open
@@ -45,7 +45,7 @@ in your terminal. In a while a folder `PKGROOT/docs/build` will appear. Open
 After [instantiating](@ref) the project, go to `PKGROOT`, run (without the `$` prompt)
 
 ```bash
-$ julia --color=yes test/runtests.jl
+julia --color=yes test/runtests.jl
 ```
 
 in your terminal.

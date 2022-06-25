@@ -9,32 +9,18 @@ Pages = ["collections.md"]
 Depth = 3
 ```
 
-The current `Parameters`s contain
+The current `EquationOfStateOfSolidsParameters` are
 
-```
-EquationsOfState.EquationOfStateOfSolidsParameters
- ├─ EquationsOfStateOfSolids.AntonSchmidt
- ├─ EquationsOfStateOfSolids.FiniteStrainParameters
- │   ├─ BirchMurnaghan
- │   │   ├─ BirchMurnaghan2nd
- │   │   ├─ BirchMurnaghan3rd
- │   │   └─ BirchMurnaghan4th
- │   └─ PoirierTarantola
- │       ├─ EquationsOfStateOfSolids.PoirierTarantola4th
- │       ├─ PoirierTarantola2nd
- │       └─ PoirierTarantola3rd
- ├─ EquationsOfStateOfSolids.Holzapfel
- ├─ Murnaghan
- │   ├─ EquationsOfStateOfSolids.Murnaghan2nd
- │   └─ Murnaghan1st
- └─ Vinet
+```@repl
+using TypeTree
+tt(EquationsOfState.EquationOfStateOfSolidsParameters)
 ```
 
 Here the leaves of the type tree are concrete types and can be constructed.
 
 ## Usage
 
-### Construct a `Parameters` instance
+### Construct a `EquationOfStateOfSolidsParameters` instance
 
 We will use `BirchMurnaghan3rd` as an example.
 
@@ -44,53 +30,35 @@ also be constructed from an existing `BirchMurnaghan3rd`, with
 [`@set!`](https://jw3126.github.io/Setfield.jl/stable/#Setfield.@set!-Tuple{Any})
 macro:
 
-```julia
-julia> using Setfield
-
-julia> eos = Murnaghan(1, 2, 3.0)
-Murnaghan{Float64}(1.0, 2.0, 3.0, 0.0)
-
-julia> @set! eos.v0 = 4
-Murnaghan{Float64}(4.0, 2.0, 3.0, 0.0)
-
-julia> eos
+```@repl
+using Setfield
+eos = Murnaghan(1, 2, 3.0)
+@set! eos.v0 = 4
+eos
 Murnaghan{Float64}(4.0, 2.0, 3.0, 0.0)
 ```
 
-To modify multiple fields (say, `:v0`, `:b′0`, `:b′′0`, `:e0`) at a time, use
+To modify multiple fields (say, `:v0`, `:b′0`, `:b″0`, `:e0`) at a time, use
 [`@batchlens`](https://tkf.github.io/Kaleido.jl/stable/#Kaleido.@batchlens) from
 [`Kaleido.jl`](https://github.com/tkf/Kaleido.jl):
 
-```julia
-julia> using Setfield, Kaleido
-
-julia> lens = @batchlens(begin
+```@repl
+using Setfield, Kaleido
+lens = @batchlens(begin
            _.v0
            _.b′0
            _.b″0
            _.e0
        end)
-IndexBatchLens(:v0, :b′0, :b″0, :e0)
-
-julia> eos = BirchMurnaghan4th(1, 2.0, 3, 4)
-BirchMurnaghan4th{Float64}(1.0, 2.0, 3.0, 4.0, 0.0)
-
-julia> set(eos, lens, (5, 6, 7, 8))
-BirchMurnaghan4th{Float64}(5.0, 2.0, 6.0, 7.0, 8.0)
+eos = BirchMurnaghan4th(1, 2.0, 3, 4)
+set(eos, lens, (5, 6, 7, 8))
 ```
 
 Users can access `BirchMurnaghan3rd`'s elements by "dot notation":
 
-```julia
-julia> eos = BirchMurnaghan3rd(1, 2, 3, 4.0)
-4-element BirchMurnaghan3rd{Float64}:
- 1.0
- 2.0
- 3.0
- 4.0
-
-julia> eos.v0
-1.0
+```@repl
+eos = BirchMurnaghan3rd(1, 2, 3, 4.0)
+eos.v0
 ```
 
 ### Evaluate energy
@@ -115,8 +83,8 @@ The $E(V)$ relation of equations of state are listed as below:
    E(V) = E_{0}+\frac{9}{16} V_{0} B_{0} \frac{\left(x^{2 / 3}-1\right)^{2}}{x^{7 / 3}}\left\{x^{1 / 3}\left(B_{0}^{\prime}-4\right)-x\left(B_{0}^{\prime}-6\right)\right\}.
    ```
 
-   where `x = V / V_0`, and
-   `f = \frac{ 1 }{ 2 } \bigg[ \bigg( \frac{ V_0 }{ V } \bigg)^{2/3} - 1 \bigg]`.
+   where ``x = V / V_0``, and
+   ``f = \frac{ 1 }{ 2 } \bigg[ \bigg( \frac{ V_0 }{ V } \bigg)^{2/3} - 1 \bigg]``.
 
 4. `BirchMurnaghan4th`:
 
@@ -124,7 +92,7 @@ The $E(V)$ relation of equations of state are listed as below:
    E(V) = E_{0}+\frac{3}{8} V_{0} B_{0} f^{2}\left[\left(9 H-63 B_{0}^{\prime}+143\right) f^{2}+12\left(B_{0}^{\prime}-4\right) f+12\right].
    ```
 
-   where `H = B_0 B_0'' + (B_0')^2`.
+   where ``H = B_0 B_0'' + (B_0')^2``.
 
 5. `PoirierTarantola2nd`:
 
@@ -144,7 +112,7 @@ The $E(V)$ relation of equations of state are listed as below:
    E(V) = E_{0}+\frac{1}{24} B_{0} V_{0} \ln ^{2} x\left\{\left(H+3 B_{0}^{\prime}+3\right) \ln ^{2} x\right. \left.+4\left(B_{0}^{\prime}+2\right) \ln x+12\right\}.
    ```
 
-   where `H = B_0 B_0'' + (B_0')^2`.
+   where ``H = B_0 B_0'' + (B_0')^2``.
 
 8. `Vinet`:
 
@@ -288,4 +256,5 @@ orderof
 real
 isreal
 float
+ustrip
 ```
