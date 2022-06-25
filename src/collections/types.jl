@@ -1,5 +1,6 @@
 using ConstructionBase: constructorof
 using EquationsOfState: Parameters, EquationOfState
+using Functors: @functor
 using StructHelpers: @batteries
 
 export Murnaghan,
@@ -254,6 +255,17 @@ end
 @batteries Vinet eq = true hash = true
 @batteries AntonSchmidt eq = true hash = true
 @batteries Holzapfel eq = true hash = true
+@functor Murnaghan1st
+@functor Murnaghan2nd
+@functor BirchMurnaghan2nd
+@functor BirchMurnaghan3rd
+@functor BirchMurnaghan4th
+@functor PoirierTarantola2nd
+@functor PoirierTarantola3rd
+@functor PoirierTarantola4th
+@functor Vinet
+@functor AntonSchmidt
+@functor Holzapfel
 
 function (::Type{T})(args...) where {T<:Parameters}
     E = Base.promote_typeof(args...)
