@@ -8,7 +8,7 @@ using Unitful: AbstractQuantity, ustrip, unit, uconvert
 
 using ..EquationsOfStateOfSolids:
     FiniteStrainParameters, Parameters, EnergyEquation, orderof
-using ..FiniteStrains: FiniteStrain, ToStrain, FromStrain, Dⁿᵥf, straintype
+using ..FiniteStrains: FiniteStrain, To, From, Dⁿᵥf, straintype
 
 export fiteos, linfit, nonlinfit
 
@@ -73,13 +73,13 @@ function fiteos(
     volumes = collect(map(x -> ustrip(uv, x), volumes))  # `parent` is needed to unwrap `DimArray`
     energies = collect(map(x -> ustrip(ue, x), energies))
     for i in 1:maxiter  # Self consistent loop
-        strains = map(ToStrain{S}(v0), volumes)
+        strains = map(To{S}(v0), volumes)
         if !(isreal(strains) && isreal(energies))
             throw(DomainError("the strains or the energies are complex!"))
         end
         poly = fit(real(strains), real(energies), deg)
         f0, e0 = min_of_min(poly, root_thr)
-        v0_prev, v0 = v0, FromStrain{S}(v0)(f0)  # Record v0 to v0_prev, then update v0
+        v0_prev, v0 = v0, From{S}(v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
             if verbose
                 @info "convergence reached after $i steps!"
