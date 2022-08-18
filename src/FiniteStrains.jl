@@ -72,6 +72,10 @@ function (x::FromInfinitesimalStrain)(f)
     return isreal(v) ? real(v) : v
 end
 
+Base.:∘(x::FromStrain{T}, y::ToStrain{T}) where {T} =
+    x.v0 == y.v0 ? identity : error("undefined transformation!")
+Base.:∘(x::ToStrain{T}, y::FromStrain{T}) where {T} = y ∘ x
+
 """
     Dⁿᵥf(s::EulerianStrain, deg, v0)
     Dⁿᵥf(s::LagrangianStrain, deg, v0)
