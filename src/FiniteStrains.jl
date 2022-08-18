@@ -19,14 +19,14 @@ Calculate the finite strain of `v` based on the reference volume `v0`.
 !!! info
     See the formulae on the [`Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
 """
-struct ToStrain{S<:FiniteStrain,T}
+struct To{S<:FiniteStrain,T}
     v0::T
 end
-ToStrain{S}(v0::T) where {S,T} = ToStrain{S,T}(v0)
-const ToEulerianStrain = ToStrain{EulerianStrain}
-const ToLagrangianStrain = ToStrain{LagrangianStrain}
-const ToNaturalStrain = ToStrain{NaturalStrain}
-const ToInfinitesimalStrain = ToStrain{InfinitesimalStrain}
+To{S}(v0::T) where {S,T} = To{S,T}(v0)
+const ToEulerianStrain = To{EulerianStrain}
+const ToLagrangianStrain = To{LagrangianStrain}
+const ToNaturalStrain = To{NaturalStrain}
+const ToInfinitesimalStrain = To{InfinitesimalStrain}
 (x::ToEulerianStrain)(v) = ((x.v0 / v)^_⅔ - 1) / 2
 (x::ToLagrangianStrain)(v) = ((v / x.v0)^_⅔ - 1) / 2
 (x::ToNaturalStrain)(v) = log(v / x.v0) / 3
@@ -43,14 +43,14 @@ Calculate the original volume `v` from the finite strain `f` based on the refere
 !!! info
     See the formulae on the [`Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
 """
-struct FromStrain{S<:FiniteStrain,T}
+struct From{S<:FiniteStrain,T}
     v0::T
 end
-FromStrain{S}(v0::T) where {S,T} = FromStrain{S,T}(v0)
-const FromEulerianStrain = FromStrain{EulerianStrain}
-const FromLagrangianStrain = FromStrain{LagrangianStrain}
-const FromNaturalStrain = FromStrain{NaturalStrain}
-const FromInfinitesimalStrain = FromStrain{InfinitesimalStrain}
+From{S}(v0::T) where {S,T} = From{S,T}(v0)
+const FromEulerianStrain = From{EulerianStrain}
+const FromLagrangianStrain = From{LagrangianStrain}
+const FromNaturalStrain = From{NaturalStrain}
+const FromInfinitesimalStrain = From{InfinitesimalStrain}
 # Eulerian strain
 function (x::FromEulerianStrain)(f)
     v = x.v0 / (2f + 1)^_1½
@@ -72,12 +72,12 @@ function (x::FromInfinitesimalStrain)(f)
     return isreal(v) ? real(v) : v
 end
 
-Base.:∘(x::FromStrain{T}, y::ToStrain{T}) where {T} =
+Base.:∘(x::From{T}, y::To{T}) where {T} =
     x.v0 == y.v0 ? identity : error("undefined transformation!")
-Base.:∘(x::ToStrain{T}, y::FromStrain{T}) where {T} = y ∘ x
+Base.:∘(x::To{T}, y::From{T}) where {T} = y ∘ x
 
-Base.inv(x::FromStrain{T}) where {T} = ToStrain{T}(x.v0)
-Base.inv(x::ToStrain{T}) where {T} = FromStrain{T}(x.v0)
+Base.inv(x::From{T}) where {T} = To{T}(x.v0)
+Base.inv(x::To{T}) where {T} = From{T}(x.v0)
 
 """
     Dⁿᵥf(s::EulerianStrain, deg, v0)
