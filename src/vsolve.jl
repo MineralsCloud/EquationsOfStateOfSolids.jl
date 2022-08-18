@@ -11,8 +11,8 @@ function vsolve(
     bounds = (zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, b′0 = getparam(eos)
-    soln = [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
-    return _clamp(soln, bounds)
+    solution = [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
+    return sieve(solution, bounds)
 end
 function vsolve(
     eos::PressureEquation{<:Murnaghan2nd},
@@ -24,8 +24,8 @@ function vsolve(
     k = b″0 * p + b′0
     numerator = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
     denominator = (abs((k - h) / (k + h) * (b′0 + h) / (b′0 - h)))^(1 / h)
-    soln = [numerator / denominator]
-    return _clamp(soln, bounds)
+    solution = [numerator / denominator]
+    return sieve(solution, bounds)
 end
 function vsolve(
     eos::EnergyEquation{<:BirchMurnaghan2nd},
@@ -36,8 +36,8 @@ function vsolve(
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        soln = map(FromEulerianStrain(v0), [f, -f])
-        return _clamp(soln, bounds)
+        solutions = map(FromEulerianStrain(v0), [f, -f])
+        return sieve(solutions, bounds)
     elseif Δ < 0
         return typeof(v0)[]  # Complex strains
     else
@@ -59,8 +59,8 @@ function vsolve(
         polish = true,
         epsilon = stopping_criterion,
     )
-    soln = _strain2volume(eos, v0, fs, p, chop, rtol)
-    return _clamp(soln, bounds)
+    solutions = _strain2volume(eos, v0, fs, p, chop, rtol)
+    return sieve(solutions, bounds)
 end
 function vsolve(
     eos::BulkModulusEquation{<:BirchMurnaghan2nd},
@@ -77,8 +77,8 @@ function vsolve(
         polish = true,
         epsilon = stopping_criterion,
     )
-    soln = _strain2volume(eos, v0, fs, b, chop, rtol)
-    return _clamp(soln, bounds)
+    solutions = _strain2volume(eos, v0, fs, b, chop, rtol)
+    return sieve(solutions, bounds)
 end
 function vsolve(
     eos::EnergyEquation{<:BirchMurnaghan3rd},
@@ -112,8 +112,8 @@ function vsolve(
         else
             @assert false "Δ == p^2 + q^3 == $Δ. this should never happen!"
         end  # solutions are strains
-        soln = _strain2volume(eos, v0, fs, e, chop, rtol)
-        return _clamp(soln, bounds)
+        solutions = _strain2volume(eos, v0, fs, e, chop, rtol)
+        return sieve(solutions, bounds)
     end
 end
 function vsolve(
@@ -142,8 +142,8 @@ function vsolve(
         polish = true,
         epsilon = stopping_criterion,
     )
-    soln = _strain2volume(eos, v0, fs, p, chop, rtol)
-    return _clamp(soln, bounds)
+    solutions = _strain2volume(eos, v0, fs, p, chop, rtol)
+    return sieve(solutions, bounds)
 end
 function vsolve(
     eos::EnergyEquation{<:BirchMurnaghan4th},
@@ -160,8 +160,8 @@ function vsolve(
         polish = true,
         epsilon = stopping_criterion,
     )
-    soln = _strain2volume(eos, v0, fs, e, chop, rtol)
-    return _clamp(soln, bounds)
+    solutions = _strain2volume(eos, v0, fs, e, chop, rtol)
+    return sieve(solutions, bounds)
 end
 function vsolve(
     eos::EnergyEquation{<:PoirierTarantola2nd},
@@ -172,8 +172,8 @@ function vsolve(
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        soln = map(FromNaturalStrain(v0), [f, -f])
-        return _clamp(soln, bounds)
+        solutions = map(FromNaturalStrain(v0), [f, -f])
+        return sieve(solutions, bounds)
     elseif Δ < 0
         return typeof(v0)[]  # Complex strains
     else
@@ -216,7 +216,7 @@ function vsolve(
             xrtol = xrtol,
             rtol = rtol,
         )
-        return _clamp([vᵣ], bounds)
+        return sieve([vᵣ], bounds)
     catch e
         @error "cannot find solution! Come across `$e`!"
         return typeof(vᵢ)[]
@@ -232,7 +232,7 @@ function vsolve(
 )
     try
         vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
-        return _clamp([vᵣ], bounds)
+        return sieve([vᵣ], bounds)
     catch e
         @error "cannot find solution! Come across `$e`!"
         return typeof(vᵢ)[]
@@ -256,7 +256,7 @@ function _strain2volume(
            unique
 end
 
-function _clamp(soln, bounds)
-    low, high = extrema(bounds)
-    return filter(v -> low <= v <= high, soln)
+function sieve(solutions, bounds)
+    lower, upper = extrema(bounds)
+    return filter(v -> lower <= v <= upper, solutions)
 end
