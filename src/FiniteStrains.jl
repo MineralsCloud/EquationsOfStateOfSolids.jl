@@ -9,15 +9,33 @@ struct NaturalStrain <: FiniteStrain end
 struct InfinitesimalStrain <: FiniteStrain end
 
 """
-    ToEulerianStrain(v0)(v)
-    ToLagrangianStrain(v0)(v)
-    ToNaturalStrain(v0)(v)
-    ToInfinitesimalStrain(v0)(v)
+    ToEulerianStrain(v0)
+    ToLagrangianStrain(v0)
+    ToNaturalStrain(v0)
+    ToInfinitesimalStrain(v0)
 
 Calculate the finite strain of `v` based on the reference volume `v0`.
 
 !!! info
     See the formulae on the [`Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
+
+# Examples
+```jldoctest
+julia> f = ToEulerianStrain(10);
+
+julia> f(9)
+0.036382991447572066
+
+julia> f = ToEulerianStrain(100u"nm^3");
+
+julia> f(90u"nm^3")
+0.036382991447572066
+
+julia> g = inv(f);
+
+julia> g ∘ f == f ∘ g == identity
+true
+```
 """
 struct To{S<:FiniteStrain,T}
     v0::T
@@ -33,15 +51,33 @@ const ToInfinitesimalStrain = To{InfinitesimalStrain}
 (x::ToInfinitesimalStrain)(v) = 1 - (x.v0 / v)^_⅓
 
 """
-    FromEulerianStrain(v0)(f)
-    FromLagrangianStrain(v0)(f)
-    FromNaturalStrain(v0)(f)
-    FromInfinitesimalStrain(v0)(f)
+    FromEulerianStrain(v0)
+    FromLagrangianStrain(v0)
+    FromNaturalStrain(v0)
+    FromInfinitesimalStrain(v0)
 
 Calculate the original volume `v` from the finite strain `f` based on the reference volume `v0`.
 
 !!! info
     See the formulae on the [`Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
+
+# Examples
+```jldoctest
+julia> g = FromEulerianStrain(10);
+
+julia> g(0.036382991447572066)
+9.000000000000002
+
+julia> g = FromEulerianStrain(100u"nm^3");
+
+julia> g(0.036382991447572066)
+90.00000000000001 nm³
+
+julia> f = inv(g);
+
+julia> f ∘ g == g ∘ f == identity
+true
+```
 """
 struct From{S<:FiniteStrain,T}
     v0::T
