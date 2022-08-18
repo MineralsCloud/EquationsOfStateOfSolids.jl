@@ -76,6 +76,9 @@ Base.:∘(x::FromStrain{T}, y::ToStrain{T}) where {T} =
     x.v0 == y.v0 ? identity : error("undefined transformation!")
 Base.:∘(x::ToStrain{T}, y::FromStrain{T}) where {T} = y ∘ x
 
+Base.inv(x::FromStrain{T}) where {T} = ToStrain{T}(x.v0)
+Base.inv(x::ToStrain{T}) where {T} = FromStrain{T}(x.v0)
+
 """
     Dⁿᵥf(s::EulerianStrain, deg, v0)
     Dⁿᵥf(s::LagrangianStrain, deg, v0)
