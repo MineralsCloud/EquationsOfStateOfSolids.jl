@@ -27,8 +27,13 @@ abstract type Murnaghan{T} <: Parameters{T} end
 
 Create a Murnaghan first order equation of state.
 
-This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+The energy and pressure equations are:
+```math
+\\begin{align*}
+    E(V) &= E_0+B_0 V_0\\left[\\frac{1}{B_0'\\left(B_0'-1\\right)}\\left(\\frac{V}{V_0}\\right)^{1-B_0'}+\\frac{V}{B_0' V_0}-\\frac{1}{B_0'-1}\\right]\\\\
+    P(V) &= \\frac{B_0}{B_0'}\\left[\\left(\\frac{V_0}{V}\\right)^{B_0'}-1\\right]
+\\end{align*}
+```
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.
@@ -47,9 +52,6 @@ end
     Murnaghan2nd(v0, b0, b′0, b″0, e0=zero(v0 * b0))
 
 Create a Murnaghan second order equation of state.
-
-This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.
@@ -72,8 +74,15 @@ end
 
 Create a Birch–Murnaghan second order equation of state.
 
-This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+The energy, pressure, and bulk modulus equations are:
+```math
+\\begin{align*}
+    E(V) &= E_0 + \\frac{9}{8} B_0 V_0 \\left(\\left( V / V_0 \\right)^{-2 / 3}-1\\right)^{2}\\\\
+    P(V) &= \\frac{3}{2} B_{0}\\left(x^{-7 / 3}-x^{-5 / 3}\\right)\\\\
+    B(V) &= B_0(7f+1)(2f+1)^{5 / 2}
+\\end{align*}
+```
+where ``x = V / V_0``, and ``f = \\frac{ 1 }{ 2 } \\bigg[ \\Big( \\frac{ V_0 }{ V } \\Big)^{2/3} - 1 \\bigg]``.
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.
