@@ -12,7 +12,7 @@ writing too much code. Luckily, Julia provides such a feature.
 
    in terminal to install your `python`, or else Julia will throw an
 
-   ```julia
+   ```python
    ImportError: No module named site
    ```
 
@@ -20,7 +20,7 @@ writing too much code. Luckily, Julia provides such a feature.
 
 2. Install [`PyJulia`](https://pyjulia.readthedocs.io/en/stable/index.html) in Python. Please see [its official tutorial](https://pyjulia.readthedocs.io/en/stable/installation.html#step-2-install-pyjulia) for instructions.
 
-3. Open a (an) Python (IPython) session, start playing!
+3. Open a Python (an IPython) session, start playing!
 
    ```python
    In [1]: from julia import Unitful

@@ -16,9 +16,6 @@ struct InfinitesimalStrain <: FiniteStrain end
 
 Calculate the finite strain of `v` based on the reference volume `v0`.
 
-!!! info
-    See the formulae on the [`Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
-
 # Examples
 ```jldoctest
 julia> f = ToEulerianStrain(10);
@@ -57,9 +54,6 @@ const ToInfinitesimalStrain = To{InfinitesimalStrain}
     FromInfinitesimalStrain(v0)
 
 Calculate the original volume `v` from the finite strain `f` based on the reference volume `v0`.
-
-!!! info
-    See the formulae on the [`Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
 
 # Examples
 ```jldoctest
@@ -122,9 +116,6 @@ Base.inv(x::To{T}) where {T} = From{T}(x.v0)
     Dⁿᵥf(s::InfinitesimalStrain, deg, v0)
 
 Return a function of `v` that calculates the `deg`th order derivative of strain wrt volume from `v0`.
-
-!!! info
-    See the formulae on Ref. 1 Table 3.
 """
 function Dⁿᵥf(s::EulerianStrain, deg, v0)
     function (v)

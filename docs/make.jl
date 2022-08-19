@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(EquationsOfStateOfSolids, :DocTestSetup, :(using EquationsOf
 
 makedocs(;
     modules=[EquationsOfStateOfSolids],
-    authors="Reno <singularitti@outlook.com>",
+    authors="singularitti <singularitti@outlook.com>",
     repo="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/{commit}{path}#{line}",
     sitename="EquationsOfStateOfSolids.jl",
     format=Documenter.HTML(;
@@ -17,15 +17,18 @@ makedocs(;
         "Home" => "index.md",
         "Manual" => [
             "Installation guide" => "installation.md",
-            "Contributing" => "contributing.md",
+            "Plotting" => "plotting.md",
+            "Interoperability" => "interoperability.md",
+            "Portability" => "portability.md",
         ],
-        "API" => [
+        "API Reference" => [
             "Collections" => "api/collections.md",
             "Finite strains" => "api/finitestrains.md",
             "Fitting" => "api/fitting.md",
-            "Portability" => "portability.md",
-            "Interoperability" => "interoperability.md",
-            "Plotting" => "plotting.md",
+        ],
+        "Developer Docs" => [
+            "Contributing" => "developers/contributing.md",
+            "Style Guide" => "developers/style.md",
         ],
         "Troubleshooting" => "troubleshooting.md",
     ],

@@ -132,4 +132,4 @@ nonlinfit
 
 ## References
 
-1. [A. Otero-De-La-Roza, V. Luaña, _Computer Physics Communications_. **182**, 1708–1720 (2011), doi:10.1016/j.cpc.2011.04.016.](https://www.sciencedirect.com/science/article/pii/S0010465511001470)
+1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).](https://www.sciencedirect.com/science/article/pii/S0010465511001470)
