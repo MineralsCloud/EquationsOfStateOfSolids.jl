@@ -1,0 +1,5 @@
+[deps]
+EquationOfStateRecipes = "8d49d7c9-511f-4c38-862f-eeb1232c8dad"
+EquationsOfStateOfSolids = "1eaa2786-f833-4167-8397-974edad0881e"
+JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"

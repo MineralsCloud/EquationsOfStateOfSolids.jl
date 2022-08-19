@@ -1,117 +1,114 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Plotting · EquationsOfStateOfSolids.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link rel="canonical" href="https://MineralsCloud.github.io/EquationsOfStateOfSolids.jl/plotting/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="EquationsOfStateOfSolids.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../">EquationsOfStateOfSolids.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../installation/">Installation</a></li><li><a class="tocitem" href="../develop/">Development</a></li></ul></li><li><span class="tocitem">API</span><ul><li><a class="tocitem" href="../api/collections/">Collections</a></li><li><a class="tocitem" href="../api/fitting/">Fitting</a></li><li><a class="tocitem" href="../portability/">Portability</a></li><li><a class="tocitem" href="../interoperability/">Interoperability</a></li><li class="is-active"><a class="tocitem" href>Plotting</a></li></ul></li><li><a class="tocitem" href="../faq/">FAQ</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">API</a></li><li class="is-active"><a href>Plotting</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Plotting</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/master/docs/src/plotting.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Plotting"><a class="docs-heading-anchor" href="#Plotting">Plotting</a><a id="Plotting-1"></a><a class="docs-heading-anchor-permalink" href="#Plotting" title="Permalink"></a></h1><p>Package <a href="https://github.com/MineralsCloud/EquationOfStateRecipes.jl"><code>EquationOfStateRecipes.jl</code></a> provides some default themes for plotting an <code>EquationOfStateOfSolids</code>. First, try to install the <a href="https://github.com/JuliaPlots/Plots.jl"><code>Plots.jl</code></a> package by</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using Pkg</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.add(&quot;Plots&quot;)</code><code class="nohighlight hljs ansi" style="display:block;">    Updating registry at `~/.julia/registries/General`
-    Updating git-repo `https://github.com/JuliaRegistries/General.git`
-   Resolving package versions...
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Plotting · EquationsOfStateOfSolids.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link rel="canonical" href="https://MineralsCloud.github.io/EquationsOfStateOfSolids.jl/plotting/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="EquationsOfStateOfSolids.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../">EquationsOfStateOfSolids.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../installation/">Installation guide</a></li><li class="is-active"><a class="tocitem" href>Plotting</a></li><li><a class="tocitem" href="../interoperability/">Interoperability</a></li><li><a class="tocitem" href="../portability/">Portability</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../api/collections/">Collections</a></li><li><a class="tocitem" href="../api/finitestrains/">Finite strains</a></li><li><a class="tocitem" href="../api/fitting/">Fitting</a></li></ul></li><li><span class="tocitem">Developer Docs</span><ul><li><a class="tocitem" href="../developers/contributing/">Contributing</a></li><li><a class="tocitem" href="../developers/style/">Style Guide</a></li></ul></li><li><a class="tocitem" href="../troubleshooting/">Troubleshooting</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>Plotting</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Plotting</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/master/docs/src/plotting.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Plotting"><a class="docs-heading-anchor" href="#Plotting">Plotting</a><a id="Plotting-1"></a><a class="docs-heading-anchor-permalink" href="#Plotting" title="Permalink"></a></h1><p>Package <a href="https://github.com/MineralsCloud/EquationOfStateRecipes.jl"><code>EquationOfStateRecipes.jl</code></a> provides some default themes for plotting an <code>EquationOfStateOfSolids</code>. First, try to install the <a href="https://github.com/JuliaPlots/Plots.jl"><code>Plots.jl</code></a> package by</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using Pkg</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.add(&quot;Plots&quot;)</code><code class="nohighlight hljs ansi" style="display:block;">   Resolving package versions...
    Installed JpegTurbo_jll ──────────────── v2.1.2+0
    Installed x265_jll ───────────────────── v3.5.0+0
+   Installed GR_jll ─────────────────────── v0.66.2+0
    Installed Libmount_jll ───────────────── v2.35.0+0
    Installed libfdk_aac_jll ─────────────── v2.0.2+0
    Installed LERC_jll ───────────────────── v3.0.0+1
    Installed Opus_jll ───────────────────── v1.3.2+0
-   Installed GR_jll ─────────────────────── v0.66.2+0
    Installed LoggingExtras ──────────────── v0.4.9
    Installed Xorg_xkbcomp_jll ───────────── v1.4.2+4
-   Installed EarCut_jll ─────────────────── v2.2.3+0
    Installed Measures ───────────────────── v0.3.1
+   Installed EarCut_jll ─────────────────── v2.2.3+0
    Installed Grisu ──────────────────────── v1.0.2
    Installed RelocatableFolders ─────────── v0.3.0
    Installed Formatting ─────────────────── v0.4.2
-   Installed Xorg_xcb_util_image_jll ────── v0.4.0+1
-   Installed Xorg_xcb_util_wm_jll ───────── v0.4.1+1
    Installed Contour ────────────────────── v0.6.2
-   Installed PlotUtils ──────────────────── v1.3.0
+   Installed Xorg_xcb_util_wm_jll ───────── v0.4.1+1
+   Installed Xorg_xcb_util_image_jll ────── v0.4.0+1
    Installed Xorg_libpthread_stubs_jll ──── v0.1.0+3
-   Installed Cairo_jll ──────────────────── v1.16.1+1
-   Installed Xorg_xcb_util_jll ──────────── v0.4.0+1
+   Installed PlotUtils ──────────────────── v1.3.0
    Installed RecipesPipeline ────────────── v0.6.3
-   Installed Fontconfig_jll ─────────────── v2.13.93+0
-   Installed Xorg_libXinerama_jll ───────── v1.1.4+4
-   Installed Libgpg_error_jll ───────────── v1.42.0+0
-   Installed Xorg_libXau_jll ────────────── v1.0.9+4
-   Installed Xorg_libxkbfile_jll ────────── v1.1.0+4
    Installed HTTP ───────────────────────── v1.2.1
-   Installed Xorg_xcb_util_keysyms_jll ──── v0.4.0+1
-   Installed Bzip2_jll ──────────────────── v1.0.8+0
-   Installed xkbcommon_jll ──────────────── v1.4.1+0
-   Installed Qt5Base_jll ────────────────── v5.15.3+1
+   Installed Cairo_jll ──────────────────── v1.16.1+1
+   Installed Fontconfig_jll ─────────────── v2.13.93+0
+   Installed Xorg_xcb_util_jll ──────────── v0.4.0+1
+   Installed Libgpg_error_jll ───────────── v1.42.0+0
+   Installed Xorg_libxkbfile_jll ────────── v1.1.0+4
+   Installed Xorg_libXau_jll ────────────── v1.0.9+4
+   Installed Xorg_libXinerama_jll ───────── v1.1.4+4
    Installed FFMPEG ─────────────────────── v0.4.1
    Installed Showoff ────────────────────── v1.0.3
+   Installed Xorg_xcb_util_keysyms_jll ──── v0.4.0+1
+   Installed Qt5Base_jll ────────────────── v5.15.3+1
+   Installed xkbcommon_jll ──────────────── v1.4.1+0
+   Installed Bzip2_jll ──────────────────── v1.0.8+0
    Installed SimpleBufferStream ─────────── v1.1.0
    Installed HarfBuzz_jll ───────────────── v2.8.1+1
+   Installed PlotThemes ─────────────────── v3.0.0
    Installed LZO_jll ────────────────────── v2.10.1+0
    Installed FriBidi_jll ────────────────── v1.0.10+0
-   Installed PlotThemes ─────────────────── v3.0.0
-   Installed TranscodingStreams ─────────── v0.9.7
    Installed UnicodeFun ─────────────────── v0.4.1
+   Installed TranscodingStreams ─────────── v0.9.7
    Installed GLFW_jll ───────────────────── v3.3.8+0
-   Installed x264_jll ───────────────────── v2021.5.5+0
-   Installed FreeType2_jll ──────────────── v2.10.4+0
    Installed MbedTLS ────────────────────── v1.1.3
-   Installed Colors ─────────────────────── v0.12.8
+   Installed x264_jll ───────────────────── v2021.5.5+0
    Installed CodecZlib ──────────────────── v0.7.0
-   Installed Xorg_libxcb_jll ────────────── v1.13.0+3
-   Installed libaom_jll ─────────────────── v3.4.0+0
+   Installed FreeType2_jll ──────────────── v2.10.4+0
    Installed libpng_jll ─────────────────── v1.6.38+0
+   Installed Xorg_libxcb_jll ────────────── v1.13.0+3
+   Installed Colors ─────────────────────── v0.12.8
+   Installed libaom_jll ─────────────────── v3.4.0+0
+   Installed Xorg_libXext_jll ───────────── v1.3.4+4
    Installed ColorTypes ─────────────────── v0.11.4
    Installed Scratch ────────────────────── v1.1.1
-   Installed Xorg_libXext_jll ───────────── v1.3.4+4
+   Installed TensorCore ─────────────────── v0.1.1
+   Installed GR ─────────────────────────── v0.66.2
    Installed Zstd_jll ───────────────────── v1.5.2+0
+   Installed Libtiff_jll ────────────────── v4.4.0+0
    Installed Expat_jll ──────────────────── v2.4.8+0
    Installed Plots ──────────────────────── v1.31.7
    Installed TableTraits ────────────────── v1.0.1
-   Installed TensorCore ─────────────────── v0.1.1
-   Installed ColorSchemes ───────────────── v3.19.0
-   Installed Libtiff_jll ────────────────── v4.4.0+0
-   Installed PCRE_jll ───────────────────── v8.44.0+0
-   Installed Libffi_jll ─────────────────── v3.2.2+1
-   Installed DataValueInterfaces ────────── v1.0.0
-   Installed ColorVectorSpace ───────────── v0.9.9
    Installed Extents ────────────────────── v0.1.1
-   Installed GR ─────────────────────────── v0.66.2
+   Installed ColorSchemes ───────────────── v3.19.0
+   Installed PCRE_jll ───────────────────── v8.44.0+0
+   Installed Ogg_jll ────────────────────── v1.3.5+1
+   Installed DataValueInterfaces ────────── v1.0.0
+   Installed Libffi_jll ─────────────────── v3.2.2+1
+   Installed ColorVectorSpace ───────────── v0.9.9
    Installed Xorg_libXrender_jll ────────── v0.9.10+4
    Installed XSLT_jll ───────────────────── v1.1.34+0
    Installed Xorg_libXi_jll ─────────────── v1.7.10+4
    Installed Xorg_libXcursor_jll ────────── v1.2.0+4
-   Installed Libuuid_jll ────────────────── v2.36.0+0
-   Installed Ogg_jll ────────────────────── v1.3.5+1
    Installed Xorg_xcb_util_renderutil_jll ─ v0.3.9+1
+   Installed Libuuid_jll ────────────────── v2.36.0+0
    Installed Wayland_protocols_jll ──────── v1.25.0+0
    Installed Graphite2_jll ──────────────── v1.3.14+0
-   Installed libass_jll ─────────────────── v0.15.1+0
-   Installed Pixman_jll ─────────────────── v0.40.1+0
-   Installed Adapt ──────────────────────── v3.4.0
-   Installed Wayland_jll ────────────────── v1.19.0+0
    Installed XML2_jll ───────────────────── v2.9.14+0
+   Installed Adapt ──────────────────────── v3.4.0
+   Installed Pixman_jll ─────────────────── v0.40.1+0
+   Installed libass_jll ─────────────────── v0.15.1+0
    Installed Gettext_jll ────────────────── v0.21.0+0
-   Installed Latexify ───────────────────── v0.15.16
    Installed OpenSSL_jll ────────────────── v1.1.17+0
-   Installed Xorg_xtrans_jll ────────────── v1.4.0+3
-   Installed IterTools ──────────────────── v1.4.0
    Installed FFMPEG_jll ─────────────────── v4.4.2+0
+   Installed Xorg_xtrans_jll ────────────── v1.4.0+3
+   Installed Wayland_jll ────────────────── v1.19.0+0
+   Installed IterTools ──────────────────── v1.4.0
+   Installed Latexify ───────────────────── v0.15.16
+   Installed GeometryBasics ─────────────── v0.4.3
    Installed Libgcrypt_jll ──────────────── v1.8.7+0
    Installed Xorg_xkeyboard_config_jll ──── v2.27.0+4
-   Installed Tables ─────────────────────── v1.7.0
-   Installed GeometryBasics ─────────────── v0.4.3
    Installed Xorg_libXrandr_jll ─────────── v1.5.2+4
+   Installed FixedPointNumbers ──────────── v0.8.4
+   Installed Tables ─────────────────────── v1.7.0
    Installed Xorg_libXfixes_jll ─────────── v5.0.3+4
    Installed LAME_jll ───────────────────── v3.100.1+0
    Installed IteratorInterfaceExtensions ── v1.0.0
-   Installed FixedPointNumbers ──────────── v0.8.4
    Installed Libiconv_jll ───────────────── v1.16.1+1
    Installed IniFile ────────────────────── v0.5.1
-   Installed URIs ───────────────────────── v1.4.0
-   Installed StructArrays ───────────────── v0.6.12
-   Installed LaTeXStrings ───────────────── v1.3.0
-   Installed Glib_jll ───────────────────── v2.68.3+2
    Installed Xorg_libX11_jll ────────────── v1.6.9+4
-   Installed Libglvnd_jll ───────────────── v1.3.0+3
+   Installed Glib_jll ───────────────────── v2.68.3+2
    Installed libvorbis_jll ──────────────── v1.3.7+1
+   Installed LaTeXStrings ───────────────── v1.3.0
+   Installed Libglvnd_jll ───────────────── v1.3.0+3
+   Installed StructArrays ───────────────── v0.6.12
    Installed Xorg_libXdmcp_jll ──────────── v1.1.3+4
    Installed Unzip ──────────────────────── v0.1.2
    Installed GeoInterface ───────────────── v1.0.1
-    Updating `~/work/EquationsOfStateOfSolids.jl/EquationsOfStateOfSolids.jl/docs/Project.toml`
+    Updating `~/work/EquationsOfStateOfSolids.jl/EquationsOfStateOfSolids.jl/docs/build/developers/Project.toml`
   [91a5bcdd] + Plots v1.31.7
-    Updating `~/work/EquationsOfStateOfSolids.jl/EquationsOfStateOfSolids.jl/docs/Manifest.toml`
+    Updating `~/work/EquationsOfStateOfSolids.jl/EquationsOfStateOfSolids.jl/docs/build/developers/Manifest.toml`
   [79e6a3ab] + Adapt v3.4.0
   [944b1d66] + CodecZlib v0.7.0
   [35d6a980] + ColorSchemes v3.19.0
@@ -150,7 +147,6 @@
   [bd369af6] + Tables v1.7.0
   [62fd8b95] + TensorCore v0.1.1
   [3bb67fe8] + TranscodingStreams v0.9.7
-  [5c2747f8] + URIs v1.4.0
   [1cfade01] + UnicodeFun v0.4.1
   [41fe7b60] + Unzip v0.1.2
   [6e34b625] + Bzip2_jll v1.0.8+0
@@ -222,9 +218,9 @@
   [8bb1440f] + DelimitedFiles
     Building GR → `~/.julia/scratchspaces/44cfe95a-1eb2-52ea-b672-e2afdf69b78f/cf0a9940f250dc3cb6cc6c6821b4bf8a4286cf9c/build.log`
 Precompiling project...
-<span class="sgr32">  ✓ </span><span class="sgr90">TensorCore</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">IteratorInterfaceExtensions</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">LaTeXStrings</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">TensorCore</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Contour</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Measures</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">IterTools</span>
@@ -234,9 +230,8 @@ Precompiling project...
 <span class="sgr32">  ✓ </span><span class="sgr90">IniFile</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">FixedPointNumbers</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">SimpleBufferStream</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">URIs</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">Extents</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Formatting</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">Extents</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">UnicodeFun</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Adapt</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Scratch</span>
@@ -245,14 +240,14 @@ Precompiling project...
 <span class="sgr32">  ✓ </span><span class="sgr90">OpenSSL_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Graphite2_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">MbedTLS</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">Libmount_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Bzip2_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">libpng_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">Libmount_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_libXau_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">libfdk_aac_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">LERC_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">libpng_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">LAME_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Pixman_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">LERC_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">EarCut_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">JpegTurbo_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Ogg_jll</span>
@@ -261,19 +256,19 @@ Precompiling project...
 <span class="sgr32">  ✓ </span><span class="sgr90">x264_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">libaom_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Zstd_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">Expat_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">LZO_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">Expat_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Opus_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xtrans_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">PCRE_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Libiconv_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">PCRE_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xtrans_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">Libgpg_error_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Libffi_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Wayland_protocols_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">Libgpg_error_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_libpthread_stubs_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">FriBidi_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">TableTraits</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Libuuid_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">TableTraits</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Showoff</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">GeoInterface</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">RelocatableFolders</span>
@@ -285,20 +280,20 @@ Precompiling project...
 <span class="sgr32">  ✓ </span><span class="sgr90">Libtiff_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Libgcrypt_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">XML2_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">Tables</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Fontconfig_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">Tables</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">HTTP</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">XSLT_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">ColorVectorSpace</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Gettext_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Wayland_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">ColorVectorSpace</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_libxcb_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">StructArrays</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Glib_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xcb_util_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Colors</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xcb_util_image_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_libX11_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xcb_util_image_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xcb_util_keysyms_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xcb_util_renderutil_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xcb_util_wm_jll</span>
@@ -316,12 +311,12 @@ Precompiling project...
 <span class="sgr32">  ✓ </span><span class="sgr90">HarfBuzz_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">GLFW_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Xorg_xkeyboard_config_jll</span>
+<span class="sgr32">  ✓ </span><span class="sgr90">ColorSchemes</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">libass_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">xkbcommon_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">GeometryBasics</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">FFMPEG_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">Qt5Base_jll</span>
-<span class="sgr32">  ✓ </span><span class="sgr90">ColorSchemes</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">FFMPEG</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">GR_jll</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">GR</span>
@@ -329,5 +324,13 @@ Precompiling project...
 <span class="sgr32">  ✓ </span><span class="sgr90">RecipesPipeline</span>
 <span class="sgr32">  ✓ </span><span class="sgr90">PlotThemes</span>
 <span class="sgr32">  ✓ </span>Plots
-  107 dependencies successfully precompiled in 72 seconds. 71 already precompiled.</code></pre><p>Then install <code>EquationOfStateRecipes.jl</code> with</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.add(&quot;EquationOfStateRecipes&quot;)</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: UndefVarError: Pkg not defined</code></pre><p>Finally, load <code>EquationsOfStateOfSolids.jl</code> and plot:</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using EquationsOfStateOfSolids, Plots</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; eos = EnergyEquation(Murnaghan(224.501825u&quot;bohr^3&quot;, 8.896845u&quot;GPa&quot;, 3.723835, -323.417686u&quot;Ry&quot;))</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: LoadError: UndefVarError: @u_str not defined
-in expression starting at REPL[2]:1</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; plot(eos)</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: UndefVarError: eos not defined</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; plot!(eos, (0.8:0.01:1.2) * eos.param.v0)</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: UndefVarError: eos not defined</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; scatter!(eos, (0.5:0.1:1) * eos.param.v0)</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: UndefVarError: eos not defined</code></pre><p><img src="https://i.loli.net/2020/12/16/BrbLsZlmKvy6hTi.png" alt="fig"/></p><p>Have fun!</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../interoperability/">« Interoperability</a><a class="docs-footer-nextpage" href="../faq/">FAQ »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.22 on <span class="colophon-date" title="Friday 19 August 2022 15:55">Friday 19 August 2022</span>. Using Julia version 1.8.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  106 dependencies successfully precompiled in 74 seconds. 72 already precompiled.</code></pre><p>Then install <code>EquationOfStateRecipes.jl</code> with</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.add(&quot;EquationOfStateRecipes&quot;)</code><code class="nohighlight hljs ansi" style="display:block;">   Resolving package versions...
+    Updating `~/work/EquationsOfStateOfSolids.jl/EquationsOfStateOfSolids.jl/docs/build/developers/Project.toml`
+  [8d49d7c9] + EquationOfStateRecipes v0.1.3
+    Updating `~/work/EquationsOfStateOfSolids.jl/EquationsOfStateOfSolids.jl/docs/build/developers/Manifest.toml`
+  [8d49d7c9] + EquationOfStateRecipes v0.1.3</code></pre><p>Finally, load <code>EquationsOfStateOfSolids.jl</code> and plot:</p><pre><code class="language- hljs">using EquationsOfStateOfSolids, Plots, EquationOfStateRecipes, Unitful, UnitfulAtomic
+eos = EnergyEquation(Murnaghan1st(224.501825u&quot;bohr^3&quot;, 8.896845u&quot;GPa&quot;, 3.723835, -323.417686u&quot;Ry&quot;))
+plot(eos)
+plot!(eos, (0.8:0.01:1.2) * eos.param.v0)
+scatter!(eos, (0.5:0.1:1) * eos.param.v0)
+savefig(&quot;plot.svg&quot;); nothing # hide</code></pre><p><img src="plot.svg" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../installation/">« Installation guide</a><a class="docs-footer-nextpage" href="../interoperability/">Interoperability »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.22 on <span class="colophon-date" title="Friday 19 August 2022 16:14">Friday 19 August 2022</span>. Using Julia version 1.8.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
