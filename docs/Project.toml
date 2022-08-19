@@ -1,6 +1,8 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-EquationsOfStateOfSolids = "1eaa2786-f833-4167-8397-974edad0881e"
 EquationOfStateRecipes = "8d49d7c9-511f-4c38-862f-eeb1232c8dad"
+EquationsOfStateOfSolids = "1eaa2786-f833-4167-8397-974edad0881e"
 Kaleido = "caafb194-7e8d-11e9-2724-d5981dd0806d"
 Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
+TypeTree = "04da0e3b-1cad-4b2c-a963-fc1602baf1af"
+UnitfulAtomic = "a7773ee8-282e-5fa2-be4e-bd808c38a91a"
