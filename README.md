@@ -9,21 +9,21 @@
 | [![Stable][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] | [![Build Status][gha-img]][gha-url] [![Build Status][appveyor-img]][appveyor-url] [![Build Status][cirrus-img]][cirrus-url] [![pipeline status][gitlab-img]][gitlab-url] [![Coverage][codecov-img]][codecov-url] | [![GitHub license][license-img]][license-url] [![Code Style: Blue][style-img]][style-url] |
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://singularitti.github.io/MyPkgTemplates.jl/stable
+[docs-stable-url]: https://MineralsCloud.github.io/EquationsOfStateOfSolids.jl/stable
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://singularitti.github.io/MyPkgTemplates.jl/dev
-[gha-img]: https://github.com/singularitti/MyPkgTemplates.jl/workflows/CI/badge.svg
-[gha-url]: https://github.com/singularitti/MyPkgTemplates.jl/actions
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/github/singularitti/MyPkgTemplates.jl?svg=true
-[appveyor-url]: https://ci.appveyor.com/project/singularitti/MyPkgTemplates-jl
-[cirrus-img]: https://api.cirrus-ci.com/github/singularitti/MyPkgTemplates.jl.svg
-[cirrus-url]: https://cirrus-ci.com/github/singularitti/MyPkgTemplates.jl
-[gitlab-img]: https://gitlab.com/singularitti/MyPkgTemplates.jl/badges/master/pipeline.svg
-[gitlab-url]: https://gitlab.com/singularitti/MyPkgTemplates.jl/-/pipelines
-[codecov-img]: https://codecov.io/gh/singularitti/MyPkgTemplates.jl/branch/master/graph/badge.svg
-[codecov-url]: https://codecov.io/gh/singularitti/MyPkgTemplates.jl
-[license-img]: https://img.shields.io/github/license/singularitti/MyPkgTemplates.jl
-[license-url]: https://github.com/singularitti/MyPkgTemplates.jl/blob/master/LICENSE
+[docs-dev-url]: https://MineralsCloud.github.io/EquationsOfStateOfSolids.jl/dev
+[gha-img]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/workflows/CI/badge.svg
+[gha-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/actions
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/github/MineralsCloud/EquationsOfStateOfSolids.jl?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/singularitti/EquationsOfStateOfSolids-jl
+[cirrus-img]: https://api.cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl.svg
+[cirrus-url]: https://cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl
+[gitlab-img]: https://gitlab.com/singularitti/EquationsOfStateOfSolids.jl/badges/master/pipeline.svg
+[gitlab-url]: https://gitlab.com/singularitti/EquationsOfStateOfSolids.jl/-/pipelines
+[codecov-img]: https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl
+[license-img]: https://img.shields.io/github/license/MineralsCloud/EquationsOfStateOfSolids.jl
+[license-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/master/LICENSE
 [style-img]: https://img.shields.io/badge/code%20style-blue-4495d1.svg
 [style-url]: https://github.com/invenia/BlueStyle
 
