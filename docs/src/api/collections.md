@@ -1,5 +1,6 @@
 ```@meta
 CurrentModule = EquationsOfStateOfSolids
+DocTestSetup  = :(using EquationsOfStateOfSolids)
 ```
 
 # Collections
@@ -13,7 +14,7 @@ The current `EquationOfStateOfSolidsParameters` are
 
 ```@repl
 using TypeTree
-tt(EquationsOfState.EquationOfStateOfSolidsParameters)
+tt(EquationsOfStateOfSolids.EquationOfStateOfSolidsParameters)
 ```
 
 Here the leaves of the type tree are concrete types and can be constructed.
@@ -32,10 +33,9 @@ macro:
 
 ```@repl
 using Setfield
-eos = Murnaghan(1, 2, 3.0)
+eos = Murnaghan1st(1, 2, 3.0)
 @set! eos.v0 = 4
 eos
-Murnaghan{Float64}(4.0, 2.0, 3.0, 0.0)
 ```
 
 To modify multiple fields (say, `:v0`, `:b′0`, `:b″0`, `:e0`) at a time, use
@@ -63,18 +63,13 @@ eos.v0
 
 ### Evaluate energy
 
-The $E(V)$ relation of equations of state are listed as below:
+The ``E(V)`` relation of equations of state are listed as below:
 
 1. `Murnaghan`:
-
-   ```math
-   E(V) = E_{0}+K_{0} V_{0}\left[\frac{1}{K_{0}^{\prime}\left(K_{0}^{\prime}-1\right)}\left(\frac{V}{V_{0}}\right)^{1-K_{0}^{\prime}}+\frac{1}{K_{0}^{\prime}} \frac{V}{V_{0}}-\frac{1}{K_{0}^{\prime}-1}\right].
-   ```
 
 2. `BirchMurnaghan2nd`:
 
    ```math
-   E(V) = E_{0} + \frac{9}{8} B_{0} V_{0} \left(\left( V / V_0 \right)^{-2 / 3}-1\right)^{2}.
    ```
 
 3. `BirchMurnaghan3rd`:
@@ -133,7 +128,7 @@ The $P(V)$ relation of equations of state are listed as below:
 1. `Murnaghan`:
 
    ```math
-   P(V) = \frac{B_{0}}{B_{0}^{\prime}}\left[\left(\frac{V_{0}}{V}\right)^{B_{0}^{\prime}}-1\right].
+   1
    ```
 
 2. `BirchMurnaghan2nd`:

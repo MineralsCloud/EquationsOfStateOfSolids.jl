@@ -8,7 +8,7 @@ a JLD format by [`JLD2.jl`](https://github.com/JuliaIO/JLD2.jl) package.
 > JLD is a specific "dialect" of HDF5, a cross-platform, multi-language data storage format most frequently used for scientific data.
 
 1. Install [`JLD2.jl`](https://github.com/JuliaIO/JLD2.jl) and
-    [`FileIO.jl`](https://github.com/JuliaIO/FileIO.jl) packages.
+   [`FileIO.jl`](https://github.com/JuliaIO/FileIO.jl) packages.
 
    ```@repl
    using Pkg

@@ -1,11 +1,20 @@
 using EquationsOfStateOfSolids
 using Documenter
 
-DocMeta.setdocmeta!(EquationsOfStateOfSolids, :DocTestSetup, :(using EquationsOfStateOfSolids); recursive=true)
+DocMeta.setdocmeta!(
+    EquationsOfStateOfSolids,
+    :DocTestSetup,
+    quote
+        using EquationsOfStateOfSolids, EquationsOfStateOfSolids.Fitting
+        using EquationsOfStateOfSolids.FiniteStrains: ToEulerianStrain, FromEulerianStrain
+        using Unitful, UnitfulAtomic
+    end;
+    recursive=true,
+)
 
 makedocs(;
     modules=[EquationsOfStateOfSolids],
-    authors="Reno <singularitti@outlook.com>",
+    authors="singularitti <singularitti@outlook.com>",
     repo="https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/{commit}{path}#{line}",
     sitename="EquationsOfStateOfSolids.jl",
     format=Documenter.HTML(;
@@ -15,15 +24,22 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-        "Manual" => ["Installation" => "installation.md", "Development" => "develop.md"],
-        "API" => [
-            "Collections" => "api/collections.md",
-            "Fitting" => "api/fitting.md",
-            "Portability" => "portability.md",
-            "Interoperability" => "interoperability.md",
+        "Manual" => [
+            "Installation guide" => "installation.md",
             "Plotting" => "plotting.md",
+            "Interoperability" => "interoperability.md",
+            "Portability" => "portability.md",
         ],
-        "FAQ" => "faq.md",
+        "API Reference" => [
+            "Collections" => "api/collections.md",
+            "Finite strains" => "api/finitestrains.md",
+            "Fitting" => "api/fitting.md",
+        ],
+        "Developer Docs" => [
+            "Contributing" => "developers/contributing.md",
+            "Style Guide" => "developers/style.md",
+        ],
+        "Troubleshooting" => "troubleshooting.md",
     ],
 )
 
