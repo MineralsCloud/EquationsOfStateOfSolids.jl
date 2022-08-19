@@ -7,7 +7,6 @@ First, try to install the [`Plots.jl`](https://github.com/JuliaPlots/Plots.jl) p
 
 ```@repl
 using Pkg
-Pkg.add("Plots")
 ```
 
 Then install `EquationOfStateRecipes.jl` with

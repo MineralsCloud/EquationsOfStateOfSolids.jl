@@ -57,6 +57,7 @@ Pages = [
     "plotting.md",
     "faq.md",
     "api/collections.md",
+    "api/finitestrains.md",
     "api/fitting.md",
 ]
 Depth = 3

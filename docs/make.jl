@@ -21,6 +21,7 @@ makedocs(;
         ],
         "API" => [
             "Collections" => "api/collections.md",
+            "Finite strains" => "api/finitestrains.md",
             "Fitting" => "api/fitting.md",
             "Portability" => "portability.md",
             "Interoperability" => "interoperability.md",

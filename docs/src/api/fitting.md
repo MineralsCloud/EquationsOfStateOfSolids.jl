@@ -10,8 +10,6 @@ Pages = ["fitting.md"]
 
 ## Nonlinear fitting
 
-From Ref. 1,
-
 > The equations of state depend nonlinearly on a collection of parameters,
 > $E_0$, $V_0$, $B_0$, $B_0'$, ..., that represent physical properties of the
 > solid at equilibrium and can, in principle, be obtained experimentally by
@@ -21,7 +19,7 @@ From Ref. 1,
 > comparing the goodness of fit of functional forms with different analytical
 > flexibility. The possibility of using too many parameters, beyond what is
 > physically justified by the information contained in the experimental data, is
-> a serious aspect that deserves consideration.
+> a serious aspect that deserves consideration.[^1]
 
 In [`EquationsOfStateOfSolids`](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
 the nonlinear fitting is currently implemented by
@@ -36,8 +34,6 @@ for more information.
 The linear fitting
 
 ## Usage
-
-
 
 ```@repl
 using EquationsOfStateOfSolids
