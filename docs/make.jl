@@ -1,7 +1,16 @@
 using EquationsOfStateOfSolids
 using Documenter
 
-DocMeta.setdocmeta!(EquationsOfStateOfSolids, :DocTestSetup, :(using EquationsOfStateOfSolids); recursive=true)
+DocMeta.setdocmeta!(
+    EquationsOfStateOfSolids,
+    :DocTestSetup,
+    quote
+        using EquationsOfStateOfSolids, EquationsOfStateOfSolids.Fitting
+        using EquationsOfStateOfSolids.FiniteStrains: ToEulerianStrain, FromEulerianStrain
+        using Unitful, UnitfulAtomic
+    end;
+    recursive=true,
+)
 
 makedocs(;
     modules=[EquationsOfStateOfSolids],
