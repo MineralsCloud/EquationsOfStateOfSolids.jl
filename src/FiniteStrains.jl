@@ -102,8 +102,9 @@ function (x::FromInfinitesimalStrain)(f)
     return isreal(v) ? real(v) : v
 end
 
-Base.:∘(x::From{T}, y::To{T}) where {T} =
-    x.v0 == y.v0 ? identity : error("undefined transformation!")
+function Base.:∘(x::From{T}, y::To{T}) where {T}
+    return x.v0 == y.v0 ? identity : error("undefined transformation!")
+end
 Base.:∘(x::To{T}, y::From{T}) where {T} = y ∘ x
 
 Base.inv(x::From{T}) where {T} = To{T}(x.v0)

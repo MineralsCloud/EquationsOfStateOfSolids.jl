@@ -46,7 +46,7 @@ struct Murnaghan1st{T} <: Murnaghan{T}
     b0::T
     b′0::T
     e0::T
-    Murnaghan1st{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+    Murnaghan1st{T}(v0, b0, b′0, e0=zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
 """
     Murnaghan2nd(v0, b0, b′0, b″0, e0=zero(v0 * b0))
@@ -66,8 +66,9 @@ struct Murnaghan2nd{T} <: Murnaghan{T}
     b′0::T
     b″0::T
     e0::T
-    Murnaghan2nd{T}(v0, b0, b′0, b″0, e0 = zero(v0 * b0)) where {T} =
-        new(v0, b0, b′0, b″0, e0)
+    function Murnaghan2nd{T}(v0, b0, b′0, b″0, e0=zero(v0 * b0)) where {T}
+        return new(v0, b0, b′0, b″0, e0)
+    end
 end
 """
     BirchMurnaghan2nd(v0, b0, e0=zero(v0 * b0))
@@ -93,7 +94,7 @@ struct BirchMurnaghan2nd{T} <: BirchMurnaghan{2,T}
     v0::T
     b0::T
     e0::T
-    BirchMurnaghan2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
+    BirchMurnaghan2nd{T}(v0, b0, e0=zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
 """
     BirchMurnaghan3rd(v0, b0, b′0, e0=zero(v0 * b0))
@@ -118,7 +119,7 @@ struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
     b0::T
     b′0::T
     e0::T
-    BirchMurnaghan3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+    BirchMurnaghan3rd{T}(v0, b0, b′0, e0=zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
 """
     BirchMurnaghan4th(v0, b0, b′0, b″0, e0=zero(v0 * b0))
@@ -147,8 +148,9 @@ struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
     b′0::T
     b″0::T
     e0::T
-    BirchMurnaghan4th{T}(v0, b0, b′0, b″0, e0 = zero(v0 * b0)) where {T} =
-        new(v0, b0, b′0, b″0, e0)
+    function BirchMurnaghan4th{T}(v0, b0, b′0, b″0, e0=zero(v0 * b0)) where {T}
+        return new(v0, b0, b′0, b″0, e0)
+    end
 end
 """
     PoirierTarantola2nd(v0, b0, e0=zero(v0 * b0))
@@ -167,7 +169,7 @@ struct PoirierTarantola2nd{T} <: PoirierTarantola{2,T}
     v0::T
     b0::T
     e0::T
-    PoirierTarantola2nd{T}(v0, b0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, e0)
+    PoirierTarantola2nd{T}(v0, b0, e0=zero(v0 * b0)) where {T} = new(v0, b0, e0)
 end
 """
     PoirierTarantola3rd(v0, b0, b′0, e0=zero(v0 * b0))
@@ -188,7 +190,7 @@ struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
     b0::T
     b′0::T
     e0::T
-    PoirierTarantola3rd{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+    PoirierTarantola3rd{T}(v0, b0, b′0, e0=zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
 """
     PoirierTarantola4th(v0, b0, b′0, b″0, e0=zero(v0 * b0))
@@ -211,8 +213,9 @@ struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
     b′0::T
     b″0::T
     e0::T
-    PoirierTarantola4th{T}(v0, b0, b′0, b″0, e0 = zero(v0 * b0)) where {T} =
-        new(v0, b0, b′0, b″0, e0)
+    function PoirierTarantola4th{T}(v0, b0, b′0, b″0, e0=zero(v0 * b0)) where {T}
+        return new(v0, b0, b′0, b″0, e0)
+    end
 end
 """
     Vinet(v0, b0, b′0, e0=zero(v0 * b0))
@@ -233,21 +236,21 @@ struct Vinet{T} <: Parameters{T}
     b0::T
     b′0::T
     e0::T
-    Vinet{T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
+    Vinet{T}(v0, b0, b′0, e0=zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
 struct AntonSchmidt{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
     e∞::T
-    AntonSchmidt{T}(v0, b0, b′0, e∞ = zero(v0 * b0)) where {T} = new(v0, b0, b′0, e∞)
+    AntonSchmidt{T}(v0, b0, b′0, e∞=zero(v0 * b0)) where {T} = new(v0, b0, b′0, e∞)
 end
 struct Holzapfel{Z,T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
     e0::T
-    function Holzapfel{Z,T}(v0, b0, b′0, e0 = zero(v0 * b0)) where {Z,T}
+    function Holzapfel{Z,T}(v0, b0, b′0, e0=zero(v0 * b0)) where {Z,T}
         @assert 1 <= Z <= 118 "elements are between 1 and 118!"
         return new(v0, b0, b′0, e0)
     end

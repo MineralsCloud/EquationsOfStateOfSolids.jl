@@ -37,8 +37,9 @@ A wrapper for `fiteos` with linear fitting method.
 - `root_thr::AbstractFloat=1e-20`: .
 - `verbose::Bool=false`: .
 """
-linfit(eos::EnergyEquation, volumes, energies; kwargs...) =
-    EnergyEquation(fiteos(volumes, energies, eos.param, LinearFitting(); kwargs...))
+function linfit(eos::EnergyEquation, volumes, energies; kwargs...)
+    return EnergyEquation(fiteos(volumes, energies, eos.param, LinearFitting(); kwargs...))
+end
 
 """
     fiteos(volumes, energies, initial_params::FiniteStrainParameters, LinearFitting(); kwargs...)
@@ -61,10 +62,10 @@ function fiteos(
     energies,
     initial_params::FiniteStrainParameters,
     ::LinearFitting;
-    maxiter = 1000,
-    conv_thr = 1e-12,
-    root_thr = 1e-20,
-    verbose = false,
+    maxiter=1000,
+    conv_thr=1e-12,
+    root_thr=1e-20,
+    verbose=false,
 )
     deg, S = orderof(initial_params), straintype(initial_params)
     v0 = iszero(initial_params.v0) ? volumes[findmin(energies)[2]] : initial_params.v0  # Initial v0
@@ -89,11 +90,11 @@ function fiteos(
             b0, b′0, b″0 = Dₚb(fᵥ, e_f)
             param = update(
                 initial_params;
-                v0 = v0 * uv,
-                b0 = b0(v0) * ue / uv,
-                b′0 = b′0(v0),
-                b″0 = b″0(v0) * uv / ue,
-                e0 = e0 * ue,
+                v0=v0 * uv,
+                b0=b0(v0) * ue / uv,
+                b′0=b′0(v0),
+                b″0=b″0(v0) * uv / ue,
+                e0=e0 * ue,
             )
             return param
         end
@@ -106,9 +107,9 @@ function islocalmin(x, y)  # `x` & `y` are both real
     return y″ₓ > zero(y″ₓ)  # If 2nd derivative at x > 0, (x, y(x)) is a local minimum
 end
 
-function localmin(y, root_thr = 1e-20)  # `y` is a polynomial (could be complex)
+function localmin(y, root_thr=1e-20)  # `y` is a polynomial (could be complex)
     y′ = derivative(y, 1)
-    pool = roots(coeffs(y′); polish = true, epsilon = root_thr)
+    pool = roots(coeffs(y′); polish=true, epsilon=root_thr)
     real_roots = real(filter(isreal, pool))  # Complex volumes are meaningless
     if isempty(real_roots)
         throw(CriterionNotMet("no real extrema found! Consider changing `root_thr`!"))  # For some polynomials, could be all complex
@@ -123,7 +124,7 @@ function localmin(y, root_thr = 1e-20)  # `y` is a polynomial (could be complex)
 end
 
 # https://stackoverflow.com/a/21367608/3260253
-function min_of_min(y, root_thr = 1e-20)  # Find the minimum of the local minima
+function min_of_min(y, root_thr=1e-20)  # Find the minimum of the local minima
     localminima = localmin(y, root_thr)
     y0, i = findmin(map(y, localminima))  # `y0` must be real, or `findmap` will error
     x0 = localminima[i]
@@ -149,11 +150,12 @@ end
 D¹ᵥe(fᵥ, e_f) = e_f[1] * fᵥ[1]
 D²ᵥe(fᵥ, e_f) = e_f[2] * fᵥ[1]^2 + e_f[1] * fᵥ[2]
 D³ᵥe(fᵥ, e_f) = e_f[3] * fᵥ[1]^3 + 3fᵥ[1] * fᵥ[2] * e_f[2] + e_f[1] * fᵥ[3]
-D⁴ᵥe(fᵥ, e_f) =
-    e_f[4] * fᵥ[1]^4 +
-    6fᵥ[1]^2 * fᵥ[2] * e_f[3] +
-    (4fᵥ[1] * fᵥ[3] + 3fᵥ[3]^2) * e_f[2] +
-    e_f[1] * fᵥ[4]
+function D⁴ᵥe(fᵥ, e_f)
+    return e_f[4] * fᵥ[1]^4 +
+           6fᵥ[1]^2 * fᵥ[2] * e_f[3] +
+           (4fᵥ[1] * fᵥ[3] + 3fᵥ[3]^2) * e_f[2] +
+           e_f[1] * fᵥ[4]
+end
 
 # ================================== Nonlinear fitting ==================================
 """
@@ -169,8 +171,11 @@ A wrapper for `fiteos` with nonlinear fitting method.
 - `good_step_quality::AbstractFloat=0.75`: .
 - `verbose::Bool=false`: .
 """
-nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...) =
-    EnergyEquation(fiteos(volumes, energies, eos.param, NonLinearFitting(); kwargs...))
+function nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...)
+    return EnergyEquation(
+        fiteos(volumes, energies, eos.param, NonLinearFitting(); kwargs...)
+    )
+end
 
 """
     fiteos(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
@@ -190,12 +195,12 @@ function fiteos(
     energies,
     initial_params::T,
     ::NonLinearFitting;
-    xtol = 1e-16,
-    gtol = 1e-16,
-    maxiter = 1000,
-    min_step_quality = 1e-16,
-    good_step_quality = 0.75,
-    verbose = false,
+    xtol=1e-16,
+    gtol=1e-16,
+    maxiter=1000,
+    min_step_quality=1e-16,
+    good_step_quality=0.75,
+    verbose=false,
 ) where {T<:Parameters}
     model = (volume, params) -> EnergyEquation(constructorof(T)(params...)).(volume)
     x, y, p0 = preprocess(volumes, energies, initial_params)
@@ -204,12 +209,12 @@ function fiteos(
         x,
         y,
         p0;
-        x_tol = xtol,
-        g_tol = gtol,
-        maxIter = maxiter,
-        min_step_quality = min_step_quality,
-        good_step_quality = good_step_quality,
-        show_trace = verbose,
+        x_tol=xtol,
+        g_tol=gtol,
+        maxIter=maxiter,
+        min_step_quality=min_step_quality,
+        good_step_quality=good_step_quality,
+        show_trace=verbose,
     )
     if fit.converged
         params = reconstruct_params(coef(fit), initial_params)
@@ -233,7 +238,7 @@ function preprocess(volumes, energies, params)  # Do not export!
     volumes = ustrip.(unit(params.v0), volumes)  # Unify units of data
     if iszero(params.e0)
         # Energy minimum as e0, `uconvert` is important to keep the unit right!
-        params = setproperties(params; e0 = uconvert(unit(params.e0), minimum(energies)))
+        params = setproperties(params; e0=uconvert(unit(params.e0), minimum(energies)))
     end
     energies = ustrip.(unit(params.e0), energies)
     params = ustrip.(unormalize(params))
@@ -246,11 +251,11 @@ function unormalize(params::Parameters{<:AbstractQuantity})  # Normalize units o
     return Iterators.map(fieldnames(typeof(params))) do f
         x = getfield(params, f)
         if f == :b0
-            x |> up
+            up(x)
         elseif f == :b″0
-            x |> up^(-1)
+            up^(-1)(x)
         elseif f == :b‴0
-            x |> up^(-2)
+            up^(-2)(x)
         elseif f in (:v0, :b′0, :e0)
             x
         else
@@ -266,11 +271,11 @@ function reconstruct_params(p, p0::Parameters{<:AbstractQuantity})
         x = p[i]
         u = unit(getfield(p0, f))
         if f == :b0
-            x * up |> u
+            u(x * up)
         elseif f == :b″0
-            x * up^(-1) |> u
+            u(x * up^(-1))
         elseif f == :b‴0
-            x * up^(-2) |> u
+            u(x * up^(-2))
         elseif f in (:v0, :b′0, :e0)
             x * u
         else

@@ -58,7 +58,7 @@ function (eos::PressureEquation{<:Holzapfel{Z}})(v) where {Z}
     @unpack v0, b0, b′0 = getparam(eos)
     η = (v / v0)^_⅓
     p0 = FERMI_GAS_CONSTANT * (Z / v0)^(5 / 3)
-    c0 = -log(3b0 / p0 |> NoUnits)
+    c0 = -log(NoUnits(3b0 / p0))
     c2 = 3 / 2 * (b′0 - 3) - c0
     return 3b0 * (1 - η) / η^5 * exp(c0 * (1 - η)) * (1 + c2 * η * (1 - η))
 end

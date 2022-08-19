@@ -8,7 +8,7 @@ export vsolve
 function vsolve(
     eos::PressureEquation{<:Murnaghan1st},
     p;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, b′0 = getparam(eos)
     solution = [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
@@ -17,7 +17,7 @@ end
 function vsolve(
     eos::PressureEquation{<:Murnaghan2nd},
     p;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     h = sqrt(2b0 * b″0 - b′0^2)
@@ -30,7 +30,7 @@ end
 function vsolve(
     eos::EnergyEquation{<:BirchMurnaghan2nd},
     e;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
@@ -47,17 +47,15 @@ end
 function vsolve(
     eos::PressureEquation{<:BirchMurnaghan2nd},
     p;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
-    stopping_criterion = 1e-20,  # Unitless
-    chop = eps(),
-    rtol = sqrt(eps()),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
+    stopping_criterion=1e-20,  # Unitless
+    chop=eps(),
+    rtol=sqrt(eps()),
 )
     @unpack v0, b0 = getparam(eos)
     # Solve f for (3 B0 f (2f + 1))^2 == p^2
     fs = roots(
-        [-(p / 3b0)^2, 0, 1, 10, 40, 80, 80, 32];
-        polish = true,
-        epsilon = stopping_criterion,
+        [-(p / 3b0)^2, 0, 1, 10, 40, 80, 80, 32]; polish=true, epsilon=stopping_criterion
     )
     solutions = _strain2volume(eos, v0, fs, p, chop, rtol)
     return sieve(solutions, bounds)
@@ -65,17 +63,17 @@ end
 function vsolve(
     eos::BulkModulusEquation{<:BirchMurnaghan2nd},
     b;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
-    stopping_criterion = 1e-20,  # Unitless
-    chop = eps(),
-    rtol = sqrt(eps()),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
+    stopping_criterion=1e-20,  # Unitless
+    chop=eps(),
+    rtol=sqrt(eps()),
 )
     @unpack v0, b0 = getparam(eos)
     # Solve f for ((7f + 1) * (2f + 1)^(5/2))^2 == (b/b0)^2
     fs = roots(
         [1 - (b / b0)^2, 24, 229, 1130, 3160, 5072, 4368, 1568];
-        polish = true,
-        epsilon = stopping_criterion,
+        polish=true,
+        epsilon=stopping_criterion,
     )
     solutions = _strain2volume(eos, v0, fs, b, chop, rtol)
     return sieve(solutions, bounds)
@@ -83,15 +81,15 @@ end
 function vsolve(
     eos::EnergyEquation{<:BirchMurnaghan3rd},
     e;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
-    chop = eps(),
-    rtol = sqrt(eps()),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
+    chop=eps(),
+    rtol=sqrt(eps()),
 )
     @unpack v0, b0, b′0, e0 = getparam(eos)
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
         @warn "`b′0 == 4` for a `BirchMurnaghan3rd` is just a `BirchMurnaghan2nd`!"
-        return vsolve(EnergyEquation(BirchMurnaghan2nd(v0, b0, e0)), e; bounds = bounds)
+        return vsolve(EnergyEquation(BirchMurnaghan2nd(v0, b0, e0)), e; bounds=bounds)
     else
         a = b′0 - 4
         r = 1 / 3a  # b = 1
@@ -119,10 +117,10 @@ end
 function vsolve(
     eos::PressureEquation{<:BirchMurnaghan3rd},
     p;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
-    stopping_criterion = 1e-20,  # Unitless
-    chop = eps(),
-    rtol = sqrt(eps()),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
+    stopping_criterion=1e-20,  # Unitless
+    chop=eps(),
+    rtol=sqrt(eps()),
 )
     @unpack v0, b0, b′0 = getparam(eos)
     # Solve f for (f (2f + 1)^(5/2) [2 + 3f (b′0 - 4)])^2 - (p / (3b0/2))^2 = 0
@@ -139,8 +137,8 @@ function vsolve(
             720b′0^2 + 768(13 - 7b′0),
             288b′0^2 + 2304(2 - b′0),
         ];
-        polish = true,
-        epsilon = stopping_criterion,
+        polish=true,
+        epsilon=stopping_criterion,
     )
     solutions = _strain2volume(eos, v0, fs, p, chop, rtol)
     return sieve(solutions, bounds)
@@ -148,17 +146,17 @@ end
 function vsolve(
     eos::EnergyEquation{<:BirchMurnaghan4th},
     e;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
-    stopping_criterion = 1e-20,  # Unitless
-    chop = eps(),
-    rtol = sqrt(eps()),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
+    stopping_criterion=1e-20,  # Unitless
+    chop=eps(),
+    rtol=sqrt(eps()),
 )
     @unpack v0, b0, b′0, b″0, e0 = getparam(eos)
     h = b0 * b″0 + b′0^2
     fs = roots(
         [(e0 - e) / (3 / 8 * v0 * b0), 0, 12, 12(b′0 - 4), 143 - 63b′0 + 9h];
-        polish = true,
-        epsilon = stopping_criterion,
+        polish=true,
+        epsilon=stopping_criterion,
     )
     solutions = _strain2volume(eos, v0, fs, e, chop, rtol)
     return sieve(solutions, bounds)
@@ -166,7 +164,7 @@ end
 function vsolve(
     eos::EnergyEquation{<:PoirierTarantola2nd},
     e;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
 )
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
@@ -183,13 +181,13 @@ end
 function vsolve(
     eos::EquationOfStateOfSolids,
     y;
-    bounds = (zero(eos.param.v0), 4 * eos.param.v0),
-    xrtol = eps(),
-    rtol = 4eps(),
+    bounds=(zero(eos.param.v0), 4 * eos.param.v0),
+    xrtol=eps(),
+    rtol=4eps(),
 )
     # Bisection method
     try
-        return find_zeros(v -> eos(v) - y, bounds; xrtol = xrtol, rtol = rtol)
+        return find_zeros(v -> eos(v) - y, bounds; xrtol=xrtol, rtol=rtol)
     catch e
         @error "cannot find solution! Come across `$e`!"
         return typeof(eos.param.v0)[]
@@ -199,22 +197,22 @@ function vsolve(
     eos::EquationOfStateOfSolids,
     y,
     vᵢ,
-    method = Order2();
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
-    maxiter = 40,
-    verbose = false,
-    xrtol = eps(),
-    rtol = 4eps(),
+    method=Order2();
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
+    maxiter=40,
+    verbose=false,
+    xrtol=eps(),
+    rtol=4eps(),
 )
     try
         vᵣ = find_zero(
             v -> eos(v) - y,
             vᵢ,
             method;
-            maxevals = maxiter,
-            verbose = verbose,
-            xrtol = xrtol,
-            rtol = rtol,
+            maxevals=maxiter,
+            verbose=verbose,
+            xrtol=xrtol,
+            rtol=rtol,
         )
         return sieve([vᵣ], bounds)
     catch e
@@ -227,7 +225,7 @@ function vsolve(
     e,
     vᵢ,
     ::Newton;
-    bounds = (zero(eos.param.v0), Inf * eos.param.v0),
+    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
     kwargs...,
 )
     try
@@ -240,20 +238,18 @@ function vsolve(
 end
 
 function _strain2volume(
-    eos::EquationOfStateOfSolids{<:BirchMurnaghan},
-    v0,
-    fs,
-    y,
-    chop = eps(),
-    rtol = sqrt(eps()),
+    eos::EquationOfStateOfSolids{<:BirchMurnaghan}, v0, fs, y, chop=eps(), rtol=sqrt(eps())
 )
     @assert !isnegative(chop) && !isnegative(rtol) "either `chop` or `rtol` is less than 0!"
-    return fs |>
-           Base.Fix1(map, FromEulerianStrain(v0)) |>
-           Base.Fix1(filter, x -> abs(imag(x)) < chop * oneunit(imag(x))) .|>  # If `x` has unit
-           real |>
-           Base.Fix1(filter, x -> isapprox(eos(x), y; rtol = rtol)) |>  # In case of duplicate values
-           unique
+    return unique(
+        Base.Fix1(filter, x -> isapprox(eos(x), y; rtol=rtol))(
+            real.(
+                Base.Fix1(filter, x -> abs(imag(x)) < chop * oneunit(imag(x)))(
+                    Base.Fix1(map, FromEulerianStrain(v0))(fs)
+                )
+            ),
+        ),
+    )
 end
 
 function sieve(solutions, bounds)
