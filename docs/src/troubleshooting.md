@@ -14,7 +14,7 @@ _If you have additional tips, please either
 
 Make sure you have Julia installed in your environment. Please download the latest
 [stable version](https://julialang.org/downloads/#current_stable_release) for your platform.
-If you are using a *nix system, the recommended way is to use
+If you are using a \*nix system, the recommended way is to use
 [`juliaup`](https://github.com/JuliaLang/juliaup). If you do not want to install `juliaup`
 or you are using other platforms that Julia supports, download the corresponding binaries.
 Then, create a symbolic link to the Julia executable. If the path is not in your `$PATH`

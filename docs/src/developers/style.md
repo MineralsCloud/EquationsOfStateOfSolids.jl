@@ -21,11 +21,11 @@ before contributing to this package.
 If not following, your pull requests may not be accepted.
 
 !!! info
-    The style guide is always a work in progress, and not all EquationsOfStateOfSolids code
-    follows the rules. When modifying EquationsOfStateOfSolids, please fix the style violations
-    of the surrounding code (i.e., leave the code tidier than when you
-    started). If large changes are needed, consider separating them into
-    another pull request.
+The style guide is always a work in progress, and not all EquationsOfStateOfSolids code
+follows the rules. When modifying EquationsOfStateOfSolids, please fix the style violations
+of the surrounding code (i.e., leave the code tidier than when you
+started). If large changes are needed, consider separating them into
+another pull request.
 
 ### [Run `JuliaFormatter`](@id formatter)
 
@@ -46,8 +46,8 @@ format("test")
 ```
 
 !!! info
-    A continuous integration check verifies that all PRs made to `EquationsOfStateOfSolids` have
-    passed the formatter.
+A continuous integration check verifies that all PRs made to `EquationsOfStateOfSolids` have
+passed the formatter.
 
 The following sections outline extra style guide points that are not fixed
 automatically by `JuliaFormatter`.

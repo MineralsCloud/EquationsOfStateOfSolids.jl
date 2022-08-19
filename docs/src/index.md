@@ -37,7 +37,7 @@ which are also referenced from Ref. 1.
 
 - Calculate the energy, pressure, and bulk modulus of an `EquationOfStateOfSolid` on a
   volume (an array of volumes).
-- Fit an `EquationOfStateOfSolid` on a series of ``E(V)`` data using the least-squares fitting
+- Fit an `EquationOfStateOfSolid` on a series of `E(V)` data using the least-squares fitting
   method or a linear fitting method.
 - Find the corresponding volume of energy, or pressure, given an `EquationOfStateOfSolid`.
 - Handle unit conversion automatically in the above features.
