@@ -191,7 +191,7 @@ function (::AnalyticalSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (::AnalyticalSolver)(y; xrtol=eps(), rtol=4eps())
+function (::NumericalSolver)(y; xrtol=eps(), rtol=4eps())
     # Bisection method
     try
         return find_zeros(v -> eos(v) - y, bounds; xrtol=xrtol, rtol=rtol)
