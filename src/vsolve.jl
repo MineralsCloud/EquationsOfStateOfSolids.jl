@@ -3,39 +3,49 @@ using Roots: Order2, Newton, newton, find_zeros, find_zero
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
-export solve
-
-struct SolveVolumeProblem{E<:EquationOfStateOfSolids,T,V}
+abstract type VolumeSolver end
+struct AnalyticalVolumeSolver{E<:EquationOfStateOfSolids,V} <: VolumeSolver
     eos::E
-    y::T
     bounds::NTuple{2,V}
 end
-function SolveVolumeProblem(eos, y, bounds=(zero(eos.param.v0), Inf * eos.param.v0))
-    return SolveVolumeProblem(eos, y, bounds)
+function AnalyticalVolumeSolver(eos, bounds=(0, Inf) .* eos.param.v0)
+    return AnalyticalVolumeSolver(eos, extrema(bounds))
 end
-function EnergyProblem(
-    params::Parameters, energy, bounds=(zero(params.v0), Inf * params.v0)
-)
-    return SolveVolumeProblem(EnergyEquation(params), energy, bounds)
+function EnergySolver(params::Parameters, bounds=(0, Inf) .* params.v0)
+    return AnalyticalVolumeSolver(EnergyEquation(params), bounds)
 end
-function PressureProblem(
-    params::Parameters, pressure, bounds=(zero(params.v0), Inf * params.v0)
-)
-    return SolveVolumeProblem(PressureEquation(params), pressure, bounds)
+function PressureSolver(params::Parameters, bounds=(0, Inf) .* params.v0)
+    return AnalyticalVolumeSolver(PressureEquation(params), bounds)
 end
-function BulkModulusProblem(
-    params::Parameters, bulkmodulus, bounds=(zero(params.v0), Inf * params.v0)
-)
-    return SolveVolumeProblem(BulkModulusEquation(params), bulkmodulus, bounds)
+function BulkModulusSolver(params::Parameters, bounds=(0, Inf) .* params.v0)
+    return AnalyticalVolumeSolver(BulkModulusEquation(params), bounds)
 end
 
-function solve(problem::SolveVolumeProblem{<:PressureEquation{<:Murnaghan1st}})
-    eos, p, bounds = problem.eos, problem.y, problem.bounds
+struct NumericalVolumeSolver{E<:EquationOfStateOfSolids,M,V} <: VolumeSolver
+    eos::E
+    method::M
+    bounds::NTuple{2,V}
+end
+function NumericalVolumeSolver(eos, method, bounds=(0, Inf) .* eos.param.v0)
+    return NumericalVolumeSolver(eos, method, extrema(bounds))
+end
+function EnergySolver(params::Parameters, method, bounds=(0, Inf) .* params.v0)
+    return NumericalVolumeSolver(EnergyEquation(params), method, bounds)
+end
+function PressureSolver(params::Parameters, method, bounds=(0, Inf) .* params.v0)
+    return NumericalVolumeSolver(PressureEquation(params), method, bounds)
+end
+function BulkModulusSolver(params::Parameters, method, bounds=(0, Inf) .* params.v0)
+    return NumericalVolumeSolver(BulkModulusEquation(params), method, bounds)
+end
+
+function (::AnalyticalVolumeSolver{<:PressureEquation{<:Murnaghan1st}})(p)
+    eos, bounds = problem.eos, problem.bounds
     @unpack v0, b0, b′0 = getparam(eos)
     solution = [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
     return sieve(solution, bounds)
 end
-function solve(problem::SolveVolumeProblem{<:PressureEquation{<:Murnaghan2nd}})
+function (::AnalyticalVolumeSolver{<:PressureEquation{<:Murnaghan2nd}})(p)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
@@ -44,7 +54,7 @@ function solve(problem::SolveVolumeProblem{<:PressureEquation{<:Murnaghan2nd}})
     solution = [numerator / denominator]
     return sieve(solution, bounds)
 end
-function solve(problem::SolveVolumeProblem{<:EnergyEquation{<:BirchMurnaghan2nd}})
+function (::AnalyticalVolumeSolver{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -57,8 +67,8 @@ function solve(problem::SolveVolumeProblem{<:EnergyEquation{<:BirchMurnaghan2nd}
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function solve(
-    problem::SolveVolumeProblem{<:PressureEquation{<:BirchMurnaghan2nd}};
+function (::AnalyticalVolumeSolver{<:PressureEquation{<:BirchMurnaghan2nd}})(
+    p;
     stopping_criterion=1e-20,  # Unitless
     chop=eps(),
     rtol=sqrt(eps()),
@@ -71,8 +81,9 @@ function solve(
     solutions = _strain2volume(eos, v0, fs, p, chop, rtol)
     return sieve(solutions, bounds)
 end
-function solve(
-    problem::SolveVolumeProblem{<:BulkModulusEquation{<:BirchMurnaghan2nd}};
+function (
+    ::AnalyticalVolumeSolver{<:BulkModulusEquation{<:BirchMurnaghan2nd}},
+    b;
     stopping_criterion=1e-20,  # Unitless
     chop=eps(),
     rtol=sqrt(eps()),
@@ -87,8 +98,9 @@ function solve(
     solutions = _strain2volume(eos, v0, fs, b, chop, rtol)
     return sieve(solutions, bounds)
 end
-function solve(
-    problem::SolveVolumeProblem{<:EnergyEquation{<:BirchMurnaghan3rd}},
+function (
+    ::AnalyticalVolumeSolver{<:EnergyEquation{<:BirchMurnaghan3rd}},
+    e;
     chop=eps(),
     rtol=sqrt(eps()),
 )
@@ -121,8 +133,9 @@ function solve(
         return sieve(solutions, bounds)
     end
 end
-function solve(
-    problem::SolveVolumeProblem{<:PressureEquation{<:BirchMurnaghan3rd}};
+function (
+    ::AnalyticalVolumeSolver{<:PressureEquation{<:BirchMurnaghan3rd}},
+    p;
     stopping_criterion=1e-20,  # Unitless
     chop=eps(),
     rtol=sqrt(eps()),
@@ -148,8 +161,9 @@ function solve(
     solutions = _strain2volume(eos, v0, fs, p, chop, rtol)
     return sieve(solutions, bounds)
 end
-function solve(
-    problem::SolveVolumeProblem{<:EnergyEquation{<:BirchMurnaghan4th}},
+function (
+    ::AnalyticalVolumeSolver{<:EnergyEquation{<:BirchMurnaghan4th}},
+    e;
     stopping_criterion=1e-20,  # Unitless
     chop=eps(),
     rtol=sqrt(eps()),
@@ -164,7 +178,7 @@ function solve(
     solutions = _strain2volume(eos, v0, fs, e, chop, rtol)
     return sieve(solutions, bounds)
 end
-function solve(problem::SolveVolumeProblem{<:EnergyEquation{<:PoirierTarantola2nd}})
+function (::AnalyticalVolumeSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -177,13 +191,7 @@ function solve(problem::SolveVolumeProblem{<:EnergyEquation{<:PoirierTarantola2n
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function solve(
-    eos::EquationOfStateOfSolids,
-    y;
-    bounds=(zero(eos.param.v0), 4 * eos.param.v0),
-    xrtol=eps(),
-    rtol=4eps(),
-)
+function (::AnalyticalVolumeSolver)(y; xrtol=eps(), rtol=4eps())
     # Bisection method
     try
         return find_zeros(v -> eos(v) - y, bounds; xrtol=xrtol, rtol=rtol)
@@ -192,17 +200,9 @@ function solve(
         return typeof(eos.param.v0)[]
     end
 end
-function solve(
-    eos::EquationOfStateOfSolids,
-    y,
-    vᵢ,
-    method=Order2();
-    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
-    maxiter=40,
-    verbose=false,
-    xrtol=eps(),
-    rtol=4eps(),
-)
+function (::NumericalVolumeSolver{E,Order2})(
+    y, vᵢ; maxiter=40, verbose=false, xrtol=eps(), rtol=4eps()
+) where {E}
     try
         vᵣ = find_zero(
             v -> eos(v) - y,
@@ -219,14 +219,7 @@ function solve(
         return typeof(vᵢ)[]
     end
 end
-function solve(
-    eos::EnergyEquation,
-    e,
-    vᵢ,
-    ::Newton;
-    bounds=(zero(eos.param.v0), Inf * eos.param.v0),
-    kwargs...,
-)
+function (::NumericalVolumeSolver{E,Newton})(e, vᵢ; kwargs...) where {E}
     try
         vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
         return sieve([vᵣ], bounds)
