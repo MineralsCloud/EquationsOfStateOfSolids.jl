@@ -1,5 +1,12 @@
 using PolynomialRoots: roots
-using Roots: Order2, Newton, Halley, find_zeros, find_zero
+using Roots:
+    Order2,
+    AbstractNewtonLikeMethod,
+    AbstractHalleyLikeMethod,
+    AbstractSecantMethod,
+    LithBoonkkampIJzerman,
+    find_zeros,
+    find_zero
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
@@ -200,18 +207,16 @@ function (::NumericalSolver)(y; xrtol=eps(), rtol=4eps())
         return typeof(eos.param.v0)[]
     end
 end
-function (::NumericalSolver{E,Order2})(
-    y, vᵢ; maxiter=40, verbose=false, xrtol=eps(), rtol=4eps()
-) where {E}
+function (
+    ::NumericalSolver{
+        <:EnergyEquation,<:Union{AbstractNewtonLikeMethod,LithBoonkkampIJzerman{1,1}}
+    }
+)(
+    e, vᵢ; kwargs...
+)  # Newton's method
     try
         vᵣ = find_zero(
-            v -> eos(v) - y,
-            vᵢ,
-            method;
-            maxevals=maxiter,
-            verbose=verbose,
-            xrtol=xrtol,
-            rtol=rtol,
+            (v -> eos(v) - e, v -> -PressureEquation(eos)(v)), vᵢ, method; kwargs...
         )
         return sieve([vᵣ], bounds)
     catch e
@@ -219,18 +224,13 @@ function (::NumericalSolver{E,Order2})(
         return typeof(vᵢ)[]
     end
 end
-function (::NumericalSolver{<:EnergyEquation,Newton})(e, vᵢ; kwargs...)
-    try
-        vᵣ = find_zero(
-            (v -> eos(v) - e, v -> -PressureEquation(eos)(v)), vᵢ, Newton(); kwargs...
-        )
-        return sieve([vᵣ], bounds)
-    catch e
-        @error "cannot find solution! Come across `$e`!"
-        return typeof(vᵢ)[]
-    end
-end
-function (::NumericalSolver{<:EnergyEquation,Halley})(e, vᵢ; kwargs...)
+function (
+    ::NumericalSolver{
+        <:EnergyEquation,<:Union{AbstractHalleyLikeMethod,LithBoonkkampIJzerman{1,2}}
+    }
+)(
+    e, vᵢ; kwargs...
+)  # Halley-like method
     try
         vᵣ = find_zero(
             (
@@ -239,9 +239,24 @@ function (::NumericalSolver{<:EnergyEquation,Halley})(e, vᵢ; kwargs...)
                 v -> BulkModulusEquation(eos)(v) / v,  # f″
             ),
             vᵢ,
-            Halley();
+            method;
             kwargs...,
         )
+        return sieve([vᵣ], bounds)
+    catch e
+        @error "cannot find solution! Come across `$e`!"
+        return typeof(vᵢ)[]
+    end
+end
+function (
+    ::NumericalSolver{
+        <:EnergyEquation,<:Union{AbstractSecantMethod,LithBoonkkampIJzerman{2,0}}
+    }
+)(
+    e, vᵢ; kwargs...
+)  # The secant method
+    try
+        vᵣ = find_zero(v -> eos(v) - e, vᵢ, method; kwargs...)
         return sieve([vᵣ], bounds)
     catch e
         @error "cannot find solution! Come across `$e`!"
