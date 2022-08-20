@@ -1,5 +1,5 @@
 using PolynomialRoots: roots
-using Roots: Order2, Newton, newton, find_zeros, find_zero
+using Roots: Order2, Newton, Halley, find_zeros, find_zero
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
@@ -223,6 +223,24 @@ function (::NumericalSolver{<:EnergyEquation,Newton})(e, vᵢ; kwargs...)
     try
         vᵣ = find_zero(
             (v -> eos(v) - e, v -> -PressureEquation(eos)(v)), vᵢ, Newton(); kwargs...
+        )
+        return sieve([vᵣ], bounds)
+    catch e
+        @error "cannot find solution! Come across `$e`!"
+        return typeof(vᵢ)[]
+    end
+end
+function (::NumericalSolver{<:EnergyEquation,Halley})(e, vᵢ; kwargs...)
+    try
+        vᵣ = find_zero(
+            (
+                v -> eos(v) - e,  # f
+                v -> -PressureEquation(eos)(v),  # f′
+                v -> BulkModulusEquation(eos)(v) / v,  # f″
+            ),
+            vᵢ,
+            Halley();
+            kwargs...,
         )
         return sieve([vᵣ], bounds)
     catch e
