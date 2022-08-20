@@ -347,7 +347,7 @@ Construct an equation of state which evaluates the energy of the given `paramete
 struct EnergyEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
-EnergyEquation(eos::EquationOfStateOfSolids) = EnergyEquation(getparam(eos))
+EnergyEquation(eos::EquationOfStateOfSolids) = EnergyEquation(eos.param)
 """
     PressureEquation{T} <: EquationOfStateOfSolids{T}
     PressureEquation(parameters::Parameters)
@@ -357,7 +357,7 @@ Construct an equation of state which evaluates the pressure of the given `parame
 struct PressureEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
-PressureEquation(eos::EquationOfStateOfSolids) = PressureEquation(getparam(eos))
+PressureEquation(eos::EquationOfStateOfSolids) = PressureEquation(eos.param)
 """
     BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     BulkModulusEquation(parameters::Parameters)
@@ -367,7 +367,7 @@ Construct an equation of state which evaluates the bulk modulus of the given `pa
 struct BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
-BulkModulusEquation(eos::EquationOfStateOfSolids) = BulkModulusEquation(getparam(eos))
+BulkModulusEquation(eos::EquationOfStateOfSolids) = BulkModulusEquation(eos.param)
 
 function Base.getproperty(eos::EquationOfStateOfSolids, name::Symbol)
     if name in (:v0, :b0, :b′0, :b″0, :e0)

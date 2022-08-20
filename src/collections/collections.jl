@@ -44,7 +44,7 @@ function Base.show(io::IO, params::Parameters)  # See https://github.com/mauro3/
     end
 end
 function Base.show(io::IO, eos::EquationOfStateOfSolids)
-    params = getparam(eos)
+    params = eos.param
     if get(io, :compact, false) || get(io, :typeinfo, nothing) == typeof(eos)
         print(io, typeof(eos), "(  ")
         for f in propertynames(params)
