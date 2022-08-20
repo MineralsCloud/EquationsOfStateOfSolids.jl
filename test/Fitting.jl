@@ -14,8 +14,7 @@ using EquationsOfStateOfSolids:
     BirchMurnaghan4th,
     PoirierTarantola3rd,
     Vinet,
-    EnergyEquation,
-    getparam
+    EnergyEquation
 using EquationsOfStateOfSolids.Fitting: nonlinfit, linfit
 
 using Unitful: Unitful
@@ -33,6 +32,8 @@ function _isapprox(a::T, b::T; kwargs...) where {T<:Parameters}
     end
     return isapprox(x, y; kwargs...)
 end
+
+getparam(eos) = eos.param
 
 # Data from https://github.com/materialsproject/pymatgen/blob/19c4d98/pymatgen/analysis/tests/test_eos.py#L17-L73
 @testset "Test data from Pymatgen" begin
