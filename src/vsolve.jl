@@ -4,48 +4,48 @@ using Roots: Order2, Newton, newton, find_zeros, find_zero
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
 abstract type VolumeSolver end
-struct AnalyticalVolumeSolver{E<:EquationOfStateOfSolids,V} <: VolumeSolver
+struct AnalyticalSolver{E<:EquationOfStateOfSolids,V} <: VolumeSolver
     eos::E
     bounds::NTuple{2,V}
 end
-function AnalyticalVolumeSolver(eos, bounds=(0, Inf) .* eos.param.v0)
-    return AnalyticalVolumeSolver(eos, extrema(bounds))
+function AnalyticalSolver(eos, bounds=(0, Inf) .* eos.param.v0)
+    return AnalyticalSolver(eos, extrema(bounds))
 end
 function EnergySolver(params::Parameters, bounds=(0, Inf) .* params.v0)
-    return AnalyticalVolumeSolver(EnergyEquation(params), bounds)
+    return AnalyticalSolver(EnergyEquation(params), bounds)
 end
 function PressureSolver(params::Parameters, bounds=(0, Inf) .* params.v0)
-    return AnalyticalVolumeSolver(PressureEquation(params), bounds)
+    return AnalyticalSolver(PressureEquation(params), bounds)
 end
 function BulkModulusSolver(params::Parameters, bounds=(0, Inf) .* params.v0)
-    return AnalyticalVolumeSolver(BulkModulusEquation(params), bounds)
+    return AnalyticalSolver(BulkModulusEquation(params), bounds)
 end
 
-struct NumericalVolumeSolver{E<:EquationOfStateOfSolids,M,V} <: VolumeSolver
+struct NumericalSolver{E<:EquationOfStateOfSolids,M,V} <: VolumeSolver
     eos::E
     method::M
     bounds::NTuple{2,V}
 end
-function NumericalVolumeSolver(eos, method, bounds=(0, Inf) .* eos.param.v0)
-    return NumericalVolumeSolver(eos, method, extrema(bounds))
+function NumericalSolver(eos, method, bounds=(0, Inf) .* eos.param.v0)
+    return NumericalSolver(eos, method, extrema(bounds))
 end
 function EnergySolver(params::Parameters, method, bounds=(0, Inf) .* params.v0)
-    return NumericalVolumeSolver(EnergyEquation(params), method, bounds)
+    return NumericalSolver(EnergyEquation(params), method, bounds)
 end
 function PressureSolver(params::Parameters, method, bounds=(0, Inf) .* params.v0)
-    return NumericalVolumeSolver(PressureEquation(params), method, bounds)
+    return NumericalSolver(PressureEquation(params), method, bounds)
 end
 function BulkModulusSolver(params::Parameters, method, bounds=(0, Inf) .* params.v0)
-    return NumericalVolumeSolver(BulkModulusEquation(params), method, bounds)
+    return NumericalSolver(BulkModulusEquation(params), method, bounds)
 end
 
-function (::AnalyticalVolumeSolver{<:PressureEquation{<:Murnaghan1st}})(p)
+function (::AnalyticalSolver{<:PressureEquation{<:Murnaghan1st}})(p)
     eos, bounds = problem.eos, problem.bounds
     @unpack v0, b0, b′0 = getparam(eos)
     solution = [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
     return sieve(solution, bounds)
 end
-function (::AnalyticalVolumeSolver{<:PressureEquation{<:Murnaghan2nd}})(p)
+function (::AnalyticalSolver{<:PressureEquation{<:Murnaghan2nd}})(p)
     @unpack v0, b0, b′0, b″0 = getparam(eos)
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
@@ -54,7 +54,7 @@ function (::AnalyticalVolumeSolver{<:PressureEquation{<:Murnaghan2nd}})(p)
     solution = [numerator / denominator]
     return sieve(solution, bounds)
 end
-function (::AnalyticalVolumeSolver{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
+function (::AnalyticalSolver{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -67,7 +67,7 @@ function (::AnalyticalVolumeSolver{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (::AnalyticalVolumeSolver{<:PressureEquation{<:BirchMurnaghan2nd}})(
+function (::AnalyticalSolver{<:PressureEquation{<:BirchMurnaghan2nd}})(
     p;
     stopping_criterion=1e-20,  # Unitless
     chop=eps(),
@@ -82,7 +82,7 @@ function (::AnalyticalVolumeSolver{<:PressureEquation{<:BirchMurnaghan2nd}})(
     return sieve(solutions, bounds)
 end
 function (
-    ::AnalyticalVolumeSolver{<:BulkModulusEquation{<:BirchMurnaghan2nd}},
+    ::AnalyticalSolver{<:BulkModulusEquation{<:BirchMurnaghan2nd}},
     b;
     stopping_criterion=1e-20,  # Unitless
     chop=eps(),
@@ -99,7 +99,7 @@ function (
     return sieve(solutions, bounds)
 end
 function (
-    ::AnalyticalVolumeSolver{<:EnergyEquation{<:BirchMurnaghan3rd}},
+    ::AnalyticalSolver{<:EnergyEquation{<:BirchMurnaghan3rd}},
     e;
     chop=eps(),
     rtol=sqrt(eps()),
@@ -134,7 +134,7 @@ function (
     end
 end
 function (
-    ::AnalyticalVolumeSolver{<:PressureEquation{<:BirchMurnaghan3rd}},
+    ::AnalyticalSolver{<:PressureEquation{<:BirchMurnaghan3rd}},
     p;
     stopping_criterion=1e-20,  # Unitless
     chop=eps(),
@@ -162,7 +162,7 @@ function (
     return sieve(solutions, bounds)
 end
 function (
-    ::AnalyticalVolumeSolver{<:EnergyEquation{<:BirchMurnaghan4th}},
+    ::AnalyticalSolver{<:EnergyEquation{<:BirchMurnaghan4th}},
     e;
     stopping_criterion=1e-20,  # Unitless
     chop=eps(),
@@ -178,7 +178,7 @@ function (
     solutions = _strain2volume(eos, v0, fs, e, chop, rtol)
     return sieve(solutions, bounds)
 end
-function (::AnalyticalVolumeSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
+function (::AnalyticalSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     @unpack v0, b0, e0 = getparam(eos)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
@@ -191,7 +191,7 @@ function (::AnalyticalVolumeSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (::AnalyticalVolumeSolver)(y; xrtol=eps(), rtol=4eps())
+function (::AnalyticalSolver)(y; xrtol=eps(), rtol=4eps())
     # Bisection method
     try
         return find_zeros(v -> eos(v) - y, bounds; xrtol=xrtol, rtol=rtol)
@@ -200,7 +200,7 @@ function (::AnalyticalVolumeSolver)(y; xrtol=eps(), rtol=4eps())
         return typeof(eos.param.v0)[]
     end
 end
-function (::NumericalVolumeSolver{E,Order2})(
+function (::NumericalSolver{E,Order2})(
     y, vᵢ; maxiter=40, verbose=false, xrtol=eps(), rtol=4eps()
 ) where {E}
     try
@@ -219,7 +219,7 @@ function (::NumericalVolumeSolver{E,Order2})(
         return typeof(vᵢ)[]
     end
 end
-function (::NumericalVolumeSolver{E,Newton})(e, vᵢ; kwargs...) where {E}
+function (::NumericalSolver{E,Newton})(e, vᵢ; kwargs...) where {E}
     try
         vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
         return sieve([vᵣ], bounds)
