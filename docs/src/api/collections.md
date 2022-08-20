@@ -246,7 +246,6 @@ Vinet
 EnergyEquation
 PressureEquation
 BulkModulusEquation
-getparam
 orderof
 real
 isreal

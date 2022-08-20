@@ -41,12 +41,12 @@ end
 
 function (::AnalyticalSolver{<:PressureEquation{<:Murnaghan1st}})(p)
     eos, bounds = problem.eos, problem.bounds
-    @unpack v0, b0, b′0 = getparam(eos)
+    @unpack v0, b0, b′0 = eos
     solution = [v0 * (1 + b′0 / b0 * p)^(-1 / b′0)]
     return sieve(solution, bounds)
 end
 function (::AnalyticalSolver{<:PressureEquation{<:Murnaghan2nd}})(p)
-    @unpack v0, b0, b′0, b″0 = getparam(eos)
+    @unpack v0, b0, b′0, b″0 = eos
     h = sqrt(2b0 * b″0 - b′0^2)
     k = b″0 * p + b′0
     numerator = exp(-2 / h * atan(p * h / (2b0 + p * b′0))) * v0
@@ -55,7 +55,7 @@ function (::AnalyticalSolver{<:PressureEquation{<:Murnaghan2nd}})(p)
     return sieve(solution, bounds)
 end
 function (::AnalyticalSolver{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
-    @unpack v0, b0, e0 = getparam(eos)
+    @unpack v0, b0, e0 = eos
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -73,7 +73,7 @@ function (::AnalyticalSolver{<:PressureEquation{<:BirchMurnaghan2nd}})(
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v0, b0 = getparam(eos)
+    @unpack v0, b0 = eos
     # Solve f for (3 B0 f (2f + 1))^2 == p^2
     fs = roots(
         [-(p / 3b0)^2, 0, 1, 10, 40, 80, 80, 32]; polish=true, epsilon=stopping_criterion
@@ -88,7 +88,7 @@ function (
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v0, b0 = getparam(eos)
+    @unpack v0, b0 = eos
     # Solve f for ((7f + 1) * (2f + 1)^(5/2))^2 == (b/b0)^2
     fs = roots(
         [1 - (b / b0)^2, 24, 229, 1130, 3160, 5072, 4368, 1568];
@@ -104,7 +104,7 @@ function (
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v0, b0, b′0, e0 = getparam(eos)
+    @unpack v0, b0, b′0, e0 = eos
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′0 == 4
         @warn "`b′0 == 4` for a `BirchMurnaghan3rd` is just a `BirchMurnaghan2nd`!"
@@ -140,7 +140,7 @@ function (
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v0, b0, b′0 = getparam(eos)
+    @unpack v0, b0, b′0 = eos
     # Solve f for (f (2f + 1)^(5/2) [2 + 3f (b′0 - 4)])^2 - (p / (3b0/2))^2 = 0
     fs = roots(
         [
@@ -168,7 +168,7 @@ function (
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v0, b0, b′0, b″0, e0 = getparam(eos)
+    @unpack v0, b0, b′0, b″0, e0 = eos
     h = b0 * b″0 + b′0^2
     fs = roots(
         [(e0 - e) / (3 / 8 * v0 * b0), 0, 12, 12(b′0 - 4), 143 - 63b′0 + 9h];
@@ -179,7 +179,7 @@ function (
     return sieve(solutions, bounds)
 end
 function (::AnalyticalSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
-    @unpack v0, b0, e0 = getparam(eos)
+    @unpack v0, b0, e0 = eos
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)

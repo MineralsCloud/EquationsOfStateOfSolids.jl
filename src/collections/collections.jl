@@ -6,7 +6,7 @@ using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, Natural
 import Unitful: ustrip
 import .FiniteStrains: straintype
 
-export getparam, orderof
+export orderof
 
 include("types.jl")
 include("ev.jl")
@@ -44,7 +44,7 @@ function Base.show(io::IO, params::Parameters)  # See https://github.com/mauro3/
     end
 end
 function Base.show(io::IO, eos::EquationOfStateOfSolids)
-    params = getparam(eos)
+    params = eos.param
     if get(io, :compact, false) || get(io, :typeinfo, nothing) == typeof(eos)
         print(io, typeof(eos), "(  ")
         for f in propertynames(params)
@@ -59,13 +59,6 @@ function Base.show(io::IO, eos::EquationOfStateOfSolids)
         end
     end
 end
-
-"""
-    getparam(eos::EquationOfStateOfSolids)
-
-Get the `Parameters` from an `EquationOfStateOfSolids`.
-"""
-getparam(eos::EquationOfStateOfSolids) = eos.param
 
 straintype(::Type{<:BirchMurnaghan}) = EulerianStrain
 straintype(::Type{<:PoirierTarantola}) = NaturalStrain
