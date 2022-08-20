@@ -368,3 +368,11 @@ struct BulkModulusEquation{T} <: EquationOfStateOfSolids{T}
     param::T
 end
 BulkModulusEquation(eos::EquationOfStateOfSolids) = BulkModulusEquation(getparam(eos))
+
+function Base.getproperty(eos::EquationOfStateOfSolids, name::Symbol)
+    if name in (:v0, :b0, :b′0, :b″0, :e0)
+        return getfield(eos.param, name)
+    else  # fallback to getfield
+        return getfield(eos, name)
+    end
+end
