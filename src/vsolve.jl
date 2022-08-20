@@ -1,5 +1,5 @@
 using PolynomialRoots: roots
-using Roots: Order2, Newton, newton, find_zeros, find_zero
+using Roots: Order2, Newton, Halley, find_zeros, find_zero
 
 using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
 
@@ -191,7 +191,7 @@ function (::AnalyticalSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
         @assert false "Δ == (e - e0) / v0 / b0 == $Δ. this should never happen!"
     end
 end
-function (::AnalyticalSolver)(y; xrtol=eps(), rtol=4eps())
+function (::NumericalSolver)(y; xrtol=eps(), rtol=4eps())
     # Bisection method
     try
         return find_zeros(v -> eos(v) - y, bounds; xrtol=xrtol, rtol=rtol)
@@ -219,9 +219,29 @@ function (::NumericalSolver{E,Order2})(
         return typeof(vᵢ)[]
     end
 end
-function (::NumericalSolver{E,Newton})(e, vᵢ; kwargs...) where {E}
+function (::NumericalSolver{<:EnergyEquation,Newton})(e, vᵢ; kwargs...)
     try
-        vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
+        vᵣ = find_zero(
+            (v -> eos(v) - e, v -> -PressureEquation(eos)(v)), vᵢ, Newton(); kwargs...
+        )
+        return sieve([vᵣ], bounds)
+    catch e
+        @error "cannot find solution! Come across `$e`!"
+        return typeof(vᵢ)[]
+    end
+end
+function (::NumericalSolver{<:EnergyEquation,Halley})(e, vᵢ; kwargs...)
+    try
+        vᵣ = find_zero(
+            (
+                v -> eos(v) - e,  # f
+                v -> -PressureEquation(eos)(v),  # f′
+                v -> BulkModulusEquation(eos)(v) / v,  # f″
+            ),
+            vᵢ,
+            Halley();
+            kwargs...,
+        )
         return sieve([vᵣ], bounds)
     catch e
         @error "cannot find solution! Come across `$e`!"
