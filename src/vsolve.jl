@@ -219,9 +219,11 @@ function (::NumericalSolver{E,Order2})(
         return typeof(vᵢ)[]
     end
 end
-function (::NumericalSolver{E,Newton})(e, vᵢ; kwargs...) where {E}
+function (::NumericalSolver{<:EnergyEquation,Newton})(e, vᵢ; kwargs...)
     try
-        vᵣ = newton(v -> eos(v) - e, v -> -PressureEquation(eos)(v), vᵢ; kwargs...)
+        vᵣ = find_zero(
+            (v -> eos(v) - e, v -> -PressureEquation(eos)(v)), vᵢ, Newton(); kwargs...
+        )
         return sieve([vᵣ], bounds)
     catch e
         @error "cannot find solution! Come across `$e`!"
