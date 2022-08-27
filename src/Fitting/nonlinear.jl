@@ -11,7 +11,7 @@ struct NonLinearFitting <: FittingMethod end
 """
     nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...)
 
-A wrapper for `fiteos` with nonlinear fitting method.
+A wrapper for `fit` with nonlinear fitting method.
 
 # Arguments
 - `xtol::AbstractFloat=1e-16`: .
@@ -22,13 +22,11 @@ A wrapper for `fiteos` with nonlinear fitting method.
 - `verbose::Bool=false`: .
 """
 function nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...)
-    return EnergyEquation(
-        fiteos(volumes, energies, eos.param, NonLinearFitting(); kwargs...)
-    )
+    return EnergyEquation(fit(volumes, energies, eos.param, NonLinearFitting(); kwargs...))
 end
 
 """
-    fiteos(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
+    fit(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
 
 Fit an equation of state ``E(V)`` using nonlinear algorithms.
 
@@ -40,7 +38,7 @@ Fit an equation of state ``E(V)`` using nonlinear algorithms.
 - `good_step_quality::AbstractFloat=0.75`: .
 - `verbose::Bool=false`: .
 """
-function fiteos(
+function fit(
     volumes,
     energies,
     initial_params::T,

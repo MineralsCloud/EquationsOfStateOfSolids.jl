@@ -5,7 +5,7 @@ using Unitful: ustrip, unit
 
 using ..EquationsOfStateOfSolids: EnergyEquation
 
-export fiteos
+export fit
 
 # See https://github.com/JuliaMath/Roots.jl/blob/bf0da62/src/utils.jl#L9-L11
 struct ConvergenceFailed

@@ -1,5 +1,5 @@
 using PolynomialRoots: roots
-using Polynomials: fit, derivative, coeffs
+using Polynomials: fit as polyfit, derivative, coeffs
 
 using ..EquationsOfStateOfSolids: FiniteStrainParameters, orderof
 using ..FiniteStrains: FiniteStrain, VolumeTo, VolumeFrom, Dⁿᵥf, straintype
@@ -15,7 +15,7 @@ end
 """
     linfit(eos::EnergyEquation, volumes, energies; kwargs...)
 
-A wrapper for `fiteos` with linear fitting method.
+A wrapper for `fit` with linear fitting method.
 
 # Arguments
 - `maxiter::Integer=1000`: .
@@ -24,11 +24,11 @@ A wrapper for `fiteos` with linear fitting method.
 - `verbose::Bool=false`: .
 """
 function linfit(eos::EnergyEquation, volumes, energies; kwargs...)
-    return EnergyEquation(fiteos(volumes, energies, eos.param, LinearFitting(); kwargs...))
+    return EnergyEquation(fit(volumes, energies, eos.param, LinearFitting(); kwargs...))
 end
 
 """
-    fiteos(volumes, energies, initial_params::FiniteStrainParameters, LinearFitting(); kwargs...)
+    fit(volumes, energies, initial_params::FiniteStrainParameters, LinearFitting(); kwargs...)
 
 Fit an equation of state ``E(V)`` using linear algorithms.
 
@@ -43,7 +43,7 @@ Fit an equation of state ``E(V)`` using linear algorithms.
     [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using GenericSVD`
     before fittting!
 """
-function fiteos(
+function fit(
     volumes,
     energies,
     initial_params::FiniteStrainParameters,
@@ -64,7 +64,7 @@ function fiteos(
         if !(isreal(strains) && isreal(energies))
             throw(DomainError("the strains or the energies are complex!"))
         end
-        poly = fit(real(strains), real(energies), deg)
+        poly = polyfit(real(strains), real(energies), deg)
         f0, e0 = min_of_min(poly, root_thr)
         v0_prev, v0 = v0, VolumeFrom{S}(v0)(f0)  # Record v0 to v0_prev, then update v0
         if abs((v0_prev - v0) / v0_prev) <= conv_thr
