@@ -6,7 +6,8 @@ DocMeta.setdocmeta!(
     :DocTestSetup,
     quote
         using EquationsOfStateOfSolids, EquationsOfStateOfSolids.Fitting
-        using EquationsOfStateOfSolids.FiniteStrains: ToEulerianStrain, FromEulerianStrain
+        using EquationsOfStateOfSolids.FiniteStrains:
+            EulerianStrainFromVolume, VolumeFromEulerianStrain
         using Unitful, UnitfulAtomic
     end;
     recursive=true,
