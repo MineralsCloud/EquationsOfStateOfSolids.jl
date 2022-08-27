@@ -224,7 +224,7 @@ version = "4.0.0"
 
 [[deps.EquationsOfStateOfSolids]]
 deps = ["ConstructionBase", "EquationsOfState", "Functors", "LsqFit", "PolynomialRoots", "Polynomials", "Roots", "StructHelpers", "UnPack", "Unitful"]
-git-tree-sha1 = "3b6789728fdda545ef09184ce37e0a14521192ab"
+git-tree-sha1 = "c2b8c07828866c3dae2e8719663ca1b183f44a2f"
 repo-rev = "master"
 repo-url = "https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl"
 uuid = "1eaa2786-f833-4167-8397-974edad0881e"
