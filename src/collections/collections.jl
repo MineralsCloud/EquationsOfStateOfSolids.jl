@@ -1,7 +1,8 @@
 using Functors: fmap
 using UnPack: @unpack
 
-using .FiniteStrains: ToEulerianStrain, ToNaturalStrain, EulerianStrain, NaturalStrain
+using .FiniteStrains:
+    EulerianStrainFromVolume, NaturalStrainFromVolume, EulerianStrain, NaturalStrain
 
 import Unitful: ustrip
 import .FiniteStrains: straintype
