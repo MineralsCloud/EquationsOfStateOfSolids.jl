@@ -82,17 +82,16 @@ function preprocess(volumes, energies, params)  # Do not export!
     return map(collect, (float.(volumes), float.(energies), float.(params)))
 end
 
-unormalize(params::Parameters) = (getfield(params, f) for f in fieldnames(typeof(params)))
-function unormalize(params::Parameters{<:AbstractQuantity})  # Normalize units of `params`
-    up = unit(params.e0) / unit(params.v0)  # Pressure/bulk modulus unit
+function unitless(params::Parameters)  # Normalize units of `params`
+    punit = unit(params.e0) / unit(params.v0)  # Pressure/bulk modulus unit
     return Iterators.map(fieldnames(typeof(params))) do f
         x = getfield(params, f)
         if f == :b0
-            up(x)
+            x / punit
         elseif f == :b″0
-            up^(-1)(x)
+            x * punit
         elseif f == :b‴0
-            up^(-2)(x)
+            x * punit^2
         elseif f in (:v0, :b′0, :e0)
             x
         else
