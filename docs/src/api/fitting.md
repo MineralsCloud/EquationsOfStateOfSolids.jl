@@ -38,7 +38,6 @@ The linear fitting
 ```@repl
 using EquationsOfStateOfSolids
 using EquationsOfStateOfSolids.Fitting
-
 volumes = [
     25.987454833,
     26.9045702104,
@@ -99,14 +98,10 @@ energies = [
     -9.86535084973,
     -9.73155247952,
 ];
-
-nonlinfit(EnergyEquation(BirchMurnaghan3rd(40, 0.5, 4)), volumes, energies)
-
-nonlinfit(EnergyEquation(Murnaghan(41, 0.5, 4)), volumes, energies)
-
-nonlinfit(EnergyEquation(PoirierTarantola3rd(41, 0.5, 4)), volumes, energies)
-
-nonlinfit(EnergyEquation(Vinet(41, 0.5, 4)), volumes, energies)
+nonlinfit(volumes, energies, BirchMurnaghan3rd(40, 0.5, 4))
+nonlinfit(volumes, energies, Murnaghan(41, 0.5, 4))
+nonlinfit(volumes, energies, PoirierTarantola3rd(41, 0.5, 4))
+nonlinfit(volumes, energies, Vinet(41, 0.5, 4))
 ```
 
 Then 4 different equations of state will be fitted.
@@ -115,17 +110,15 @@ They just work as well with units:
 
 ```@repl
 using Unitful
-
 volumes = volumes * u"angstrom^3"
 energies = energies * u"eV"
-
-nonlinfit(EnergyEquation(BirchMurnaghan3rd(40u"angstrom^3", 1u"GPa", 4)), volumes, energies)
+nonlinfit(volumes, energies, BirchMurnaghan3rd(40u"angstrom^3", 1u"GPa", 4))
 ```
 
 ## Public interfaces
 
 ```@docs
-fiteos
+fit
 linfit
 nonlinfit
 ```

@@ -40,6 +40,6 @@ isnegative(x) = x < zero(x)  # Do not export!
 include("FiniteStrains.jl")
 include("collections/collections.jl")
 include("vsolve.jl")
-include("Fitting.jl")
+include("Fitting/Fitting.jl")
 
 end
