@@ -1,9 +1,5 @@
 ```@meta
 CurrentModule = EquationsOfStateOfSolids.FiniteStrains
-DocTestSetup = quote
-    using EquationsOfStateOfSolids.FiniteStrains: ToEulerianStrain, FromEulerianStrain
-    using Unitful: @u_str
-end
 ```
 
 # Finite strains
@@ -37,6 +33,6 @@ The following formulae are from
   ```
 
 ```@docs
-To
-From
+VolumeTo
+VolumeFrom
 ```

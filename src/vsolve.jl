@@ -8,7 +8,7 @@ using Roots:
     find_zeros,
     find_zero
 
-using .FiniteStrains: FromEulerianStrain, FromNaturalStrain
+using .FiniteStrains: VolumeFromEulerianStrain, VolumeFromNaturalStrain
 
 abstract type VolumeSolver end
 struct AnalyticalSolver{E<:EquationOfStateOfSolids,V} <: VolumeSolver
@@ -66,7 +66,7 @@ function (::AnalyticalSolver{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        solutions = map(FromEulerianStrain(v0), [f, -f])
+        solutions = map(VolumeFromEulerianStrain(v0), [f, -f])
         return sieve(solutions, bounds)
     elseif Δ < 0
         return typeof(v0)[]  # Complex strains
@@ -190,7 +190,7 @@ function (::AnalyticalSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
     Δ = (e - e0) / v0 / b0
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
-        solutions = map(FromNaturalStrain(v0), [f, -f])
+        solutions = map(VolumeFromNaturalStrain(v0), [f, -f])
         return sieve(solutions, bounds)
     elseif Δ < 0
         return typeof(v0)[]  # Complex strains
@@ -272,7 +272,7 @@ function _strain2volume(
         Base.Fix1(filter, x -> isapprox(eos(x), y; rtol=rtol))(
             real.(
                 Base.Fix1(filter, x -> abs(imag(x)) < chop * oneunit(imag(x)))(
-                    Base.Fix1(map, FromEulerianStrain(v0))(fs)
+                    Base.Fix1(map, VolumeFromEulerianStrain(v0))(fs)
                 )
             ),
         ),
