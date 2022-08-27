@@ -4,27 +4,10 @@ using Polynomials: fit as polyfit, derivative, coeffs
 using ..EquationsOfStateOfSolids: FiniteStrainParameters, orderof
 using ..FiniteStrains: FiniteStrain, VolumeTo, VolumeFrom, Dⁿᵥf, straintype
 
-export linfit
-
 struct LinearFitting <: FittingMethod end
 
 struct CriterionNotMet
     msg::String
-end
-
-"""
-    linfit(eos::EnergyEquation, volumes, energies; kwargs...)
-
-A wrapper for `fit` with linear fitting method.
-
-# Arguments
-- `maxiter::Integer=1000`: .
-- `conv_thr::AbstractFloat=1e-12`: .
-- `root_thr::AbstractFloat=1e-20`: .
-- `verbose::Bool=false`: .
-"""
-function linfit(eos::EnergyEquation, volumes, energies; kwargs...)
-    return EnergyEquation(fit(volumes, energies, eos.param, LinearFitting(); kwargs...))
 end
 
 """

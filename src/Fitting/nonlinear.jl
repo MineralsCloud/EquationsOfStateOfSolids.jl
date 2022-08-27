@@ -4,26 +4,7 @@ using Unitful: AbstractQuantity, uconvert
 
 using ..EquationsOfStateOfSolids: Parameters
 
-export nonlinfit
-
 struct NonLinearFitting <: FittingMethod end
-
-"""
-    nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...)
-
-A wrapper for `fit` with nonlinear fitting method.
-
-# Arguments
-- `xtol::AbstractFloat=1e-16`: .
-- `gtol::AbstractFloat=1e-16`: .
-- `maxiter::Integer=1000`: .
-- `min_step_quality::AbstractFloat=1e-16`: .
-- `good_step_quality::AbstractFloat=0.75`: .
-- `verbose::Bool=false`: .
-"""
-function nonlinfit(eos::EnergyEquation, volumes, energies; kwargs...)
-    return EnergyEquation(fit(volumes, energies, eos.param, NonLinearFitting(); kwargs...))
-end
 
 """
     fit(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
