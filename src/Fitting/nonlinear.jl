@@ -70,14 +70,15 @@ function checkresult(params::Parameters)  # Do not export!
     end
 end
 
+unit(x) = oneunit(x) / one(x)
+
 function preprocess(volumes, energies, params)  # Do not export!
-    volumes = ustrip.(unit(params.v0), volumes)  # Unify units of data
     if iszero(params.e0)
-        # Energy minimum as e0, `uconvert` is important to keep the unit right!
-        params = setproperties(params; e0=uconvert(unit(params.e0), minimum(energies)))
+        params = setproperties(params; e0=minimum(energies) / unit(params.e0))
     end
-    energies = ustrip.(unit(params.e0), energies)
-    params = ustrip.(unormalize(params))
+    energies ./= unit(params.e0)  # Unitless now
+    volumes ./= unit(params.v0)  # Unitless now
+    params = unitless(params)  # Unitless now
     return map(collect, (float.(volumes), float.(energies), float.(params)))
 end
 
