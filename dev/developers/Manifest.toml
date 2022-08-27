@@ -223,8 +223,8 @@ uuid = "0438fec6-b81c-52d9-9651-d286848f50a8"
 version = "4.0.0"
 
 [[deps.EquationsOfStateOfSolids]]
-deps = ["ConstructionBase", "EquationsOfState", "Functors", "LsqFit", "PolynomialRoots", "Polynomials", "Roots", "StructHelpers", "UnPack", "Unitful"]
-git-tree-sha1 = "c2b8c07828866c3dae2e8719663ca1b183f44a2f"
+deps = ["ConstructionBase", "EquationsOfState", "Functors", "LsqFit", "PolynomialRoots", "Polynomials", "Roots", "StructHelpers", "Unitful"]
+git-tree-sha1 = "5d8142c61c3d0799008d818565139adfa9a337a0"
 repo-rev = "master"
 repo-url = "https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl"
 uuid = "1eaa2786-f833-4167-8397-974edad0881e"
@@ -946,11 +946,6 @@ version = "1.4.0"
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
-
-[[deps.UnPack]]
-git-tree-sha1 = "387c1f73762231e86e0c9c5443ce3b4a0a9a0c2b"
-uuid = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
-version = "1.0.2"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
