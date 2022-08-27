@@ -4,10 +4,16 @@ using Polynomials: fit as polyfit, derivative, coeffs
 using ..EquationsOfStateOfSolids: FiniteStrainParameters, orderof
 using ..FiniteStrains: FiniteStrain, VolumeTo, VolumeFrom, Dⁿᵥf, straintype
 
+export linfit
+
 struct LinearFitting <: FittingMethod end
 
 struct CriterionNotMet
     msg::String
+end
+
+function linfit(volumes, energies, initial_params; kwargs...)
+    return fit(volumes, energies, initial_params, LinearFitting(); kwargs...)
 end
 
 """

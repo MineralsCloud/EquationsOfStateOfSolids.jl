@@ -4,7 +4,13 @@ using Unitful: AbstractQuantity, uconvert
 
 using ..EquationsOfStateOfSolids: Parameters
 
+export nonlinfit
+
 struct NonLinearFitting <: FittingMethod end
+
+function nonlinfit(volumes, energies, initial_params; kwargs...)
+    return fit(volumes, energies, initial_params, NonLinearFitting(); kwargs...)
+end
 
 """
     fit(xs, ys, initial_params::Parameters, NonLinearFitting(); kwargs...)
