@@ -1,5 +1,4 @@
 using Functors: fmap
-using UnPack: @unpack
 
 using .FiniteStrains:
     EulerianStrainFromVolume, NaturalStrainFromVolume, EulerianStrain, NaturalStrain
