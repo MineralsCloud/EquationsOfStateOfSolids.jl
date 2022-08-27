@@ -14,7 +14,7 @@ function (eos::EnergyEquation{<:BirchMurnaghan3rd})(v)
     return e₀ + 9b₀ * v₀ * f^2 / 2 * (1 + f * (b′₀ - 4))
 end
 function (eos::EnergyEquation{<:BirchMurnaghan4th})(v)
-    @unpack v₀, b₀, b′₀, b″₀, e₀ = eos
+    v₀, b₀, b′₀, b″₀, e₀ = unpack(eos)
     f = EulerianStrainFromVolume(v₀)(v)
     h = b″₀ * b₀ + b′₀^2
     return e₀ + 3b₀ * v₀ / 8 * f^2 * ((9h - 63b′₀ + 143) * f^2 + 12f * (b′₀ - 4) + 12)
@@ -30,7 +30,7 @@ function (eos::EnergyEquation{<:PoirierTarantola3rd})(v)
     return e₀ + 9b₀ * v₀ * f^2 / 2 * ((2 - b′₀) * f + 1)
 end
 function (eos::EnergyEquation{<:PoirierTarantola4th})(v)
-    @unpack v₀, b₀, b′₀, b″₀, e₀ = eos
+    v₀, b₀, b′₀, b″₀, e₀ = unpack(eos)
     f = NaturalStrainFromVolume(v₀)(v)
     h = b″₀ * b₀ + b′₀^2
     return e₀ + 9b₀ * v₀ * f^2 * (3f^2 * (h + 3b′₀ + 3) + 4f * (b′₀ + 2) + 4)

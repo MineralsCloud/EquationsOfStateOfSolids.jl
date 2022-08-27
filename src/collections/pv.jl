@@ -13,7 +13,7 @@ function (eos::PressureEquation{<:Murnaghan2nd})(v)
     return 2b₀ / b′₀ / (h / b′₀ * ((r + 1) / (r - 1)) - 1)
 end
 function (eos::PressureEquation{<:BirchMurnaghan2nd})(v)
-    @unpack v₀, b₀ = eos
+    v₀, b₀ = unpack(eos)
     f = EulerianStrainFromVolume(v₀)(v)
     return 3b₀ * f * (2f + 1)^_2½
 end
@@ -29,7 +29,7 @@ function (eos::PressureEquation{<:BirchMurnaghan4th})(v)
     return b₀ / 2 * (2f + 1)^_2½ * ((9h - 63b′₀ + 143) * f^2 + 9f * (b′₀ - 4) + 6)
 end
 function (eos::PressureEquation{<:PoirierTarantola2nd})(v)
-    @unpack v₀, b₀ = eos
+    v₀, b₀ = unpack(eos)
     f = NaturalStrainFromVolume(v₀)(v)
     return -3b₀ * f * exp(-3f)
 end

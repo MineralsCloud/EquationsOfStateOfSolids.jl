@@ -1,6 +1,6 @@
 (eos::BulkModulusEquation{<:Murnaghan1st})(v) = eos.b₀ + PressureEquation(eos)(v)
 function (eos::BulkModulusEquation{<:BirchMurnaghan2nd})(v)
-    @unpack v₀, b₀ = eos
+    v₀, b₀ = unpack(eos)
     f = EulerianStrainFromVolume(v₀)(v)
     return b₀ * (7f + 1) * (2f + 1)^_2½
 end
@@ -19,7 +19,7 @@ function (eos::BulkModulusEquation{<:BirchMurnaghan4th})(v)
            ((99h - 693b′₀ + 1573) * f^3 + (27h - 108b′₀ + 105) * f^2 + 6f * (3b′₀ - 5) + 6)
 end
 function (eos::BulkModulusEquation{<:PoirierTarantola2nd})(v)
-    @unpack v₀, b₀ = eos
+    v₀, b₀ = unpack(eos)
     f = NaturalStrainFromVolume(v₀)(v)
     return b₀ * (1 - 3f) * exp(-3f)
 end

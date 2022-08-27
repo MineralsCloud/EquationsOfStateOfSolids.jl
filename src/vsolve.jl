@@ -80,7 +80,7 @@ function (::AnalyticalSolver{<:PressureEquation{<:BirchMurnaghan2nd}})(
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v₀, b₀ = eos
+    v₀, b₀ = unpack(eos)
     # Solve f for (3 B0 f (2f + 1))^2 == p^2
     fs = roots(
         [-(p / 3b₀)^2, 0, 1, 10, 40, 80, 80, 32]; polish=true, epsilon=stopping_criterion
@@ -95,7 +95,7 @@ function (
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v₀, b₀ = eos
+    v₀, b₀ = unpack(eos)
     # Solve f for ((7f + 1) * (2f + 1)^(5/2))^2 == (b/b₀)^2
     fs = roots(
         [1 - (b / b₀)^2, 24, 229, 1130, 3160, 5072, 4368, 1568];
@@ -175,7 +175,7 @@ function (
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v₀, b₀, b′₀, b″₀, e₀ = eos
+    v₀, b₀, b′₀, b″₀, e₀ = unpack(eos)
     h = b₀ * b″₀ + b′₀^2
     fs = roots(
         [(e₀ - e) / (3 / 8 * v₀ * b₀), 0, 12, 12(b′₀ - 4), 143 - 63b′₀ + 9h];
