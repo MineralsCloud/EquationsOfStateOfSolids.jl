@@ -28,7 +28,7 @@ Fit an equation of state ``E(V)`` using nonlinear algorithms.
 function fit(
     volumes,
     energies,
-    initial_params::T,
+    init_guess::Parameters,
     ::NonLinearFitting;
     xtol=1e-16,
     gtol=1e-16,
@@ -36,9 +36,10 @@ function fit(
     min_step_quality=1e-16,
     good_step_quality=0.75,
     verbose=false,
-) where {T<:Parameters}
-    model = (volume, params) -> EnergyEquation(constructorof(T)(params...)).(volume)
-    x, y, p0 = preprocess(volumes, energies, initial_params)
+)
+    constructor = constructorof(typeof(init_guess))
+    model = (volume, params) -> EnergyEquation(constructor(params...)).(volume)
+    x, y, p0 = preprocess(volumes, energies, init_guess)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         x,
@@ -52,7 +53,7 @@ function fit(
         show_trace=verbose,
     )
     if fit.converged
-        params = reconstruct_params(coef(fit), initial_params)
+        params = reconstruct_params(coef(fit), init_guess)
         checkresult(params)
         return params
     else
