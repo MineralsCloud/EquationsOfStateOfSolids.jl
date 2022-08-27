@@ -48,12 +48,12 @@ end
 
 function (::AnalyticalSolver{<:PressureEquation{<:Murnaghan1st}})(p)
     eos, bounds = problem.eos, problem.bounds
-    @unpack v₀, b₀, b′₀ = eos
+    v₀, b₀, b′₀ = unpack(eos)
     solution = [v₀ * (1 + b′₀ / b₀ * p)^(-1 / b′₀)]
     return sieve(solution, bounds)
 end
 function (::AnalyticalSolver{<:PressureEquation{<:Murnaghan2nd}})(p)
-    @unpack v₀, b₀, b′₀, b″₀ = eos
+    v₀, b₀, b′₀, b″₀ = unpack(eos)
     h = sqrt(2b₀ * b″₀ - b′₀^2)
     k = b″₀ * p + b′₀
     numerator = exp(-2 / h * atan(p * h / (2b₀ + p * b′₀))) * v₀
@@ -62,7 +62,7 @@ function (::AnalyticalSolver{<:PressureEquation{<:Murnaghan2nd}})(p)
     return sieve(solution, bounds)
 end
 function (::AnalyticalSolver{<:EnergyEquation{<:BirchMurnaghan2nd}})(e)
-    @unpack v₀, b₀, e₀ = eos
+    v₀, b₀, e₀ = unpack(eos)
     Δ = (e - e₀) / v₀ / b₀
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
@@ -111,7 +111,7 @@ function (
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v₀, b₀, b′₀, e₀ = eos
+    v₀, b₀, b′₀, e₀ = unpack(eos)
     # Constrcut ax^3 + bx^2 + d = 0, see https://zh.wikipedia.org/wiki/%E4%B8%89%E6%AC%A1%E6%96%B9%E7%A8%8B#%E6%B1%82%E6%A0%B9%E5%85%AC%E5%BC%8F%E6%B3%95
     if b′₀ == 4
         @warn "`b′₀ == 4` for a `BirchMurnaghan3rd` is just a `BirchMurnaghan2nd`!"
@@ -147,7 +147,7 @@ function (
     chop=eps(),
     rtol=sqrt(eps()),
 )
-    @unpack v₀, b₀, b′₀ = eos
+    v₀, b₀, b′₀ = unpack(eos)
     # Solve f for (f (2f + 1)^(5/2) [2 + 3f (b′₀ - 4)])^2 - (p / (3b₀/2))^2 = 0
     fs = roots(
         [
@@ -186,7 +186,7 @@ function (
     return sieve(solutions, bounds)
 end
 function (::AnalyticalSolver{<:EnergyEquation{<:PoirierTarantola2nd}})(e)
-    @unpack v₀, b₀, e₀ = eos
+    v₀, b₀, e₀ = unpack(eos)
     Δ = (e - e₀) / v₀ / b₀
     if Δ >= 0
         f = sqrt(2 / 9 * Δ)
