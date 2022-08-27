@@ -2,6 +2,15 @@ module FiniteStrains
 
 using ..EquationsOfStateOfSolids: _⅔, _⅓, _1½
 
+export EulerianStrainFromVolume,
+    LagrangianStrainFromVolume,
+    NaturalStrainFromVolume,
+    InfinitesimalStrainFromVolume,
+    VolumeFromEulerianStrain,
+    VolumeFromLagrangianStrain,
+    VolumeFromNaturalStrain,
+    VolumeFromInfinitesimalStrain
+
 abstract type FiniteStrain end
 struct EulerianStrain <: FiniteStrain end
 struct LagrangianStrain <: FiniteStrain end
