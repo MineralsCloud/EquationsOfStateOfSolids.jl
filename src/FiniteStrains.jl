@@ -43,7 +43,7 @@ julia> g ∘ f == f ∘ g == identity
 true
 ```
 """
-struct StrainFromVolume{S<:FiniteStrain,T}
+struct StrainFromVolume{S<:FiniteStrain,T<:Number}
     v0::T
 end
 StrainFromVolume{S}(v0::T) where {S,T} = StrainFromVolume{S,T}(v0)
@@ -82,7 +82,7 @@ julia> f ∘ g == g ∘ f == identity
 true
 ```
 """
-struct VolumeFromStrain{S<:FiniteStrain,T}
+struct VolumeFromStrain{S<:FiniteStrain,T<:Number}
     v0::T
 end
 VolumeFromStrain{S}(v0::T) where {S,T} = VolumeFromStrain{S,T}(v0)
