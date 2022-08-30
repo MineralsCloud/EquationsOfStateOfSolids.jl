@@ -43,18 +43,22 @@ julia> g ∘ f == f ∘ g == identity
 true
 ```
 """
-struct StrainFromVolume{S<:FiniteStrain,T<:Number}
-    v0::T
-end
-StrainFromVolume{S}(v0::T) where {S,T} = StrainFromVolume{S,T}(v0)
+struct StrainFromVolume{S<:FiniteStrain} end
 const EulerianStrainFromVolume = StrainFromVolume{Eulerian}
 const LagrangianStrainFromVolume = StrainFromVolume{Lagrangian}
 const NaturalStrainFromVolume = StrainFromVolume{Natural}
 const InfinitesimalStrainFromVolume = StrainFromVolume{Infinitesimal}
-(x::EulerianStrainFromVolume)(v) = ((x.v0 / v)^_⅔ - 1) / 2
-(x::LagrangianStrainFromVolume)(v) = ((v / x.v0)^_⅔ - 1) / 2
-(x::NaturalStrainFromVolume)(v) = log(v / x.v0) / 3
-(x::InfinitesimalStrainFromVolume)(v) = 1 - (x.v0 / v)^_⅓
+struct StrainFromVolumeWithReferenceVolume{S<:FiniteStrain,T<:Number}
+    v0::T
+end
+function StrainFromVolumeWithReferenceVolume{S}(v0) where {S}
+    return StrainFromVolumeWithReferenceVolume{S,typeof(v0)}(v0)
+end
+StrainFromVolume{T}(v0) where {T} = StrainFromVolumeWithReferenceVolume{T}(v0)
+(x::StrainFromVolumeWithReferenceVolume{Eulerian})(v) = ((x.v0 / v)^_⅔ - 1) / 2
+(x::StrainFromVolumeWithReferenceVolume{Lagrangian})(v) = ((v / x.v0)^_⅔ - 1) / 2
+(x::StrainFromVolumeWithReferenceVolume{Natural})(v) = log(v / x.v0) / 3
+(x::StrainFromVolumeWithReferenceVolume{Infinitesimal})(v) = 1 - (x.v0 / v)^_⅓
 
 """
     VolumeFromEulerianStrain(v0)
@@ -82,42 +86,52 @@ julia> f ∘ g == g ∘ f == identity
 true
 ```
 """
-struct VolumeFromStrain{S<:FiniteStrain,T<:Number}
-    v0::T
-end
-VolumeFromStrain{S}(v0::T) where {S,T} = VolumeFromStrain{S,T}(v0)
+struct VolumeFromStrain{S<:FiniteStrain} end
 const VolumeFromEulerianStrain = VolumeFromStrain{Eulerian}
 const VolumeFromLagrangianStrain = VolumeFromStrain{Lagrangian}
 const VolumeFromNaturalStrain = VolumeFromStrain{Natural}
 const VolumeFromInfinitesimalStrain = VolumeFromStrain{Infinitesimal}
-# Eulerian strain
-function (x::VolumeFromEulerianStrain)(f)
+struct VolumeFromStrainWithReferenceVolume{S<:FiniteStrain,T<:Number}
+    v0::T
+end
+function VolumeFromStrainWithReferenceVolume{S}(v0) where {S}
+    return VolumeFromStrainWithReferenceVolume{S,typeof(v0)}(v0)
+end
+VolumeFromStrain{T}(v0) where {T} = VolumeFromStrainWithReferenceVolume{T}(v0)
+function (x::VolumeFromStrainWithReferenceVolume{Eulerian})(f)
     v = x.v0 / (2f + 1)^_1½
     return isreal(v) ? real(v) : v
 end
-# Lagrangian strain
-function (x::VolumeFromLagrangianStrain)(f)
+function (x::VolumeFromStrainWithReferenceVolume{Lagrangian})(f)
     v = x.v0 * (2f + 1)^_1½
     return isreal(v) ? real(v) : v
 end
-# Natural strain
-function (x::VolumeFromNaturalStrain)(f)
+function (x::VolumeFromStrainWithReferenceVolume{Natural})(f)
     v = x.v0 * exp(3f)
     return isreal(v) ? real(v) : v
 end
-# Infinitesimal strain
-function (x::VolumeFromInfinitesimalStrain)(f)
+function (x::VolumeFromStrainWithReferenceVolume{Infinitesimal})(f)
     v = x.v0 / (1 - f)^3
     return isreal(v) ? real(v) : v
 end
 
-function Base.:∘(x::VolumeFromStrain{T}, y::StrainFromVolume{T}) where {T}
+function Base.:∘(
+    x::VolumeFromStrainWithReferenceVolume{T}, y::StrainFromVolumeWithReferenceVolume{T}
+) where {T}
     return x.v0 == y.v0 ? identity : error("undefined transformation!")
 end
-Base.:∘(x::StrainFromVolume{T}, y::VolumeFromStrain{T}) where {T} = y ∘ x
+function Base.:∘(
+    x::StrainFromVolumeWithReferenceVolume{T}, y::VolumeFromStrainWithReferenceVolume{T}
+) where {T}
+    return y ∘ x
+end
 
-Base.inv(x::VolumeFromStrain{T}) where {T} = StrainFromVolume{T}(x.v0)
-Base.inv(x::StrainFromVolume{T}) where {T} = VolumeFromStrain{T}(x.v0)
+function Base.inv(x::VolumeFromStrainWithReferenceVolume{T}) where {T}
+    return StrainFromVolumeWithReferenceVolume{T}(x.v0)
+end
+function Base.inv(x::StrainFromVolumeWithReferenceVolume{T}) where {T}
+    return VolumeFromStrainWithReferenceVolume{T}(x.v0)
+end
 
 """
     DerivativeOfStrain{Eulerian}(N)
