@@ -34,5 +34,5 @@ The following formulae are from
 
 ```@docs
 StrainFromVolume
-VolumeFrom
+VolumeFromStrain
 ```

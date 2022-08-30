@@ -82,14 +82,14 @@ julia> f ∘ g == g ∘ f == identity
 true
 ```
 """
-struct VolumeFrom{S<:FiniteStrain,T}
+struct VolumeFromStrain{S<:FiniteStrain,T}
     v0::T
 end
-VolumeFrom{S}(v0::T) where {S,T} = VolumeFrom{S,T}(v0)
-const VolumeFromEulerianStrain = VolumeFrom{Eulerian}
-const VolumeFromLagrangianStrain = VolumeFrom{Lagrangian}
-const VolumeFromNaturalStrain = VolumeFrom{Natural}
-const VolumeFromInfinitesimalStrain = VolumeFrom{Infinitesimal}
+VolumeFromStrain{S}(v0::T) where {S,T} = VolumeFromStrain{S,T}(v0)
+const VolumeFromEulerianStrain = VolumeFromStrain{Eulerian}
+const VolumeFromLagrangianStrain = VolumeFromStrain{Lagrangian}
+const VolumeFromNaturalStrain = VolumeFromStrain{Natural}
+const VolumeFromInfinitesimalStrain = VolumeFromStrain{Infinitesimal}
 # Eulerian strain
 function (x::VolumeFromEulerianStrain)(f)
     v = x.v0 / (2f + 1)^_1½
@@ -111,13 +111,13 @@ function (x::VolumeFromInfinitesimalStrain)(f)
     return isreal(v) ? real(v) : v
 end
 
-function Base.:∘(x::VolumeFrom{T}, y::StrainFromVolume{T}) where {T}
+function Base.:∘(x::VolumeFromStrain{T}, y::StrainFromVolume{T}) where {T}
     return x.v0 == y.v0 ? identity : error("undefined transformation!")
 end
-Base.:∘(x::StrainFromVolume{T}, y::VolumeFrom{T}) where {T} = y ∘ x
+Base.:∘(x::StrainFromVolume{T}, y::VolumeFromStrain{T}) where {T} = y ∘ x
 
-Base.inv(x::VolumeFrom{T}) where {T} = StrainFromVolume{T}(x.v0)
-Base.inv(x::StrainFromVolume{T}) where {T} = VolumeFrom{T}(x.v0)
+Base.inv(x::VolumeFromStrain{T}) where {T} = StrainFromVolume{T}(x.v0)
+Base.inv(x::StrainFromVolume{T}) where {T} = VolumeFromStrain{T}(x.v0)
 
 """
     Dⁿᵥf(s::EulerianStrain, deg, v0)
