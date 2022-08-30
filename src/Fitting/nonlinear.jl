@@ -1,6 +1,5 @@
 using ConstructionBase: constructorof
 using LsqFit: curve_fit, coef
-using Unitful: AbstractQuantity, uconvert
 
 using ..EquationsOfStateOfSolids: Parameters
 
@@ -53,7 +52,7 @@ function fit(
         show_trace=verbose,
     )
     if fit.converged
-        params = reconstruct_params(coef(fit), init_guess)
+        params = reconstruct_units(coef(fit), init_guess)
         checkresult(params)
         return params
     else
@@ -100,23 +99,21 @@ function unitless(params::Parameters)  # Normalize units of `params`
     end
 end
 
-reconstruct_params(p, p0::Parameters) = constructorof(typeof(p0))(p...)
-function reconstruct_params(p, p0::Parameters{<:AbstractQuantity})
-    up = unit(p0.e0) / unit(p0.v0)  # Pressure/bulk modulus unit
-    params = Iterators.map(enumerate(fieldnames(typeof(p0)))) do (i, f)
-        x = p[i]
-        u = unit(getfield(p0, f))
-        if f == :b0
-            u(x * up)
+function reconstruct_units(p, init_guess)
+    punit = unit(init_guess.e0) / unit(init_guess.v0)  # Pressure/bulk modulus unit
+    params = Iterators.map(zip(p, fieldnames(typeof(init_guess)))) do (x, f)
+        x0 = getfield(init_guess, f)
+        unit(x0) * if f == :b0
+            x * punit
         elseif f == :b″0
-            u(x * up^(-1))
-        elseif f == :b‴0
-            u(x * up^(-2))
+            x / punit
+        elseif f == :b‴0e
+            x / punit^2
         elseif f in (:v0, :b′0, :e0)
-            x * u
+            x
         else
             error("unknown field `$f`!")
         end
     end
-    return constructorof(typeof(p0))(params...)
+    return constructorof(typeof(init_guess))(params...)
 end
