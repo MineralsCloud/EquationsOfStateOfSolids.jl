@@ -2,7 +2,7 @@ using PolynomialRoots: roots
 using Polynomials: fit as polyfit, derivative, coeffs
 
 using ..EquationsOfStateOfSolids: FiniteStrainParameters, orderof
-using ..FiniteStrains: FiniteStrain, VolumeTo, VolumeFrom, Dⁿᵥf, straintype
+using ..FiniteStrains: FiniteStrain, StrainFromVolume, VolumeFrom, Dⁿᵥf, straintype
 
 export linfit
 
@@ -49,7 +49,7 @@ function fit(
     volumes = collect(map(x -> ustrip(uv, x), volumes))  # `parent` is needed to unwrap `DimArray`
     energies = collect(map(x -> ustrip(ue, x), energies))
     for i in 1:maxiter  # Self consistent loop
-        strains = map(VolumeTo{S}(v0), volumes)
+        strains = map(StrainFromVolume{S}(v0), volumes)
         if !(isreal(strains) && isreal(energies))
             throw(DomainError("the strains or the energies are complex!"))
         end
