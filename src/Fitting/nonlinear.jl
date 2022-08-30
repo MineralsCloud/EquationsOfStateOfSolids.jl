@@ -1,6 +1,5 @@
 using ConstructionBase: constructorof
 using LsqFit: curve_fit, coef
-using Unitful: AbstractQuantity, uconvert
 
 using ..EquationsOfStateOfSolids: Parameters
 
@@ -28,7 +27,7 @@ Fit an equation of state ``E(V)`` using nonlinear algorithms.
 function fit(
     volumes,
     energies,
-    initial_params::T,
+    init_guess::Parameters,
     ::NonLinearFitting;
     xtol=1e-16,
     gtol=1e-16,
@@ -36,9 +35,10 @@ function fit(
     min_step_quality=1e-16,
     good_step_quality=0.75,
     verbose=false,
-) where {T<:Parameters}
-    model = (volume, params) -> EnergyEquation(constructorof(T)(params...)).(volume)
-    x, y, p0 = preprocess(volumes, energies, initial_params)
+)
+    constructor = constructorof(typeof(init_guess))
+    model = (volume, params) -> EnergyEquation(constructor(params...)).(volume)
+    x, y, p0 = preprocess(volumes, energies, init_guess)
     fit = curve_fit(  # See https://github.com/JuliaNLSolvers/LsqFit.jl/blob/f687631/src/levenberg_marquardt.jl#L3-L28
         model,
         x,
@@ -52,7 +52,7 @@ function fit(
         show_trace=verbose,
     )
     if fit.converged
-        params = reconstruct_params(coef(fit), initial_params)
+        params = reconstruct_units(coef(fit), init_guess)
         checkresult(params)
         return params
     else
@@ -69,28 +69,28 @@ function checkresult(params::Parameters)  # Do not export!
     end
 end
 
+unit(x) = oneunit(x) / one(x)
+
 function preprocess(volumes, energies, params)  # Do not export!
-    volumes = ustrip.(unit(params.v0), volumes)  # Unify units of data
     if iszero(params.e0)
-        # Energy minimum as e0, `uconvert` is important to keep the unit right!
-        params = setproperties(params; e0=uconvert(unit(params.e0), minimum(energies)))
+        params = setproperties(params; e0=minimum(energies) / unit(params.e0))
     end
-    energies = ustrip.(unit(params.e0), energies)
-    params = ustrip.(unormalize(params))
+    energies ./= unit(params.e0)  # Unitless now
+    volumes ./= unit(params.v0)  # Unitless now
+    params = unitless(params)  # Unitless now
     return map(collect, (float.(volumes), float.(energies), float.(params)))
 end
 
-unormalize(params::Parameters) = (getfield(params, f) for f in fieldnames(typeof(params)))
-function unormalize(params::Parameters{<:AbstractQuantity})  # Normalize units of `params`
-    up = unit(params.e0) / unit(params.v0)  # Pressure/bulk modulus unit
+function unitless(params::Parameters)  # Normalize units of `params`
+    punit = unit(params.e0) / unit(params.v0)  # Pressure/bulk modulus unit
     return Iterators.map(fieldnames(typeof(params))) do f
         x = getfield(params, f)
         if f == :b0
-            up(x)
+            x / punit
         elseif f == :b″0
-            up^(-1)(x)
+            x * punit
         elseif f == :b‴0
-            up^(-2)(x)
+            x * punit^2
         elseif f in (:v0, :b′0, :e0)
             x
         else
@@ -99,23 +99,21 @@ function unormalize(params::Parameters{<:AbstractQuantity})  # Normalize units o
     end
 end
 
-reconstruct_params(p, p0::Parameters) = constructorof(typeof(p0))(p...)
-function reconstruct_params(p, p0::Parameters{<:AbstractQuantity})
-    up = unit(p0.e0) / unit(p0.v0)  # Pressure/bulk modulus unit
-    params = Iterators.map(enumerate(fieldnames(typeof(p0)))) do (i, f)
-        x = p[i]
-        u = unit(getfield(p0, f))
-        if f == :b0
-            u(x * up)
+function reconstruct_units(p, init_guess)
+    punit = unit(init_guess.e0) / unit(init_guess.v0)  # Pressure/bulk modulus unit
+    params = Iterators.map(zip(p, fieldnames(typeof(init_guess)))) do (x, f)
+        x0 = getfield(init_guess, f)
+        unit(x0) * if f == :b0
+            x * punit
         elseif f == :b″0
-            u(x * up^(-1))
-        elseif f == :b‴0
-            u(x * up^(-2))
+            x / punit
+        elseif f == :b‴0e
+            x / punit^2
         elseif f in (:v0, :b′0, :e0)
-            x * u
+            x
         else
             error("unknown field `$f`!")
         end
     end
-    return constructorof(typeof(p0))(params...)
+    return constructorof(typeof(init_guess))(params...)
 end

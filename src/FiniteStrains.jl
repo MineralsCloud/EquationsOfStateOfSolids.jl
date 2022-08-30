@@ -12,10 +12,10 @@ export EulerianStrainFromVolume,
     VolumeFromInfinitesimalStrain
 
 abstract type FiniteStrain end
-struct EulerianStrain <: FiniteStrain end
-struct LagrangianStrain <: FiniteStrain end
-struct NaturalStrain <: FiniteStrain end
-struct InfinitesimalStrain <: FiniteStrain end
+struct Eulerian <: FiniteStrain end
+struct Lagrangian <: FiniteStrain end
+struct Natural <: FiniteStrain end
+struct Infinitesimal <: FiniteStrain end
 
 """
     EulerianStrainFromVolume(v0)
@@ -43,14 +43,14 @@ julia> g ∘ f == f ∘ g == identity
 true
 ```
 """
-struct VolumeTo{S<:FiniteStrain,T}
+struct StrainFromVolume{S<:FiniteStrain,T}
     v0::T
 end
-VolumeTo{S}(v0::T) where {S,T} = VolumeTo{S,T}(v0)
-const EulerianStrainFromVolume = VolumeTo{EulerianStrain}
-const LagrangianStrainFromVolume = VolumeTo{LagrangianStrain}
-const NaturalStrainFromVolume = VolumeTo{NaturalStrain}
-const InfinitesimalStrainFromVolume = VolumeTo{InfinitesimalStrain}
+StrainFromVolume{S}(v0::T) where {S,T} = StrainFromVolume{S,T}(v0)
+const EulerianStrainFromVolume = StrainFromVolume{Eulerian}
+const LagrangianStrainFromVolume = StrainFromVolume{Lagrangian}
+const NaturalStrainFromVolume = StrainFromVolume{Natural}
+const InfinitesimalStrainFromVolume = StrainFromVolume{Infinitesimal}
 (x::EulerianStrainFromVolume)(v) = ((x.v0 / v)^_⅔ - 1) / 2
 (x::LagrangianStrainFromVolume)(v) = ((v / x.v0)^_⅔ - 1) / 2
 (x::NaturalStrainFromVolume)(v) = log(v / x.v0) / 3
@@ -82,14 +82,14 @@ julia> f ∘ g == g ∘ f == identity
 true
 ```
 """
-struct VolumeFrom{S<:FiniteStrain,T}
+struct VolumeFromStrain{S<:FiniteStrain,T}
     v0::T
 end
-VolumeFrom{S}(v0::T) where {S,T} = VolumeFrom{S,T}(v0)
-const VolumeFromEulerianStrain = VolumeFrom{EulerianStrain}
-const VolumeFromLagrangianStrain = VolumeFrom{LagrangianStrain}
-const VolumeFromNaturalStrain = VolumeFrom{NaturalStrain}
-const VolumeFromInfinitesimalStrain = VolumeFrom{InfinitesimalStrain}
+VolumeFromStrain{S}(v0::T) where {S,T} = VolumeFromStrain{S,T}(v0)
+const VolumeFromEulerianStrain = VolumeFromStrain{Eulerian}
+const VolumeFromLagrangianStrain = VolumeFromStrain{Lagrangian}
+const VolumeFromNaturalStrain = VolumeFromStrain{Natural}
+const VolumeFromInfinitesimalStrain = VolumeFromStrain{Infinitesimal}
 # Eulerian strain
 function (x::VolumeFromEulerianStrain)(f)
     v = x.v0 / (2f + 1)^_1½
@@ -111,13 +111,13 @@ function (x::VolumeFromInfinitesimalStrain)(f)
     return isreal(v) ? real(v) : v
 end
 
-function Base.:∘(x::VolumeFrom{T}, y::VolumeTo{T}) where {T}
+function Base.:∘(x::VolumeFromStrain{T}, y::StrainFromVolume{T}) where {T}
     return x.v0 == y.v0 ? identity : error("undefined transformation!")
 end
-Base.:∘(x::VolumeTo{T}, y::VolumeFrom{T}) where {T} = y ∘ x
+Base.:∘(x::StrainFromVolume{T}, y::VolumeFromStrain{T}) where {T} = y ∘ x
 
-Base.inv(x::VolumeFrom{T}) where {T} = VolumeTo{T}(x.v0)
-Base.inv(x::VolumeTo{T}) where {T} = VolumeFrom{T}(x.v0)
+Base.inv(x::VolumeFromStrain{T}) where {T} = StrainFromVolume{T}(x.v0)
+Base.inv(x::StrainFromVolume{T}) where {T} = VolumeFromStrain{T}(x.v0)
 
 """
     Dⁿᵥf(s::EulerianStrain, deg, v0)
@@ -127,7 +127,7 @@ Base.inv(x::VolumeTo{T}) where {T} = VolumeFrom{T}(x.v0)
 
 Return a function of `v` that calculates the `deg`th order derivative of strain wrt volume from `v0`.
 """
-function Dⁿᵥf(s::EulerianStrain, deg, v0)
+function Dⁿᵥf(s::Eulerian, deg, v0)
     function (v)
         if isone(deg)  # Stop recursion
             return -(v0 / v)^_⅔ / 3 / v
@@ -136,7 +136,7 @@ function Dⁿᵥf(s::EulerianStrain, deg, v0)
         end
     end
 end
-function Dⁿᵥf(s::LagrangianStrain, deg, v0)
+function Dⁿᵥf(s::Lagrangian, deg, v0)
     function (v)
         if isone(deg)  # Stop recursion
             return -(v / v0)^_⅔ / 3 / v
@@ -145,7 +145,7 @@ function Dⁿᵥf(s::LagrangianStrain, deg, v0)
         end
     end
 end
-function Dⁿᵥf(s::NaturalStrain, deg, v0)
+function Dⁿᵥf(s::Natural, deg, v0)
     function (v)
         if isone(deg)  # Stop recursion
             return 1 / 3 / v
@@ -154,7 +154,7 @@ function Dⁿᵥf(s::NaturalStrain, deg, v0)
         end
     end
 end
-function Dⁿᵥf(s::InfinitesimalStrain, deg, v0)
+function Dⁿᵥf(s::Infinitesimal, deg, v0)
     function (v)
         if isone(deg)  # Stop recursion
             return (1 - InfinitesimalStrainFromVolume(v0)(v))^4 / 3 / v0
