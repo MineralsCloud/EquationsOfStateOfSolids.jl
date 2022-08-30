@@ -33,6 +33,6 @@ The following formulae are from
   ```
 
 ```@docs
-VolumeTo
-VolumeFrom
+StrainFromVolume
+VolumeFromStrain
 ```
