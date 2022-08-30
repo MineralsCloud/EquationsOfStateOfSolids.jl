@@ -120,48 +120,34 @@ Base.inv(x::VolumeFromStrain{T}) where {T} = StrainFromVolume{T}(x.v0)
 Base.inv(x::StrainFromVolume{T}) where {T} = VolumeFromStrain{T}(x.v0)
 
 """
-    Dⁿᵥf(s::EulerianStrain, deg, v0)
-    Dⁿᵥf(s::LagrangianStrain, deg, v0)
-    Dⁿᵥf(s::NaturalStrain, deg, v0)
-    Dⁿᵥf(s::InfinitesimalStrain, deg, v0)
+    DerivativeOfStrain{Eulerian}(N)
+    DerivativeOfStrain{Eulerian}(N)
+    DerivativeOfStrain{Eulerian}(N)
+    DerivativeOfStrain{Eulerian}(N)
 
-Return a function of `v` that calculates the `deg`th order derivative of strain wrt volume from `v0`.
+Return a function of `v₀` and `v` that calculates the `N`th derivative of the strain
+with respect to volume at `v` with reference volume `v₀`.
 """
-function Dⁿᵥf(s::Eulerian, deg, v0)
-    function (v)
-        if isone(deg)  # Stop recursion
-            return -(v0 / v)^_⅔ / 3 / v
-        else  # Recursion
-            return -(3deg - 1) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
-        end
-    end
+struct DerivativeOfStrain{S<:FiniteStrain,N} end
+DerivativeOfStrain{S}(N::Integer) where {S} = DerivativeOfStrain{S,UInt8(N)}()
+(derivative::DerivativeOfStrain{Eulerian})(v₀) = v -> derivative(v₀, v)
+(::DerivativeOfStrain{Eulerian,1})(v₀, v) = -(v₀ / v)^_⅔ / 3v
+function (::DerivativeOfStrain{Eulerian,N})(v₀, v) where {N}
+    return (1 - 3N) / 3v * DerivativeOfStrain{Eulerian}(N - 1)(v₀, v)
 end
-function Dⁿᵥf(s::Lagrangian, deg, v0)
-    function (v)
-        if isone(deg)  # Stop recursion
-            return -(v / v0)^_⅔ / 3 / v
-        else  # Recursion
-            return -(3deg - 5) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
-        end
-    end
+(::DerivativeOfStrain{Lagrangian,1})(v₀, v) = -(v / v₀)^_⅔ / 3v
+function (::DerivativeOfStrain{Lagrangian,N})(v₀, v) where {N}
+    return (5 - 3N) / 3v * DerivativeOfStrain{Lagrangian}(N - 1)(v₀, v)
 end
-function Dⁿᵥf(s::Natural, deg, v0)
-    function (v)
-        if isone(deg)  # Stop recursion
-            return 1 / 3 / v
-        else  # Recursion
-            return -(deg - 1) / v * Dⁿᵥf(s, deg - 1, v0)(v)
-        end
-    end
+(::DerivativeOfStrain{Natural,1})(::Number, v) = 1 / 3v
+function (::DerivativeOfStrain{Natural,N})(v₀, v) where {N}
+    return (1 - N) / v * DerivativeOfStrain{Natural}(N - 1)(v₀, v)
 end
-function Dⁿᵥf(s::Infinitesimal, deg, v0)
-    function (v)
-        if isone(deg)  # Stop recursion
-            return (1 - InfinitesimalStrainFromVolume(v0)(v))^4 / 3 / v0
-        else  # Recursion
-            return -(3deg - 2) / 3 / v * Dⁿᵥf(s, deg - 1, v0)(v)
-        end
-    end
+function (::DerivativeOfStrain{Infinitesimal,1})(v₀, v)
+    return (1 - InfinitesimalStrainFromVolume(v₀)(v))^4 / 3 / v₀
+end
+function (::DerivativeOfStrain{Infinitesimal,N})(v₀, v) where {N}
+    return (2 - 3N) / 3v * DerivativeOfStrain{Infinitesimal}(N - 1)(v₀, v)
 end
 
 end
