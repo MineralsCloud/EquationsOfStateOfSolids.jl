@@ -1,9 +1,10 @@
 using Functors: fmap
 
-using .FiniteStrains: EulerianStrainFromVolume, NaturalStrainFromVolume, Eulerian, Natural
+using .FiniteStrains: EulerianStrainFromVolume, NaturalStrainFromVolume
 
 import Unitful: ustrip
-import .FiniteStrains: straintype
+
+import .FiniteStrains: VolumeFromStrain, StrainFromVolume
 
 export orderof
 
@@ -59,10 +60,6 @@ function Base.show(io::IO, eos::EquationOfStateOfSolids)
     end
 end
 
-straintype(::Type{<:BirchMurnaghan}) = EulerianStrain
-straintype(::Type{<:PoirierTarantola}) = NaturalStrain
-straintype(x::FiniteStrainParameters) = straintype(typeof(x))
-
 Base.eltype(::Type{<:Parameters{T}}) where {T} = T
 
 """
@@ -92,3 +89,9 @@ Base.real(p::Parameters) = fmap(real, p)  # Not used but may be useful
 Strip units from a `Parameters`.
 """
 ustrip(p::Parameters) = fmap(ustrip, p)
+
+VolumeFromStrain(::BirchMurnaghan) = EulerianStrainFromVolume
+VolumeFromStrain(::PoirierTarantola) = NaturalStrainFromVolume
+
+StrainFromVolume(::BirchMurnaghan) = EulerianStrainFromVolume
+StrainFromVolume(::PoirierTarantola) = NaturalStrainFromVolume

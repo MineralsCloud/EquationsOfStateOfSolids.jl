@@ -164,6 +164,4 @@ function Dⁿᵥf(s::Infinitesimal, deg, v0)
     end
 end
 
-function straintype end
-
 end
