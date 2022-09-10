@@ -1,6 +1,6 @@
 using Functors: fmap
 
-using .FiniteStrains: EulerianStrainFromVolume, NaturalStrainFromVolume
+using .FiniteStrains: Eulerian, Natural
 
 import Unitful: ustrip
 
@@ -90,8 +90,5 @@ Strip units from a `Parameters`.
 """
 ustrip(p::Parameters) = fmap(ustrip, p)
 
-VolumeFromStrain(::BirchMurnaghan) = EulerianStrainFromVolume
-VolumeFromStrain(::PoirierTarantola) = NaturalStrainFromVolume
-
-StrainFromVolume(::BirchMurnaghan) = EulerianStrainFromVolume
-StrainFromVolume(::PoirierTarantola) = NaturalStrainFromVolume
+straintype(::BirchMurnaghan) = Eulerian()
+straintype(::PoirierTarantola) = Natural()
