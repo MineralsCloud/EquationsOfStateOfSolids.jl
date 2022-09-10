@@ -54,7 +54,8 @@ end
 function StrainFromVolumeWithReferenceVolume{S}(v0) where {S}
     return StrainFromVolumeWithReferenceVolume{S,typeof(v0)}(v0)
 end
-StrainFromVolume{T}(v0) where {T} = StrainFromVolumeWithReferenceVolume{T}(v0)
+StrainFromVolume(::T) where {T} = StrainFromVolume{T}()
+(::StrainFromVolume{T})(v0) where {T} = StrainFromVolumeWithReferenceVolume{T}(v0)
 (x::StrainFromVolumeWithReferenceVolume{Eulerian})(v) = ((x.v0 / v)^_⅔ - 1) / 2
 (x::StrainFromVolumeWithReferenceVolume{Lagrangian})(v) = ((v / x.v0)^_⅔ - 1) / 2
 (x::StrainFromVolumeWithReferenceVolume{Natural})(v) = log(v / x.v0) / 3
@@ -97,7 +98,8 @@ end
 function VolumeFromStrainWithReferenceVolume{S}(v0) where {S}
     return VolumeFromStrainWithReferenceVolume{S,typeof(v0)}(v0)
 end
-VolumeFromStrain{T}(v0) where {T} = VolumeFromStrainWithReferenceVolume{T}(v0)
+VolumeFromStrain(::T) where {T} = VolumeFromStrain{T}()
+(::VolumeFromStrain{T})(v0) where {T} = VolumeFromStrainWithReferenceVolume{T}(v0)
 function (x::VolumeFromStrainWithReferenceVolume{Eulerian})(f)
     v = x.v0 / (2f + 1)^_1½
     return isreal(v) ? real(v) : v
