@@ -1,7 +1,7 @@
 using ConstructionBase: constructorof
 using EquationsOfState: Parameters, EquationOfState
 using Functors: @functor
-using StructHelpers: @batteries
+using StructEquality: @struct_hash_equal_isequal_isapprox
 
 export Murnaghan,
     Murnaghan1st,
@@ -41,7 +41,7 @@ The energy and pressure equations are:
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-struct Murnaghan1st{T} <: Murnaghan{T}
+@struct_hash_equal_isequal_isapprox struct Murnaghan1st{T} <: Murnaghan{T}
     v0::T
     b0::T
     b′0::T
@@ -60,7 +60,7 @@ Create a Murnaghan second order equation of state.
 - `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-struct Murnaghan2nd{T} <: Murnaghan{T}
+@struct_hash_equal_isequal_isapprox struct Murnaghan2nd{T} <: Murnaghan{T}
     v0::T
     b0::T
     b′0::T
@@ -90,7 +90,7 @@ where ``x = V / V_0``, and ``f = \\frac{ 1 }{ 2 } \\bigg[ \\Big( \\frac{ V_0 }{ 
 - `b0`: the bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-struct BirchMurnaghan2nd{T} <: BirchMurnaghan{2,T}
+@struct_hash_equal_isequal_isapprox struct BirchMurnaghan2nd{T} <: BirchMurnaghan{2,T}
     v0::T
     b0::T
     e0::T
@@ -114,7 +114,7 @@ This equation of state can have units. The units are specified in
     The third-order equation (Equation (22)) becomes identical to the second-order equation
     when ``b′0 = 4`` (not ``0``!).
 """
-struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
+@struct_hash_equal_isequal_isapprox struct BirchMurnaghan3rd{T} <: BirchMurnaghan{3,T}
     v0::T
     b0::T
     b′0::T
@@ -142,7 +142,7 @@ This equation of state can have units. The units are specified in
     B''_0 = -\\frac{ 1 }{ 9B_0 } (9B'_0^2 - 63B'_0 + 143).
     ```
 """
-struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
+@struct_hash_equal_isequal_isapprox struct BirchMurnaghan4th{T} <: BirchMurnaghan{4,T}
     v0::T
     b0::T
     b′0::T
@@ -165,7 +165,7 @@ This equation of state can have units. The units are specified in
 - `b0`: the bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-struct PoirierTarantola2nd{T} <: PoirierTarantola{2,T}
+@struct_hash_equal_isequal_isapprox struct PoirierTarantola2nd{T} <: PoirierTarantola{2,T}
     v0::T
     b0::T
     e0::T
@@ -185,7 +185,7 @@ This equation of state can have units. The units are specified in
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
+@struct_hash_equal_isequal_isapprox struct PoirierTarantola3rd{T} <: PoirierTarantola{3,T}
     v0::T
     b0::T
     b′0::T
@@ -207,7 +207,7 @@ This equation of state can have units. The units are specified in
 - `b″0`: the second-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
+@struct_hash_equal_isequal_isapprox struct PoirierTarantola4th{T} <: PoirierTarantola{4,T}
     v0::T
     b0::T
     b′0::T
@@ -231,21 +231,21 @@ This equation of state can have units. The units are specified in
 - `b′0`: the first-order pressure-derivative bulk modulus of solid at zero pressure.
 - `e0`: the energy of solid at zero pressure.
 """
-struct Vinet{T} <: Parameters{T}
+@struct_hash_equal_isequal_isapprox struct Vinet{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
     e0::T
     Vinet{T}(v0, b0, b′0, e0=zero(v0 * b0)) where {T} = new(v0, b0, b′0, e0)
 end
-struct AntonSchmidt{T} <: Parameters{T}
+@struct_hash_equal_isequal_isapprox struct AntonSchmidt{T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
     e∞::T
     AntonSchmidt{T}(v0, b0, b′0, e∞=zero(v0 * b0)) where {T} = new(v0, b0, b′0, e∞)
 end
-struct Holzapfel{Z,T} <: Parameters{T}
+@struct_hash_equal_isequal_isapprox struct Holzapfel{Z,T} <: Parameters{T}
     v0::T
     b0::T
     b′0::T
@@ -256,17 +256,6 @@ struct Holzapfel{Z,T} <: Parameters{T}
     end
 end
 
-@batteries Murnaghan1st eq = true hash = true
-@batteries Murnaghan2nd eq = true hash = true
-@batteries BirchMurnaghan2nd eq = true hash = true
-@batteries BirchMurnaghan3rd eq = true hash = true
-@batteries BirchMurnaghan4th eq = true hash = true
-@batteries PoirierTarantola2nd eq = true hash = true
-@batteries PoirierTarantola3rd eq = true hash = true
-@batteries PoirierTarantola4th eq = true hash = true
-@batteries Vinet eq = true hash = true
-@batteries AntonSchmidt eq = true hash = true
-@batteries Holzapfel eq = true hash = true
 @functor Murnaghan1st
 @functor Murnaghan2nd
 @functor BirchMurnaghan2nd
