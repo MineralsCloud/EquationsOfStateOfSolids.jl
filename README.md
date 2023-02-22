@@ -101,6 +101,10 @@ a few guidelines that should be followed when opening pull requests and contribu
 [issues-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/issues
 [contrib-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/discussions
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=MineralsCloud/EquationsOfStateOfSolids.jl&type=Date)](https://star-history.com/#MineralsCloud/EquationsOfStateOfSolids.jl&Date)
+
 ## References
 
 1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).](https://www.sciencedirect.com/science/article/pii/S0010465511001470)
