@@ -21,6 +21,7 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://MineralsCloud.github.io/EquationsOfStateOfSolids.jl",
+        edit_link="main",
         assets=String[],
     ),
     pages=[
@@ -46,4 +47,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/MineralsCloud/EquationsOfStateOfSolids.jl",
+    devbranch="main",
 )

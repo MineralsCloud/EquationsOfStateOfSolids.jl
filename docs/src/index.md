@@ -4,7 +4,7 @@ CurrentModule = EquationsOfStateOfSolids
 
 # EquationsOfStateOfSolids
 
-Documentation for [`EquationsOfStateOfSolids`](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl).
+Documentation for [EquationsOfStateOfSolids](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl).
 
 See the [Index](@ref main-index) for the complete list of documented functions
 and types.
@@ -83,7 +83,7 @@ Usage questions can be posted on
 
 Contributions are very welcome, as are feature requests and suggestions. Please open an
 [issue](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/issues)
-if you encounter any problems. The [contributing](@ref) page has
+if you encounter any problems. The [Contributing](@ref) page has
 a few guidelines that should be followed when opening pull requests and contributing code.
 
 ## Manual outline
@@ -95,7 +95,8 @@ Pages = [
     "interoperability.md",
     "portability.md",
     "developers/contributing.md",
-    "developers/style.md",
+    "developers/style-guide.md",
+    "developers/design-principles.md",
     "troubleshooting.md",
 ]
 Depth = 3
