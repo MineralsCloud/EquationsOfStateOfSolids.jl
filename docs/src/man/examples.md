@@ -1,37 +1,44 @@
-```@meta
-CurrentModule = EquationsOfStateOfSolids.Fitting
+# Usage
+
+## Construct a `EquationOfStateOfSolidsParameters` instance
+
+We will use `BirchMurnaghan3rd` as an example.
+
+A `BirchMurnaghan3rd` can be constructed from scratch, as shown above. It can
+also be constructed from an existing `BirchMurnaghan3rd`, with
+[Setfield.jl](https://github.com/jw3126/Setfield.jl)
+[`@set!`](https://jw3126.github.io/Setfield.jl/stable/#Setfield.@set!-Tuple{Any})
+macro:
+
+```@repl
+using Setfield
+eos = Murnaghan1st(1, 2, 3.0)
+@set! eos.v0 = 4
+eos
 ```
 
-# Fitting
+To modify multiple fields (say, `:v0`, `:b′0`, `:b″0`, `:e0`) at a time, use
+[`@batchlens`](https://tkf.github.io/Kaleido.jl/stable/#Kaleido.@batchlens) from
+[Kaleido.jl](https://github.com/tkf/Kaleido.jl):
 
-```@contents
-Pages = ["fitting.md"]
+```@repl
+using Setfield, Kaleido
+lens = @batchlens(begin
+           _.v0
+           _.b′0
+           _.b″0
+           _.e0
+       end)
+eos = BirchMurnaghan4th(1, 2.0, 3, 4)
+set(eos, lens, (5, 6, 7, 8))
 ```
 
-## Nonlinear fitting
+Users can access `BirchMurnaghan3rd`'s elements by "dot notation":
 
-> The equations of state depend nonlinearly on a collection of parameters,
-> $E_0$, $V_0$, $B_0$, $B_0'$, ..., that represent physical properties of the
-> solid at equilibrium and can, in principle, be obtained experimentally by
-> independent methods. The use of a given analytical EOS may have significant
-> influence on the results obtained, particularly because the parameters are far
-> from being independent. The number of parameters has to be considered in
-> comparing the goodness of fit of functional forms with different analytical
-> flexibility. The possibility of using too many parameters, beyond what is
-> physically justified by the information contained in the experimental data, is
-> a serious aspect that deserves consideration.[^1]
-
-In [`EquationsOfStateOfSolids`](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
-the nonlinear fitting is currently implemented by
-[`LsqFit`](https://github.com/JuliaNLSolvers/LsqFit.jl), a small library that
-provides basic least-squares fitting in pure Julia. It only utilizes the
-_Levenberg–Marquardt algorithm_ for non-linear fitting. See its
-[documentation](https://github.com/JuliaNLSolvers/LsqFit.jl/blob/master/README.md)
-for more information.
-
-## Linear fitting
-
-The linear fitting
+```@repl
+eos = BirchMurnaghan3rd(1, 2, 3, 4.0)
+eos.v0
+```
 
 ## Usage
 
@@ -114,15 +121,3 @@ volumes = volumes * u"angstrom^3"
 energies = energies * u"eV"
 nonlinfit(volumes, energies, BirchMurnaghan3rd(40u"angstrom^3", 1u"GPa", 4))
 ```
-
-## Public interfaces
-
-```@docs
-fit
-linfit
-nonlinfit
-```
-
-## References
-
-1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).](https://www.sciencedirect.com/science/article/pii/S0010465511001470)

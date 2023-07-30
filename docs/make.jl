@@ -5,7 +5,7 @@ DocMeta.setdocmeta!(
     EquationsOfStateOfSolids,
     :DocTestSetup,
     quote
-        using EquationsOfStateOfSolids, EquationsOfStateOfSolids.Fitting
+        using EquationsOfStateOfSolids#=, EquationsOfStateOfSolids.Fitting=#
         using EquationsOfStateOfSolids.FiniteStrains:
             EulerianStrainFromVolume, VolumeFromEulerianStrain
         using Unitful, UnitfulAtomic
@@ -27,21 +27,26 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Manual" => [
-            "Installation guide" => "installation.md",
-            "Plotting" => "plotting.md",
-            "Interoperability" => "interoperability.md",
-            "Portability" => "portability.md",
+            "Installation Guide" => "man/installation.md",
+            "Definitions and conventions" => "man/definitions.md",
+            "Examples" => "man/examples.md",
+            "Troubleshooting" => "man/troubleshooting.md",
         ],
-        "API Reference" => [
-            "Collections" => "api/collections.md",
-            "Finite strains" => "api/finitestrains.md",
-            "Fitting" => "api/fitting.md",
+        "Reference" => Any[
+            "Public API" => map(
+                s -> "lib/public/$(s)",
+                sort(readdir(joinpath(@__DIR__, "src/lib/public")))
+            ),
+            "Internals" => map(
+                s -> "lib/internals/$(s)",
+                sort(readdir(joinpath(@__DIR__, "src/lib/internals")))
+            ),
         ],
         "Developer Docs" => [
             "Contributing" => "developers/contributing.md",
-            "Style Guide" => "developers/style.md",
+            "Style Guide" => "developers/style-guide.md",
+            "Design Principles" => "developers/design-principles.md",
         ],
-        "Troubleshooting" => "troubleshooting.md",
     ],
 )
 

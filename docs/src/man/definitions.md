@@ -1,78 +1,52 @@
-```@meta
-CurrentModule = EquationsOfStateOfSolids
-DocTestSetup  = :(using EquationsOfStateOfSolids)
-```
-
-# Collections
+# Definitions and conventions
 
 ```@contents
-Pages = ["collections.md"]
-Depth = 3
+Pages = ["definitions.md"]
+Depth = 2
 ```
 
-The current `EquationOfStateOfSolidsParameters` are
+## Finite strains
 
-```@repl
-using TypeTree
-tt(EquationsOfStateOfSolids.EquationOfStateOfSolidsParameters)
-```
+This module contains some methods to calculate several finite strains.
+The following formulae are from
+[the `Gibbs2` paper](https://www.sciencedirect.com/science/article/pii/S0010465511001470) Table 3.
 
-Here the leaves of the type tree are concrete types and can be constructed.
+- Eulerian strain:
 
-## Usage
+  ```math
+  f = \frac{ 1 }{ 2 } \bigg( \Big \frac{ V_0 }{ V } \Big^{\frac{ 2 }{ 3 }} - 1 \bigg)
+  ```
 
-### Construct a `EquationOfStateOfSolidsParameters` instance
+- Lagrangian strain:
 
-We will use `BirchMurnaghan3rd` as an example.
+  ```math
+  f = \frac{ 1 }{ 2 } \bigg( \Big( \frac{ V }{ V_0 } \Big^{\frac{ 2 }{ 3 }} - 1 \bigg)
+  ```
 
-A `BirchMurnaghan3rd` can be constructed from scratch, as shown above. It can
-also be constructed from an existing `BirchMurnaghan3rd`, with
-[Setfield.jl](https://github.com/jw3126/Setfield.jl)
-[`@set!`](https://jw3126.github.io/Setfield.jl/stable/#Setfield.@set!-Tuple{Any})
-macro:
+- Natural (Hencky) strain:
 
-```@repl
-using Setfield
-eos = Murnaghan1st(1, 2, 3.0)
-@set! eos.v0 = 4
-eos
-```
+  ```math
+  f = \frac{ 1 }{ 3 } \ln \Big \frac{ V }{ V_0 } \Big
+  ```
 
-To modify multiple fields (say, `:v0`, `:b′0`, `:b″0`, `:e0`) at a time, use
-[`@batchlens`](https://tkf.github.io/Kaleido.jl/stable/#Kaleido.@batchlens) from
-[Kaleido.jl](https://github.com/tkf/Kaleido.jl):
+- Infinitesimal strain:
 
-```@repl
-using Setfield, Kaleido
-lens = @batchlens(begin
-           _.v0
-           _.b′0
-           _.b″0
-           _.e0
-       end)
-eos = BirchMurnaghan4th(1, 2.0, 3, 4)
-set(eos, lens, (5, 6, 7, 8))
-```
+  ```math
+  f = 1 - \Big \frac{ V_0 }{ V } \Big^{\frac{ 1 }{ 3 }}
+  ```
 
-Users can access `BirchMurnaghan3rd`'s elements by "dot notation":
-
-```@repl
-eos = BirchMurnaghan3rd(1, 2, 3, 4.0)
-eos.v0
-```
-
-### Evaluate energy
+## Energy equations of state
 
 The ``E(V)`` relation of equations of state are listed as below:
 
 1. `Murnaghan`:
 
-2. `BirchMurnaghan2nd`:
+2. `Birch--Murnaghan 2nd`:
 
    ```math
    ```
 
-3. `BirchMurnaghan3rd`:
+3. `Birch--Murnaghan 3rd`:
 
    ```math
    E(V) = E_{0}+\frac{9}{16} V_{0} B_{0} \frac{\left(x^{2 / 3}-1\right)^{2}}{x^{7 / 3}}\left\{x^{1 / 3}\left(B_{0}^{\prime}-4\right)-x\left(B_{0}^{\prime}-6\right)\right\}.
@@ -81,7 +55,7 @@ The ``E(V)`` relation of equations of state are listed as below:
    where ``x = V / V_0``, and
    ``f = \frac{ 1 }{ 2 } \bigg[ \bigg( \frac{ V_0 }{ V } \bigg)^{2/3} - 1 \bigg]``.
 
-4. `BirchMurnaghan4th`:
+4. `Birch--Murnaghan 4th`:
 
    ```math
    E(V) = E_{0}+\frac{3}{8} V_{0} B_{0} f^{2}\left[\left(9 H-63 B_{0}^{\prime}+143\right) f^{2}+12\left(B_{0}^{\prime}-4\right) f+12\right].
@@ -89,19 +63,19 @@ The ``E(V)`` relation of equations of state are listed as below:
 
    where ``H = B_0 B_0'' + (B_0')^2``.
 
-5. `PoirierTarantola2nd`:
+5. `Poirier--Tarantola 2nd`:
 
    ```math
    E(V) = E_{0}+\frac{1}{2} B_{0} V_{0} \ln ^{2} x.
    ```
 
-6. `PoirierTarantola3rd`:
+6. `Poirier--Tarantola 3rd`:
 
    ```math
    E(V) = E_{0}+\frac{1}{6} B_{0} V_{0} \ln ^{2} x\left[\left(B_{0}^{\prime}+2\right) \ln x+3\right].
    ```
 
-7. `PoirierTarantola4th`:
+7. `Poirier--Tarantola 4th`:
 
    ```math
    E(V) = E_{0}+\frac{1}{24} B_{0} V_{0} \ln ^{2} x\left\{\left(H+3 B_{0}^{\prime}+3\right) \ln ^{2} x\right. \left.+4\left(B_{0}^{\prime}+2\right) \ln x+12\right\}.
@@ -115,15 +89,15 @@ The ``E(V)`` relation of equations of state are listed as below:
    E(V) = E_{0}+\frac{9}{16} V_{0} B_{0} \frac{\left(x^{2 / 3}-1\right)^{2}}{x^{7 / 3}}\left\{x^{1 / 3}\left(B_{0}^{\prime}-4\right)-x\left(B_{0}^{\prime}-6\right)\right\}.
    ```
 
-9. `AntonSchmidt`:
+9. `Anton--Schmidt`:
 
    ```math
    E(V)=\frac{\beta V_{0}}{n+1}\left(\frac{V}{V_{0}}\right)^{n+1}\left[\ln \left(\frac{V}{V_{0}}\right)-\frac{1}{n+1}\right]+E_{\infty}.
    ```
 
-### Evaluate pressure
+## Pressure equations of state
 
-The $P(V)$ relation of equations of state are listed as below:
+The ``P(V)`` relation of equations of state are listed as below:
 
 1. `Murnaghan`:
 
@@ -179,9 +153,9 @@ The $P(V)$ relation of equations of state are listed as below:
    P(V) = -\beta\left(\frac{V}{V_{0}}\right)^{n} \ln \left(\frac{V}{V_{0}}\right).
    ```
 
-### Evaluate bulk modulus
+## Bulk modulus equations of state
 
-The $B(V)$ relation of equations of state are listed as below:
+The ``B(V)`` relation of equations of state are listed as below:
 
 1. `BirchMurnaghan2nd`:
 
@@ -231,24 +205,27 @@ The $B(V)$ relation of equations of state are listed as below:
    B(V) = \beta\left(\frac{V}{V_{0}}\right)^{n}\left[1+n \ln \frac{V}{V_{0}}\right].
    ```
 
-## Public interfaces
+## Linear fitting
 
-```@docs
-Murnaghan1st
-BirchMurnaghan
-BirchMurnaghan2nd
-BirchMurnaghan3rd
-BirchMurnaghan4th
-PoirierTarantola
-PoirierTarantola2nd
-PoirierTarantola3rd
-Vinet
-EnergyEquation
-PressureEquation
-BulkModulusEquation
-orderof
-real
-isreal
-float
-ustrip
-```
+The linear fitting
+
+## Nonlinear fitting
+
+> The equations of state depend nonlinearly on a collection of parameters,
+> $E_0$, $V_0$, $B_0$, $B_0'$, ..., that represent physical properties of the
+> solid at equilibrium and can, in principle, be obtained experimentally by
+> independent methods. The use of a given analytical EOS may have significant
+> influence on the results obtained, particularly because the parameters are far
+> from being independent. The number of parameters has to be considered in
+> comparing the goodness of fit of functional forms with different analytical
+> flexibility. The possibility of using too many parameters, beyond what is
+> physically justified by the information contained in the experimental data, is
+> a serious aspect that deserves consideration.[^1]
+
+In [`EquationsOfStateOfSolids`](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
+the nonlinear fitting is currently implemented by
+[`LsqFit`](https://github.com/JuliaNLSolvers/LsqFit.jl), a small library that
+provides basic least-squares fitting in pure Julia. It only utilizes the
+_Levenberg–Marquardt algorithm_ for non-linear fitting. See its
+[documentation](https://github.com/JuliaNLSolvers/LsqFit.jl/blob/master/README.md)
+for more information.

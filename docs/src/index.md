@@ -9,11 +9,11 @@ Documentation for [EquationsOfStateOfSolids](https://github.com/MineralsCloud/Eq
 See the [Index](@ref main-index) for the complete list of documented functions
 and types.
 
-The code is [hosted on GitHub](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
-with some continuous integration services to test its validity.
+The code, which is [hosted on GitHub](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl), is tested
+using various continuous integration services for its validity.
 
-This repository is created and maintained by [@singularitti](https://github.com/singularitti).
-You are very welcome to contribute.
+This repository is created and maintained by
+[@singularitti](https://github.com/singularitti), and contributions are highly welcome.
 
 ## Package Features
 
@@ -30,10 +30,8 @@ useful in research. It currently includes:
    1. `PoirierTarantola2nd`
    2. `PoirierTarantola3rd`
 
-The formulae are referenced from Ref. 1.
-
-This package also includes linear and nonlinear fitting methods,
-which are also referenced from Ref. 1.
+This package also includes linear and nonlinear fitting methods.
+The formulae are referenced from [Ref. 1](https://www.sciencedirect.com/science/article/pii/S0010465511001470).
 
 - Calculate the energy, pressure, and bulk modulus of an `EquationOfStateOfSolid` on a
   volume (an array of volumes).
@@ -42,14 +40,9 @@ which are also referenced from Ref. 1.
 - Find the corresponding volume of energy, or pressure, given an `EquationOfStateOfSolid`.
 - Handle unit conversion automatically in the above features.
 
-The old [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl)
-package has been superseded by `EquationsOfStateOfSolids.jl`.
-So please just use `EquationsOfStateOfSolids.jl`.
-
-### References
-
-1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).](https://www.sciencedirect.com/science/article/pii/S0010465511001470)
-2. [R. J. Angel, M. Alvaro, J. Gonzalez-Platas, _Zeitschrift Für Kristallographie - Cryst Mater_. **229**, 405–419 (2014).](https://www.degruyter.com/document/doi/10.1515/zkri-2013-1711/html)
+The old [EquationsOfState.jl](https://github.com/MineralsCloud/EquationsOfState.jl)
+package has been superseded by EquationsOfStateOfSolids.jl.
+So please just use EquationsOfStateOfSolids.jl.
 
 ## Installation
 
@@ -73,31 +66,30 @@ import Pkg; Pkg.add("EquationsOfStateOfSolids")
 
 ## Project status
 
-The package is tested against, and being developed for, Julia `1.6` and above on Linux,
-macOS, and Windows.
+The package is developed for and tested against Julia `v1.6` and above on Linux, macOS, and
+Windows.
 
 ## Questions and contributions
 
-Usage questions can be posted on
+You can post usage questions on
 [our discussion page](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/discussions).
 
-Contributions are very welcome, as are feature requests and suggestions. Please open an
-[issue](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/issues)
-if you encounter any problems. The [Contributing](@ref) page has
+We welcome contributions, feature requests, and suggestions. If you encounter any problems,
+please open an [issue](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/issues).
+The [Contributing](@ref) page has
 a few guidelines that should be followed when opening pull requests and contributing code.
 
 ## Manual outline
 
 ```@contents
 Pages = [
-    "installation.md",
-    "plotting.md",
-    "interoperability.md",
-    "portability.md",
+    "man/installation.md",
+    "man/definitions.md",
+    "man/examples.md",
+    "man/troubleshooting.md",
     "developers/contributing.md",
     "developers/style-guide.md",
     "developers/design-principles.md",
-    "troubleshooting.md",
 ]
 Depth = 3
 ```
@@ -105,19 +97,11 @@ Depth = 3
 ## Library outline
 
 ```@contents
-Pages = [
-    "api/collections.md",
-    "api/finitestrains.md",
-    "api/fitting.md",
-]
+Pages = ["lib/public.md", "lib/internals.md"]
 ```
 
 ### [Index](@id main-index)
 
 ```@index
-Pages = [
-    "api/collections.md",
-    "api/finitestrains.md",
-    "api/fitting.md",
-]
+Pages = ["lib/public.md"]
 ```
