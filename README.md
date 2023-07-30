@@ -18,20 +18,20 @@
 [appveyor-url]: https://ci.appveyor.com/project/singularitti/EquationsOfStateOfSolids-jl
 [cirrus-img]: https://api.cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl.svg
 [cirrus-url]: https://cirrus-ci.com/github/MineralsCloud/EquationsOfStateOfSolids.jl
-[gitlab-img]: https://gitlab.com/singularitti/EquationsOfStateOfSolids.jl/badges/master/pipeline.svg
+[gitlab-img]: https://gitlab.com/singularitti/EquationsOfStateOfSolids.jl/badges/main/pipeline.svg
 [gitlab-url]: https://gitlab.com/singularitti/EquationsOfStateOfSolids.jl/-/pipelines
-[codecov-img]: https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl/branch/master/graph/badge.svg
+[codecov-img]: https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl/branch/main/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/MineralsCloud/EquationsOfStateOfSolids.jl
 [license-img]: https://img.shields.io/github/license/MineralsCloud/EquationsOfStateOfSolids.jl
-[license-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/master/LICENSE
+[license-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/blob/main/LICENSE
 [style-img]: https://img.shields.io/badge/code%20style-blue-4495d1.svg
 [style-url]: https://github.com/invenia/BlueStyle
 
-The code is [hosted on GitHub](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl),
-with some continuous integration services to test its validity.
+The code, which is [hosted on GitHub](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl), is tested
+using various continuous integration services for its validity.
 
-This repository is created and maintained by [@singularitti](https://github.com/singularitti).
-You are very welcome to contribute.
+This repository is created and maintained by
+[@singularitti](https://github.com/singularitti), and contributions are highly welcome.
 
 ## Package features
 
@@ -48,10 +48,8 @@ useful in research. It currently includes:
    1. `PoirierTarantola2nd`
    2. `PoirierTarantola3rd`
 
-The formulae are referenced from Ref. 1.
-
-This package also includes linear and nonlinear fitting methods,
-which are also referenced from Ref. 1.
+This package also includes linear and nonlinear fitting methods.
+The formulae are referenced from [Ref. 1][Ref. 1].
 
 - Calculate the energy, pressure, and bulk modulus of an `EquationOfStateOfSolid` on a
   volume (an array of volumes).
@@ -86,20 +84,18 @@ julia> import Pkg; Pkg.add("EquationsOfStateOfSolids")
 
 ## Project status
 
-The package is tested against, and being developed for, Julia `1.6` and above on Linux,
-macOS, and Windows.
+The package is developed for and tested against Julia `v1.6` and above on Linux, macOS, and
+Windows.
 
 ## Questions and contributions
 
-Usage questions can be posted on [our discussion page][discussions-url].
+You can post usage questions on
+[our discussion page](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/discussions).
 
-Contributions are very welcome, as are feature requests and suggestions. Please open an
-[issue][issues-url] if you encounter any problems. The [contributing](@ref) page has
+We welcome contributions, feature requests, and suggestions. If you encounter any problems,
+please open an [issue](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/issues).
+The [Contributing](@ref) page has
 a few guidelines that should be followed when opening pull requests and contributing code.
-
-[discussions-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/discussions
-[issues-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/issues
-[contrib-url]: https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/discussions
 
 ## Star History
 
@@ -107,5 +103,7 @@ a few guidelines that should be followed when opening pull requests and contribu
 
 ## References
 
-1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).](https://www.sciencedirect.com/science/article/pii/S0010465511001470)
+1. [A. Otero-De-La-Roza, V. Luaña, _Comput. Phys. Commun._ **182**, 1708–1720 (2011).][Ref. 1]
 2. [R. J. Angel, M. Alvaro, J. Gonzalez-Platas, _Zeitschrift Für Kristallographie - Cryst Mater_. **229**, 405–419 (2014).](https://www.degruyter.com/document/doi/10.1515/zkri-2013-1711/html)
+
+[Ref. 1]: https://www.sciencedirect.com/science/article/pii/S0010465511001470
