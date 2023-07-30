@@ -6,7 +6,7 @@ Depth = 2
 ```
 
 We adopt some [`SciML`](https://sciml.ai/) design [guidelines](https://github.com/SciML/SciMLStyle)
-here. Please read it before contributing!
+here. Please read them before contributing!
 
 ## Consistency vs adherence
 
@@ -22,7 +22,7 @@ According to PEP8:
 ## Community contribution guidelines
 
 For a comprehensive set of community contribution guidelines, refer to [ColPrac](https://github.com/SciML/ColPrac).
-A relevant point to highlight PRs should do one thing. In the context of style, this means that PRs which update
+A relevant point to highlight is that one PR should do one thing. In the context of style, this means that PRs which update
 the style of a package's code should not be mixed with fundamental code contributions. This separation makes it
 easier to ensure that large style improvement are isolated from substantive (and potentially breaking) code changes.
 
@@ -136,7 +136,7 @@ make an exception in that their generated code may be foreign to many users. How
 classified as appropriate uses as they are syntactic sugar since they do (or should) not change the behavior
 of the program in measurable ways other than performance.
 
-## Errors should be caught as high as possible, and error messages should be contextualized for newcomers
+## Errors should be caught as early as possible, and error messages should be made contextually clear for newcomers
 
 Whenever possible, defensive programming should be used to check for potential errors before they are encountered
 deeper within a package. For example, if one knows that `f(u0,p)` will error unless `u0` is the size of `p`, this
@@ -159,7 +159,7 @@ with independent versioning and package management. An example of this is seen i
 [OptimizationBBO.jl](https://github.com/SciML/Optimization.jl/tree/master/lib/OptimizationBBO) for
 BlackBoxOptim.jl support.
 
-Some important interface packages to know about are:
+Some important interface packages to be aware of include:
 
 - [ChainRulesCore.jl](https://github.com/JuliaDiff/ChainRulesCore.jl)
 - [RecipesBase.jl](https://github.com/JuliaPlots/RecipesBase.jl)
@@ -212,7 +212,7 @@ Array types to think about testing are:
 
 ## When in doubt, a submodule should become a subpackage or separate package
 
-Keep packages to one core idea. If there's something separate enough to be a submodule, could it
+Each package should focus on one core idea. If there's something separate enough to be a submodule, could it
 instead be a separate well-tested and documented package to be used by other packages? Most likely
 yes.
 
@@ -236,6 +236,8 @@ long run it saves time to always program defensively and avoid writing closures 
 even when a particular closure would not have been problematic. A similar argument applies to reading
 code with closures; if someone is looking for type instabilities, this is faster to do when code does
 not contain closures.
+See examples [here](https://discourse.julialang.org/t/are-closures-should-be-avoided-whenever-possible-still-valid-in-julia-v1-9/95893/5).
+
 Furthermore, if you want to update variables in an outer scope, do so explicitly with `Ref`s or self
 defined structs.
 
@@ -272,10 +274,10 @@ need it, and then make it a dependency.
 
 ## Prefer to not shadow functions
 
-Two functions can have the same name in Julia by having different namespaces. For example,
+In Julia, two functions can share the same name if they belong to different namespaces. For example,
 `X.f` and `Y.f` can be two different functions, with different dispatches, but the same name.
 This should be avoided whenever possible. Instead of creating `MyPackage.sort`, consider
 adding dispatches to `Base.sort` for your types if these new dispatches match the underlying
-principle of the function. If it doesn't, prefer to use a different name. While using `MyPackage.sort`
+principle of the function. If they don't, it would be preferable to use a different name. While using `MyPackage.sort`
 is not conflicting, it is going to be confusing for most people unfamiliar with your code,
 so `MyPackage.special_sort` would be more helpful to newcomers reading the code.
