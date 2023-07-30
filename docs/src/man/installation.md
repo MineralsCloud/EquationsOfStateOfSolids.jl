@@ -76,8 +76,8 @@ For users in restricted software environments (e.g., your enterprise IT controls
 what software you can install), you may be better off installing the long-term
 support release because you will not have to update Julia as frequently.
 
-Versions higher than `v1.3`,
-especially `v1.6`, are strongly recommended. This package may not work on `v1.0` and below.
+Versions above `v1.3`, especially the latest stable ones, are strongly recommended.
+This package is highly unlikely to work on `v1.0` and earlier versions.
 Since the Julia team has set `v1.6` as the LTS release,
 we will gradually drop support for versions below `v1.6`.
 
@@ -113,7 +113,7 @@ platform to explain the following steps:
 
    and have fun!
 
-4. While using, please keep this Julia session alive. Restarting might cost some time.
+4. Please keep the Julia session active while using it. Restarting the session may take some time.
 
 If you want to install the latest in-development (probably buggy)
 version of EquationsOfStateOfSolids, type

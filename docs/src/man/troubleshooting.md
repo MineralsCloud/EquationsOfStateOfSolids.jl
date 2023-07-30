@@ -5,7 +5,7 @@ Pages = ["troubleshooting.md"]
 Depth = 2
 ```
 
-This page collects some possible errors you may encounter and trick how to fix them.
+This page collects some possible errors you may encounter along with tips on how to fix them.
 If you have some questions about how to use this code, you are welcome to
 [discuss with us](https://github.com/MineralsCloud/EquationsOfStateOfSolids.jl/discussions).
 
@@ -40,7 +40,7 @@ administrator.
 First, we recommend you download the latest version of Julia. Usually, the newest version
 has the best performance.
 
-If you just want Julia to do a simple task and only once, you could start the Julia REPL with
+If you need to use Julia for a simple, one-time task, you can start the Julia REPL with
 
 ```bash
 julia --compile=min
@@ -60,30 +60,3 @@ julia --sysimage custom-image.so
 ```
 
 See [Fredrik Ekre's talk](https://youtu.be/IuwxE3m0_QQ?t=313) for details.
-
-## How to make a `Vector` from a `Parameters`?
-
-A suggested way is to use the
-[`IterTools.fieldvalues` function](https://juliacollections.github.io/IterTools.jl/latest/index.html#IterTools.fieldvalues):
-
-```@repl
-using IterTools
-eos = BirchMurnaghan4th(1, 2.0, 3, 4)
-collect(fieldvalues(eos))
-```
-
-It is lazy and fast.
-
-Or, write a non-lazy version of `fieldvalues` manually:
-
-```@repl
-fieldvalues(eos::EquationOfState) = [getfield(eos, i) for i in 1:nfields(eos)]
-fieldvalues(eos)
-```
-
-## `linfit` does not work with `BigFloat`?
-
-`LinearAlgebra` does not support SVD for matrices with `BigFloat`
-elements by default. You need to install
-[`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) first
-and then `using GenericSVD`. Then it should work.
