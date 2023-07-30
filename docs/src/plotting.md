@@ -1,22 +1,22 @@
 # Plotting
 
 Package
-[`EquationOfStateRecipes.jl`](https://github.com/MineralsCloud/EquationOfStateRecipes.jl)
+[EquationOfStateRecipes.jl](https://github.com/MineralsCloud/EquationOfStateRecipes.jl)
 provides some default themes for plotting an `EquationOfStateOfSolids`.
-First, try to install the [`Plots.jl`](https://github.com/JuliaPlots/Plots.jl) package by
+First, try to install the [Plots.jl](https://github.com/JuliaPlots/Plots.jl) package by
 
 ```@repl pkg
 using Pkg
 Pkg.add("Plots")
 ```
 
-Then install `EquationOfStateRecipes.jl` with
+Then install EquationOfStateRecipes.jl with
 
 ```@repl pkg
 Pkg.add("EquationOfStateRecipes")
 ```
 
-Finally, load `EquationsOfStateOfSolids.jl` and plot:
+Finally, load EquationsOfStateOfSolids.jl and plot:
 
 ```@example
 using EquationsOfStateOfSolids, Plots, EquationOfStateRecipes, Unitful, UnitfulAtomic

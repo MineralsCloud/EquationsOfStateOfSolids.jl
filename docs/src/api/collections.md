@@ -27,7 +27,7 @@ We will use `BirchMurnaghan3rd` as an example.
 
 A `BirchMurnaghan3rd` can be constructed from scratch, as shown above. It can
 also be constructed from an existing `BirchMurnaghan3rd`, with
-[`Setfield.jl`](https://github.com/jw3126/Setfield.jl)
+[Setfield.jl](https://github.com/jw3126/Setfield.jl)
 [`@set!`](https://jw3126.github.io/Setfield.jl/stable/#Setfield.@set!-Tuple{Any})
 macro:
 
@@ -40,7 +40,7 @@ eos
 
 To modify multiple fields (say, `:v0`, `:b′0`, `:b″0`, `:e0`) at a time, use
 [`@batchlens`](https://tkf.github.io/Kaleido.jl/stable/#Kaleido.@batchlens) from
-[`Kaleido.jl`](https://github.com/tkf/Kaleido.jl):
+[Kaleido.jl](https://github.com/tkf/Kaleido.jl):
 
 ```@repl
 using Setfield, Kaleido

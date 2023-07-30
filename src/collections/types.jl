@@ -102,7 +102,7 @@ end
 Create a Birch–Murnaghan third order equation of state.
 
 This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+[Unitful.jl](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.
@@ -127,7 +127,7 @@ end
 Create a Birch–Murnaghan fourth order equation of state.
 
 This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+[Unitful.jl](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.
@@ -158,7 +158,7 @@ end
 Create a Poirier–Tarantola second order equation of state.
 
 This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+[Unitful.jl](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.
@@ -177,7 +177,7 @@ end
 Create a Poirier–Tarantola third order equation of state.
 
 This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+[Unitful.jl](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.
@@ -198,7 +198,7 @@ end
 Create a Poirier–Tarantola fourth order equation of state.
 
 This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+[Unitful.jl](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.
@@ -223,7 +223,7 @@ end
 Create a Vinet equation of state.
 
 This equation of state can have units. The units are specified in
-[`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
+[Unitful.jl](https://github.com/PainterQubits/Unitful.jl)'s `@u_str` style.
 
 # Arguments
 - `v0`: the volume of solid at zero pressure.

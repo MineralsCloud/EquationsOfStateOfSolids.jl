@@ -26,7 +26,7 @@ Fit an equation of state ``E(V)`` using linear algorithms.
 
 !!! note
     If you want to fit with `BigFloat` data, you need to install
-    [`GenericSVD.jl`](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using GenericSVD`
+    [GenericSVD.jl](https://github.com/JuliaLinearAlgebra/GenericSVD.jl) and `using GenericSVD`
     before fittting!
 """
 function fit(

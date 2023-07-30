@@ -58,9 +58,9 @@ The formulae are referenced from [Ref. 1][Ref. 1].
 - Find the corresponding volume of energy, or pressure, given an `EquationOfStateOfSolid`.
 - Handle unit conversion automatically in the above features.
 
-The old [`EquationsOfState.jl`](https://github.com/MineralsCloud/EquationsOfState.jl)
-package has been superseded by `EquationsOfStateOfSolids.jl`.
-So please just use `EquationsOfStateOfSolids.jl`.
+The old [EquationsOfState.jl](https://github.com/MineralsCloud/EquationsOfState.jl)
+package has been superseded by EquationsOfStateOfSolids.jl.
+So please just use EquationsOfStateOfSolids.jl.
 
 ## Installation
 

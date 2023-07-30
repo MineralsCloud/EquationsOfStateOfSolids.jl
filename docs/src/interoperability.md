@@ -4,7 +4,7 @@ It may be attempting for [Pythonistas](https://en.wiktionary.org/wiki/Pythonista
 to use this package in Python, without
 writing too much code. Luckily, Julia provides such a feature.
 
-1. First, install [`PyCall.jl`](https://github.com/JuliaPy/PyCall.jl), following their [instructions](https://github.com/JuliaPy/PyCall.jl/blob/master/README.md). Notice on macOS, that if you want to install Python from [`pyenv`](https://github.com/pyenv/pyenv), you may need to run
+1. First, install [PyCall.jl](https://github.com/JuliaPy/PyCall.jl), following their [instructions](https://github.com/JuliaPy/PyCall.jl/blob/master/README.md). Notice on macOS, that if you want to install Python from [`pyenv`](https://github.com/pyenv/pyenv), you may need to run
 
    ```shell
    env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.6.9
